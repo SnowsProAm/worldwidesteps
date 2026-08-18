@@ -383,6 +383,22 @@ const fetchAll = async (table, columns, orderCol) => {
   return rows;
 };
 
+// Older step syncs were written to step_update_log before the daily snapshot
+// and event tables were introduced. Keep the public insights page complete for
+// that history by rebuilding daily rows from the durable step log when the
+// newer tables are empty.
+const snapshotsFromStepLog = rows => {
+  const grouped = {};
+  (rows || []).forEach(row => {
+    if (!row.profile_id || !row.created_at) return;
+    const day = row.created_at.slice(0, 10);
+    const key = `${row.profile_id}:${day}`;
+    if (!grouped[key]) grouped[key] = { profile_id: row.profile_id, day, steps: 0, calories: 0, distance_m: 0, tracking_mode: "step_log" };
+    grouped[key].steps += Math.max(0, Number(row.steps_added) || 0);
+  });
+  return Object.values(grouped);
+};
+
 /* ═══════════════════════════════════════════
    MAIN
 ═══════════════════════════════════════════ */
@@ -395,7 +411,7 @@ export default function InsightsDashboard() {
     window.location.href = destination;
   };
   const [isDark, setIsDark] = useState(()=>{
-    try{return localStorage.getItem("spa-theme")!=="light";}catch{return true;}
+    try{return localStorage.getItem("spa-theme")==="dark";}catch{return false;}
   });
   const C = isDark ? DARK : LIGHT;
   const toggleTheme = useCallback(()=>{
@@ -406,6 +422,7 @@ export default function InsightsDashboard() {
   const [events,       setEvents]       = useState([]);
   const [profiles,     setProfiles]     = useState({});
   const [sportProfiles,setSportProfiles]= useState([]);
+  const [activities,   setActivities]   = useState([]);
   const [eventsCount,  setEventsCount]  = useState(0);
   const [loading,      setLoading]      = useState(true);
 
@@ -413,18 +430,23 @@ export default function InsightsDashboard() {
     (async()=>{
       setLoading(true);
       try {
-        const [snaps, evts, profs, countResult, sProfs] = await Promise.all([
+        const [snaps, evts, profs, countResult, sProfs, stepLog, activityRows] = await Promise.all([
           fetchAll("daily_step_snapshots", "profile_id,day,steps,calories,distance_m,tracking_mode", "day"),
           fetchAll("step_update_events",   "recorded_at,selected_sport", "recorded_at"),
           fetchAll("profiles",             "id,username,name,surname,profile_img,country,current_country,region,level,xp,device_type", null),
           supabase.from("step_update_events").select("*", { count: "exact", head: true }),
           fetchAll("sport_profiles",       "profile_id,sport_id,trophies,lifetime_steps,league,global_rank,national_rank,regional_rank", null),
+          fetchAll("step_update_log",      "profile_id,steps_added,created_at", "created_at"),
+          fetchAll("activities",           "profile_id,distance_m,calories,created_at,started_at", "created_at"),
         ]);
 
-        setSnapshots(snaps);
-        setEvents(evts);
-        setEventsCount(countResult.count || 0);
+        const effectiveSnapshots = snaps.length ? snaps : snapshotsFromStepLog(stepLog);
+        const effectiveEvents = evts.length ? evts : stepLog.map(row => ({ recorded_at: row.created_at, selected_sport: "step_log" }));
+        setSnapshots(effectiveSnapshots);
+        setEvents(effectiveEvents);
+        setEventsCount(countResult.count || effectiveEvents.length);
         setSportProfiles(sProfs);
+        setActivities(activityRows);
 
         const map = {};
         profs.forEach(p => { map[p.id] = p; });
@@ -454,8 +476,10 @@ export default function InsightsDashboard() {
     });
     const totalSteps  = Object.values(lifetimeStepsByProfile).reduce((a,steps)=>a+steps,0);
     const trackedSteps= snapshots.reduce((a,s)=>a+(s.steps||0),0);
-    const totalCal    = snapshots.reduce((a,s)=>a+(s.calories||0),0);
-    const totalDist   = snapshots.reduce((a,s)=>a+parseFloat(s.distance_m||0),0);
+    const snapshotCal  = snapshots.reduce((a,s)=>a+(Number(s.calories)||0),0);
+    const snapshotDist = snapshots.reduce((a,s)=>a+(Number(s.distance_m)||0),0);
+    const totalCal    = snapshotCal || activities.reduce((a,s)=>a+(Number(s.calories)||0),0);
+    const totalDist   = snapshotDist || activities.reduce((a,s)=>a+(Number(s.distance_m)||0),0);
     const uniqueUsers = Object.keys(lifetimeStepsByProfile).length;
     const avgSteps    = snapshots.length ? Math.round(trackedSteps/snapshots.length) : 0;
     const maxSingle   = snapshots.reduce((max, snapshot) => Math.max(max, snapshot.steps || 0), 0);
@@ -566,7 +590,7 @@ export default function InsightsDashboard() {
       fitnessCount: fitnessUsers.size,
       trackCount: trackUsers.size,
     };
-  },[snapshots,events,eventsCount,profiles,sportProfiles]);
+  },[snapshots,events,eventsCount,profiles,sportProfiles,activities]);
 
   const countryData = useMemo(()=>{
     if(!M||!Object.keys(profiles).length) return [];
@@ -628,10 +652,10 @@ export default function InsightsDashboard() {
             <img src={logo} alt="Snows ProAm" style={{width:18,height:18,objectFit:"contain"}}/>
           </div>
           <span style={{fontFamily:"'Sora',sans-serif",fontSize:14,fontWeight:700,color:C.text}}>
-            World Wid Steps <span style={{color:C.accent}}>ProAm Insights</span>
+            <span style={{color:C.accent}}>World Wide Steps</span>
           </span>
         </button>
-        <div style={{display:"flex",alignItems:"center",gap:6,padding:"4px 10px",borderRadius:999,background:C.emeraldBg,border:`1px solid ${C.emeraldBorder}`,fontSize:10,fontWeight:700,color:C.emerald,letterSpacing:0.4}}>
+        <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:6,padding:"4px 10px",borderRadius:999,background:C.emeraldBg,border:`1px solid ${C.emeraldBorder}`,fontSize:10,fontWeight:700,color:C.emerald,letterSpacing:0.4}}>
           <div className="live-dot"/>LIVE
         </div>
         <div style={{display:"flex",gap:8}}>
@@ -664,9 +688,6 @@ export default function InsightsDashboard() {
         <div className="fu hero-mb">
           <div className="hero-grid">
             <div>
-              <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"5px 12px",borderRadius:999,background:C.cyanBg,border:`1px solid ${C.cyanBorder}`,fontSize:11,fontWeight:700,color:C.cyan,textTransform:"uppercase",letterSpacing:0.5,marginBottom:18}}>
-                🌍 Movement Intelligence
-              </div>
               <h1 style={{fontFamily:"'Sora',sans-serif",fontSize:"clamp(32px,5vw,56px)",fontWeight:900,lineHeight:1.05,letterSpacing:-1.5,color:C.text,marginBottom:16}}>
                 Where <span className="grad-text">competition</span><br/>drives movement.
               </h1>
