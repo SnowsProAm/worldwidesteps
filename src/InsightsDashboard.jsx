@@ -628,7 +628,7 @@ export default function InsightsDashboard() {
             <img src={logo} alt="Snows ProAm" style={{width:18,height:18,objectFit:"contain"}}/>
           </div>
           <span style={{fontFamily:"'Sora',sans-serif",fontSize:14,fontWeight:700,color:C.text}}>
-            ProAm <span style={{color:C.accent}}>Insights</span>
+            World Wid Steps <span style={{color:C.accent}}>ProAm Insights</span>
           </span>
         </button>
         <div style={{display:"flex",alignItems:"center",gap:6,padding:"4px 10px",borderRadius:999,background:C.emeraldBg,border:`1px solid ${C.emeraldBorder}`,fontSize:10,fontWeight:700,color:C.emerald,letterSpacing:0.4}}>
