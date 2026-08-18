@@ -348,13 +348,14 @@ const SHead = ({C,tag,title,sub}) => (
 );
 
 const Avatar = ({profile,C,size=36}) => {
+  const [imageFailed, setImageFailed] = useState(false);
   const initials = profile
     ? `${(profile.name||"")[0]||""}${(profile.surname||"")[0]||""}`.toUpperCase()||(profile.username||"?")[0].toUpperCase()
     : "?";
   const colors = ["#0C69C8","#0A1D44","#38BDF8","#34D399","#FBBF24"];
   const idx = (profile?.username||"").charCodeAt(0)%colors.length;
-  if (profile?.profile_img) {
-    return <img className="avatar" src={profile.profile_img} alt={initials} style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={e=>{e.target.style.display="none";}}/>;
+  if (profile?.profile_img && !imageFailed) {
+    return <img className="avatar" src={profile.profile_img} alt={initials} style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={()=>setImageFailed(true)}/>;
   }
   return (
     <div style={{width:size,height:size,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:Math.round(size*0.36),fontWeight:700,flexShrink:0,background:`${colors[idx]}20`,border:`1px solid ${colors[idx]}40`,color:colors[idx]}}>
