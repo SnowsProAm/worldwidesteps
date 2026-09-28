@@ -1,7 +1,7 @@
 // Built by Solomon
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMedal, faRuler, faTrophy, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight } from "@fortawesome/free-solid-svg-icons";
+import { faMedal, faRuler, faTrophy, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import GlobeScene from "./GlobeScene.jsx";
@@ -60,7 +60,7 @@ const makeCSS = () => `
   body { font-family:'DM Sans',sans-serif; color:#0A1D44; background:#fff; -webkit-font-smoothing:antialiased; }
   a { color:inherit; text-decoration:none; }
   button { font:inherit; cursor:pointer; }
-  a:focus-visible,button:focus-visible { outline:3px solid #0C69C8; outline-offset:5px; }
+  a:focus-visible,button:focus-visible,input:focus-visible { outline:3px solid #0C69C8; outline-offset:5px; }
   @keyframes spin { to { transform:rotate(360deg); } }
   @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
   @keyframes globeFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
@@ -79,6 +79,7 @@ const makeCSS = () => `
   .hero-content h1 { font-family:'Sora',sans-serif; font-size:clamp(34px,4.5vw,62px); font-weight:700; line-height:1.14; letter-spacing:-2.5px; }
   .grad-text { background:linear-gradient(110deg,#0C69C8,#0A1D44); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
   .hero-intro { color:#53617a; font-size:16px; line-height:1.8; margin:20px 0 30px; }
+  .hero-slogan { display:block; font-family:'Sora',sans-serif; font-size:clamp(18px,2vw,22px); font-weight:600; color:#0A1D44; letter-spacing:-.5px; margin-bottom:6px; }
   .world-total { padding:0; }
   .world-total-label { font-size:12px; font-weight:700; color:#53617a; margin-bottom:5px; }
   .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.5vw,76px); font-weight:700; letter-spacing:-3px; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
@@ -112,6 +113,18 @@ const makeCSS = () => `
   .timeline-chart { padding:20px 10px; border:1px solid #e7edf5; border-radius:10px; }
   .lb-table-head,.lb-table-row { display:grid; grid-template-columns:44px minmax(0,1fr) 110px 120px 64px; gap:10px; align-items:center; }
   .country-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+  .country-toolbar { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
+  .country-search { width:100%; max-width:420px; }
+  .country-search label { display:block; font-size:12px; font-weight:600; margin-bottom:8px; }
+  .country-search-field { display:flex; align-items:center; gap:12px; min-height:48px; padding:0 12px; border:1px solid #b9c8dc; border-radius:6px; background:#fff; }
+  .country-search-field:focus-within { outline:2px solid #0C69C8; outline-offset:3px; border-color:#0C69C8; }
+  .country-search-field > svg { color:#53617a; flex-shrink:0; }
+  .country-search input { width:100%; min-width:0; min-height:46px; border:0; background:transparent; color:#0A1D44; font:inherit; font-size:16px; }
+  .country-search input::placeholder { color:#67758b; }
+  .country-search input:focus-visible { outline:none; }
+  .country-search input::-webkit-search-cancel-button { display:none; }
+  .country-search button { min-height:44px; border:0; background:transparent; color:#0C69C8; font-size:12px; font-weight:600; padding:0 6px; }
+  .country-results { color:#53617a; font-size:12px; line-height:1.6; padding-bottom:4px; }
   .card { transition:transform .2s,border-color .2s; }
   .card:hover { transform:translateY(-2px); border-color:#0c69c850 !important; }
   .world-footer { border-top:1px solid #e7edf5; display:flex; justify-content:space-between; gap:24px; padding:36px 0; align-items:center; }
@@ -195,6 +208,7 @@ const COUNTRY_ISO = {
 
 const isoFor  = c => COUNTRY_ISO[c] || null;
 const flagUrl = c => { const iso=isoFor(c); return iso?`https://flagcdn.com/w40/${iso}.png`:null; };
+const normaliseSearch = value => value.trim().normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
 
 const FlagImg = ({ country, size=28 }) => {
   const url = flagUrl(country);
@@ -294,6 +308,8 @@ export default function InsightsDashboard() {
   useEffect(()=>{const q=window.matchMedia("(prefers-reduced-motion: reduce)");const update=()=>setReducedMotion(q.matches);q.addEventListener("change",update);return()=>q.removeEventListener("change",update);},[]);
   const [reloadKey,setReloadKey]=useState(0);
   const [showAllCountries,setShowAllCountries]=useState(false);
+  const [countrySearch,setCountrySearch]=useState("");
+  const countrySearchInput=useRef(null);
   const [loadError,setLoadError]=useState(false);
   const [partialError,setPartialError]=useState(false);
   const [snapshots,    setSnapshots]    = useState([]);
@@ -414,7 +430,7 @@ export default function InsightsDashboard() {
     trackFitnessIds.forEach(pid=>{
       const p=profiles[pid];
       if(!p) { missingProfiles++; return; }
-      const country = p.current_country || p.country || null;
+      const country = p.current_country?.trim() || p.country?.trim() || null;
       if(country){ cc[country]=(cc[country]||0)+1; }
       else { noCountryCount++; }
     });
@@ -426,6 +442,15 @@ export default function InsightsDashboard() {
       totalWithCountry: Object.values(cc).reduce((a,b)=>a+b,0),
     };
   },[M,profiles,sportProfiles]);
+
+  const countryQuery=normaliseSearch(countrySearch);
+  const matchingCountries=useMemo(()=>countryData.countries.filter(({country})=>{
+    if(!countryQuery || normaliseSearch(country).includes(countryQuery)) return true;
+    const iso=isoFor(country);
+    return iso && Object.entries(COUNTRY_ISO).some(([alias,code])=>code===iso && normaliseSearch(alias).includes(countryQuery));
+  }),[countryData.countries,countryQuery]);
+  const visibleCountries=countryQuery || showAllCountries ? matchingCountries : matchingCountries.slice(0,8);
+  const clearCountrySearch=()=>{setCountrySearch("");countrySearchInput.current?.focus();};
 
   const nextMilestone=(Math.floor(M.totalSteps/10000000)+1)*10000000;
   const milestoneProgress=Math.min(100,(M.totalSteps/nextMilestone)*100);
@@ -461,7 +486,7 @@ export default function InsightsDashboard() {
             <div className="hero-content fu">
               <div className="section-eyebrow"><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true" /> A world in motion</div>
               <h1 id="world-title">Small steps.<br/><span className="grad-text">Worldwide impact.</span></h1>
-              <p className="hero-intro">Different countries. One shared journey.<br/>See how far we are moving together.</p>
+              <p className="hero-intro"><strong className="hero-slogan">Where Athletes Belong</strong>See how far we are moving together.</p>
               <div className="world-total" aria-label="Total lifetime steps worldwide">
                 <div className="world-total-label">Steps taken worldwide</div>
                 <div className="world-total-number"><AnimNum value={M.totalSteps}/></div>
@@ -551,9 +576,21 @@ export default function InsightsDashboard() {
           <section className="section-mb fu4" id="countries">
             <SHead C={C} tag="Across the globe" title="Many countries. One community." sub="Discover where our Track and Fitness athletes call home."/>
             <div style={{background:C.bgCard,border:`1px solid ${C.border}`,borderRadius:20,padding:"22px 18px",boxShadow:C.shadowMd}}>
+              {countryData.countries.length>0&&<div className="country-toolbar">
+                <div className="country-search">
+                  <label htmlFor="country-search">Search countries</label>
+                  <div className="country-search-field">
+                    <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true"/>
+                    <input ref={countrySearchInput} id="country-search" type="search" placeholder="Find your country" value={countrySearch} onChange={e=>setCountrySearch(e.target.value)} onKeyDown={e=>{if(e.key==="Escape")clearCountrySearch();}} aria-controls="country-list" aria-describedby="country-results" autoComplete="off" spellCheck={false}/>
+                    {countrySearch&&<button type="button" aria-label="Clear country search" onClick={clearCountrySearch}>Clear</button>}
+                  </div>
+                </div>
+                <p className="country-results" id="country-results" role="status" aria-live="polite" aria-atomic="true">{countryQuery?`${matchingCountries.length} ${matchingCountries.length===1?"country":"countries"} found`:`Showing ${visibleCountries.length} of ${countryData.totalCountries} countries`}</p>
+              </div>}
               {!countryData.countries.length&&<p className="empty-state">Countries will appear here as athletes add their location.</p>}
+              {countryQuery&&!matchingCountries.length&&<p className="empty-state">No countries found for “{countrySearch.trim()}”. Try another name or clear your search to see every country.</p>}
               <div className="country-grid" id="country-list">
-                {countryData.countries.slice(0,showAllCountries?undefined:8).map((c,i)=>{
+                {visibleCountries.map(c=>{
                   const max=countryData.countries[0]?.count||1;
                   const pct=Math.round((c.count/max)*100);
                   return(
@@ -562,11 +599,11 @@ export default function InsightsDashboard() {
                         <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0}}>
                           <FlagImg country={c.country} size={22}/>
                           <div style={{minWidth:0}}>
-                            <div style={{fontSize:12,fontWeight:700,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.country}</div>
+                            <div style={{fontSize:12,fontWeight:700,color:C.text,lineHeight:1.5}}>{c.country}</div>
                             <div style={{fontSize:10,color:C.textMuted,fontWeight:500}}>{c.count} athlete{c.count!==1?"s":""}</div>
                           </div>
                         </div>
-                        {i===0&&<span style={{fontSize:11,fontWeight:700,color:C.accent,flexShrink:0}}>#1</span>}
+                        {c.country===countryData.countries[0]?.country&&<span style={{fontSize:11,fontWeight:700,color:C.accent,flexShrink:0}}>#1</span>}
                       </div>
                       <div style={{height:3,borderRadius:99,background:C.border}}>
                         <div style={{height:"100%",width:`${pct}%`,background:C.accentGrad,borderRadius:99,transition:"width 1.2s ease"}}/>
@@ -575,7 +612,7 @@ export default function InsightsDashboard() {
                   );
                 })}
               </div>
-              {countryData.countries.length>8&&<button className="countries-expand" aria-expanded={showAllCountries} aria-controls="country-list" onClick={()=>setShowAllCountries(v=>!v)}>{showAllCountries?"Show fewer countries":`See all ${countryData.totalCountries} countries`} <FontAwesomeIcon icon={faArrowRight} aria-hidden="true"/></button>}
+              {!countryQuery&&countryData.countries.length>8&&<button className="countries-expand" aria-expanded={showAllCountries} aria-controls="country-list" onClick={()=>setShowAllCountries(v=>!v)}>{showAllCountries?"Show fewer countries":`See all ${countryData.totalCountries} countries`} <FontAwesomeIcon icon={faArrowRight} aria-hidden="true"/></button>}
               {countryData.noCountryCount > 0 && (
                 <div style={{fontSize:10,color:C.textMuted,textAlign:"center",marginTop:12}}>
                   + {countryData.noCountryCount} athletes without country set
