@@ -266,11 +266,12 @@ const Avatar = ({profile,C,size=36}) => {
 /* ═══════════════════════════════════════════
    FETCH HELPER
 ═══════════════════════════════════════════ */
-const fetchAll = async (table, columns, orderCol) => {
+const fetchAll = async (table, columns, orderCol, sportId = null) => {
   const PAGE = 1000;
   let rows = [], from = 0;
   while (true) {
     let q = supabase.from(table).select(columns);
+    if (sportId) q = q.eq("sport_id", sportId);
     if (orderCol) q = q.order(orderCol, { ascending: true });
     q = q.range(from, from + PAGE - 1);
     const { data, error } = await q;
@@ -327,7 +328,7 @@ export default function InsightsDashboard() {
         const results = await Promise.allSettled([
           fetchAll("daily_step_snapshots", "profile_id,day,steps,calories,distance_m,tracking_mode", "day"),
           fetchAll("profiles",             "id,username,name,surname,profile_img,country,current_country,level", null),
-          fetchAll("sport_profiles",       "profile_id,sport_id,trophies,lifetime_steps,league", null),
+          fetchAll("sport_profiles",       "profile_id,sport_id,trophies,lifetime_steps,league", null, "Fitness"),
           fetchAll("step_update_log",      "profile_id,steps_added,created_at", "created_at"),
           fetchAll("activities",           "profile_id,distance_m,calories,created_at,started_at", "created_at"),
         ]);
@@ -355,14 +356,14 @@ export default function InsightsDashboard() {
     return()=>{active=false;};
   },[reloadKey]);
 
+  const fitnessProfiles=useMemo(()=>sportProfiles.filter(sp=>sp.sport_id==="Fitness"),[sportProfiles]);
+
   const M = useMemo(()=>{
-    // A profile can have multiple sport rows carrying the same lifetime counter.
-    // Use the highest counter per athlete so worldwide steps are all-time without
-    // double-counting athletes who have both Track and Fitness profiles. Keep
+    // Fitness is the source of truth for worldwide steps and athletes. Keep
     // returning a complete zero-value model while data is empty so slow/public
     // requests cannot leave the dashboard with a null metrics object.
     const lifetimeStepsByProfile = {};
-    sportProfiles.forEach(sp => {
+    fitnessProfiles.forEach(sp => {
       if (!sp.profile_id) return;
       const lifetimeSteps = Math.max(0, Number(sp.lifetime_steps) || 0);
       lifetimeStepsByProfile[sp.profile_id] = Math.max(
@@ -371,12 +372,14 @@ export default function InsightsDashboard() {
       );
     });
     const totalSteps  = Object.values(lifetimeStepsByProfile).reduce((a,steps)=>a+steps,0);
-    const snapshotDist = snapshots.reduce((a,s)=>a+(Number(s.distance_m)||0),0);
-    const totalDist   = snapshotDist || activities.reduce((a,s)=>a+(Number(s.distance_m)||0),0);
+    const fitnessIds=new Set(Object.keys(lifetimeStepsByProfile));
+    const fitnessSnapshots=snapshots.filter(s=>fitnessIds.has(s.profile_id));
+    const snapshotDist = fitnessSnapshots.reduce((a,s)=>a+(Number(s.distance_m)||0),0);
+    const totalDist   = snapshotDist || activities.filter(s=>fitnessIds.has(s.profile_id)).reduce((a,s)=>a+(Number(s.distance_m)||0),0);
     const uniqueUsers = Object.keys(lifetimeStepsByProfile).length;
     // Daily trend
     const bd={};
-    snapshots.forEach(s=>{
+    fitnessSnapshots.forEach(s=>{
       if(!bd[s.day]) bd[s.day]={steps:0,cal:0,users:new Set()};
       bd[s.day].steps+=s.steps||0;
       bd[s.day].cal+=s.calories||0;
@@ -387,7 +390,7 @@ export default function InsightsDashboard() {
     // Leaderboard ranked by the athlete's highest trophy total. Lifetime steps
     // remain the athlete-level maximum rather than whichever sport won the rank.
     const trophyMap = {};
-    sportProfiles.forEach(sp => {
+    fitnessProfiles.forEach(sp => {
       const pid = sp.profile_id;
       if (!pid) return;
       const lifetimeSteps = Math.max(0, Number(sp.lifetime_steps) || 0);
@@ -414,20 +417,15 @@ export default function InsightsDashboard() {
       .map(([pid, u], i) => ({ rank: i+1, pid, ...u }));
 
     return { totalSteps,totalDist,uniqueUsers,dailyTrend,leaderboard };
-  },[snapshots,sportProfiles,activities]);
+  },[snapshots,fitnessProfiles,activities]);
 
   const countryData = useMemo(()=>{
     if(!Object.keys(profiles).length) return {countries:[],totalCountries:0,totalWithCountry:0,noCountryCount:0};
-    // Get all profile_ids from sport_profiles (Track and Fitness only)
-    const trackFitnessIds = new Set(
-      sportProfiles
-        .filter(sp => sp.sport_id === "Track" || sp.sport_id === "Fitness")
-        .map(sp => sp.profile_id)
-    );
+    const fitnessIds = new Set(fitnessProfiles.map(sp => sp.profile_id));
     const cc={};
     let missingProfiles = 0;
     let noCountryCount = 0;
-    trackFitnessIds.forEach(pid=>{
+    fitnessIds.forEach(pid=>{
       const p=profiles[pid];
       if(!p) { missingProfiles++; return; }
       const country = p.current_country?.trim() || p.country?.trim() || null;
@@ -441,7 +439,7 @@ export default function InsightsDashboard() {
       totalCountries: Object.keys(cc).length,
       totalWithCountry: Object.values(cc).reduce((a,b)=>a+b,0),
     };
-  },[M,profiles,sportProfiles]);
+  },[profiles,fitnessProfiles]);
 
   const countryQuery=normaliseSearch(countrySearch);
   const matchingCountries=useMemo(()=>countryData.countries.filter(({country})=>{
@@ -497,7 +495,7 @@ export default function InsightsDashboard() {
             <GlobeScene/>
           </div>
           <div className="world-summary">
-            <div><FontAwesomeIcon icon={faPersonRunning} aria-hidden="true"/><div><strong>{fmtFull(M.uniqueUsers)}</strong><span>Athletes moving together</span></div></div>
+            <div><FontAwesomeIcon icon={faPersonRunning} aria-hidden="true"/><div><strong>{fmtFull(M.uniqueUsers)}</strong><span>Fitness athletes worldwide</span></div></div>
             <div><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true"/><div><strong>{countryData.totalCountries||0}</strong><span>Countries represented</span></div></div>
             <div><FontAwesomeIcon icon={faRuler} aria-hidden="true"/><div><strong>{fmtFull(Math.round(M.totalDist/1000))} <small>km</small></strong><span>Recorded distance</span></div></div>
           </div>
@@ -574,7 +572,7 @@ export default function InsightsDashboard() {
         </section>
 
           <section className="section-mb fu4" id="countries">
-            <SHead C={C} tag="Across the globe" title="Many countries. One community." sub="Discover where our Track and Fitness athletes call home."/>
+            <SHead C={C} tag="Across the globe" title="Many countries. One community." sub="Discover where our Fitness athletes call home."/>
             <div style={{background:C.bgCard,border:`1px solid ${C.border}`,borderRadius:20,padding:"22px 18px",boxShadow:C.shadowMd}}>
               {countryData.countries.length>0&&<div className="country-toolbar">
                 <div className="country-search">
@@ -619,7 +617,7 @@ export default function InsightsDashboard() {
                 </div>
               )}
               <div style={{fontSize:11,color:C.textSecondary,textAlign:"center",marginTop:6,fontWeight:600}}>
-                Total: {countryData.totalWithCountry + (countryData.noCountryCount || 0)} Track/Fitness athletes
+                Total: {countryData.totalWithCountry + (countryData.noCountryCount || 0)} Fitness athletes
               </div>
             </div>
           </section>
