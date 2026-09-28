@@ -91,6 +91,7 @@ const makeCSS = (C) => `
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap');
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
   html { font-size: 16px; }
+  #root { overflow-x:clip; }
   body { font-family:'DM Sans',sans-serif; background:${C.bg}; color:${C.text}; overflow-x:hidden; }
   a { color:inherit; text-decoration:none; }
   ::-webkit-scrollbar { width:5px; }
