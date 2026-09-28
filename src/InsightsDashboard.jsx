@@ -5,9 +5,15 @@ import {
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
+import { faSun, faMoon, faMedal, faFire, faChartLine, faBolt, faShoePrints, faRuler, faTrophy, faCalendarDays, faLightbulb, faBullseye, faCrown, faCloudSun, faCity, faChartColumn, faEarthEurope, faPersonRunning, faFlagCheckered } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
+
+// Store review accounts are not public competitors. IDs match the mobile app reviewer list.
+const STORE_REVIEWER_IDS = new Set([
+  "1b824f5f-a287-4166-83e3-d6c2a9caa8e8",
+  "6f14d57e-c69f-4859-8a57-c02b2af30710",
+]);
 
 /* ═══════════════════════════════════════════
    THEME
@@ -174,6 +180,10 @@ const makeCSS = (C) => `
   .lb-table-head, .lb-table-row { display:grid; grid-template-columns:44px 1fr 110px 120px 64px; gap:10px; align-items:center; }
   @media (max-width:600px) { .lb-table-head, .lb-table-row { grid-template-columns:36px 1fr 88px; } .lb-hide-mobile { display:none !important; } }
 
+  @media (max-width:860px) { .insights-live-badge { display:none !important; } }
+
+  .insights-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
   .hero-pills { display:flex; gap:10px; flex-wrap:wrap; }
 
   .effect-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
@@ -181,7 +191,7 @@ const makeCSS = (C) => `
   @media (max-width:480px) { .effect-grid { grid-template-columns:1fr; } }
 
   .country-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
-  @media (max-width:480px) { .country-grid { grid-template-columns:1fr 1fr; } }
+  @media (max-width:480px) { .country-grid { grid-template-columns:1fr; } }
 
   .closing-stats { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
   .closing-stat-item { padding:15px 20px; border-radius:14px; text-align:center; min-width:100px; }
@@ -241,7 +251,7 @@ const flagUrl = c => { const iso=isoFor(c); return iso?`https://flagcdn.com/w40/
 
 const FlagImg = ({ country, size=28 }) => {
   const url = flagUrl(country);
-  if (!url) return <span style={{fontSize:size*0.75,lineHeight:1}}>🌍</span>;
+  if (!url) return <span style={{fontSize:size*0.75,lineHeight:1}}><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true" /></span>;
   return <img src={url} alt={country} style={{width:size*1.4,height:size,objectFit:"cover",borderRadius:4,flexShrink:0,display:"block"}} onError={e=>{e.target.style.display="none";}}/>;
 };
 
@@ -519,6 +529,7 @@ export default function InsightsDashboard() {
       }
     });
     const leaderboard = Object.entries(trophyMap)
+      .filter(([pid]) => !STORE_REVIEWER_IDS.has(pid))
       .sort(([,a],[,b]) => b.trophies - a.trophies)
       .slice(0, 8)
       .map(([pid, u], i) => ({ rank: i+1, pid, ...u }));
@@ -553,8 +564,8 @@ export default function InsightsDashboard() {
     // Calculate overlap (users in both sports)
     const bothSports = new Set([...fitnessUsers].filter(p => trackUsers.has(p))).size;
     const sportsData = [
-      { name: "Fitness", count: fitnessUsers.size, icon: "🏃", color: "#0C69C8" },
-      { name: "Track",   count: trackUsers.size,   icon: "🏟️", color: "#38BDF8" },
+      { name: "Fitness", count: fitnessUsers.size, icon: <FontAwesomeIcon icon={faPersonRunning} aria-hidden="true" />, color: "#0C69C8" },
+      { name: "Track",   count: trackUsers.size,   icon: <FontAwesomeIcon icon={faFlagCheckered} aria-hidden="true" />, color: "#38BDF8" },
     ].filter(s => s.count > 0);
 
     // Hourly activity
@@ -622,13 +633,13 @@ export default function InsightsDashboard() {
   const ticker=useMemo(()=>{
     if(!M) return [];
     return[
-      `🏃 ${fmtFull(M.totalSteps)} lifetime steps logged`,
-      `🌍 ${M.uniqueUsers} athletes on the platform`,
-      `📏 ${(M.totalDist/1000).toFixed(0)} km total distance`,
-      `🔥 ${fmtFull(M.totalCal)} calories burned`,
-      `⚡ ${fmtFull(M.totalEvents)} sync events captured`,
-      `🏆 ${fmtFull(M.maxSingle)} steps in a single day — peak performer`,
-      `📈 Consecutive days → avg ${M.avgStreakChange>0?"+":""}${fmtFull(M.avgStreakChange)} steps`,
+      { icon: faPersonRunning, text: `${fmtFull(M.totalSteps)} lifetime steps logged` },
+      { icon: faEarthEurope, text: `${M.uniqueUsers} athletes on the platform` },
+      { icon: faRuler, text: `${(M.totalDist/1000).toFixed(0)} km total distance` },
+      { icon: faFire, text: `${fmtFull(M.totalCal)} calories burned` },
+      { icon: faBolt, text: `${fmtFull(M.totalEvents)} sync events captured` },
+      { icon: faTrophy, text: `${fmtFull(M.maxSingle)} steps in a single day — peak performer` },
+      { icon: faChartLine, text: `Consecutive days → avg ${M.avgStreakChange>0?"+":""}${fmtFull(M.avgStreakChange)} steps` },
     ];
   },[M]);
 
@@ -656,11 +667,11 @@ export default function InsightsDashboard() {
             <span style={{color:C.accent}}>World Wide Steps</span>
           </span>
         </button>
-        <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:6,padding:"4px 10px",borderRadius:999,background:C.emeraldBg,border:`1px solid ${C.emeraldBorder}`,fontSize:10,fontWeight:700,color:C.emerald,letterSpacing:0.4}}>
+        <div className="insights-live-badge" style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:6,padding:"4px 10px",borderRadius:999,background:C.emeraldBg,border:`1px solid ${C.emeraldBorder}`,fontSize:10,fontWeight:700,color:C.emerald,letterSpacing:0.4}}>
           <div className="live-dot"/>LIVE
         </div>
         <div style={{display:"flex",gap:8}}>
-          <button className="theme-toggle" onClick={toggleTheme} style={{width:32,height:32,borderRadius:8,background:C.bgElevated,border:`1px solid ${C.border}`,color:C.text,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <button className="theme-toggle" aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"} onClick={toggleTheme} style={{width:32,height:32,borderRadius:8,background:C.bgElevated,border:`1px solid ${C.border}`,color:C.text,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
             <FontAwesomeIcon icon={isDark?faSun:faMoon} style={{fontSize:12}}/>
           </button>
           <button onClick={()=>navigate(-1)} style={{fontSize:12,fontWeight:500,color:C.textSecondary,padding:"5px 10px",borderRadius:8,border:`1px solid ${C.border}`,background:C.bgElevated,cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
@@ -676,7 +687,8 @@ export default function InsightsDashboard() {
             {[...ticker,...ticker].map((t,i)=>(
               <span key={i} style={{padding:"0 32px",fontSize:11,fontWeight:600,color:C.textSecondary,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:8}}>
                 <span style={{width:4,height:4,borderRadius:"50%",background:C.accent,flexShrink:0}}/>
-                {t}
+                <FontAwesomeIcon icon={t.icon} aria-hidden="true" />
+                {t.text}
               </span>
             ))}
           </div>
@@ -697,9 +709,9 @@ export default function InsightsDashboard() {
               </p>
               <div className="hero-pills">
                 {[
-                  {icon:"🔥",text:`${M?.uniqueUsers} active athletes`,col:C.amber},
-                  {icon:"📈",text:`${fmtFull(M?.totalSteps)} lifetime steps`,col:C.accent},
-                  {icon:"⚡",text:`${fmtFull(M?.totalEvents)} sync events`,col:C.cyan},
+                  {icon:<FontAwesomeIcon icon={faFire} aria-hidden="true" />,text:`${M?.uniqueUsers} active athletes`,col:C.amber},
+                  {icon:<FontAwesomeIcon icon={faChartLine} aria-hidden="true" />,text:`${fmtFull(M?.totalSteps)} lifetime steps`,col:C.accent},
+                  {icon:<FontAwesomeIcon icon={faBolt} aria-hidden="true" />,text:`${fmtFull(M?.totalEvents)} sync events`,col:C.cyan},
                 ].map(p=>(
                   <div key={p.text} style={{display:"flex",alignItems:"center",gap:7,padding:"7px 13px",borderRadius:10,background:C.bgCard,border:`1px solid ${C.border}`,fontSize:12,fontWeight:600,boxShadow:C.shadowMd}}>
                     <span>{p.icon}</span><span style={{color:p.col}}>{p.text}</span>
@@ -713,12 +725,12 @@ export default function InsightsDashboard() {
 
         {/* ── STAT CARDS ── */}
         <div className="stat-grid section-mb">
-          <StatCard C={C} icon="👣" label="Lifetime Steps" value={M?.totalSteps||0}                   sub={`across ${M?.uniqueUsers} athletes`} col={C.accent}  delay="0s"/>
-          <StatCard C={C} icon="🔥" label="Calories"     value={M?.totalCal||0}                     sub="total burned"                        col={C.amber}   delay="0.05s"/>
-          <StatCard C={C} icon="📏" label="Kilometres"   value={Math.round((M?.totalDist||0)/1000)} sub="total distance"                      col={C.emerald} delay="0.10s"/>
-          <StatCard C={C} icon="⚡" label="Sync Events"  value={M?.totalEvents||0}                  sub="tracking hits"                       col={C.cyan}    delay="0.15s"/>
-          <StatCard C={C} icon="🏆" label="Peak Day"     value={M?.maxSingle||0}                    sub="single athlete"                      col={C.rose}    delay="0.20s"/>
-          <StatCard C={C} icon="📆" label="Avg/Day"      value={M?.avgSteps||0}                     sub="per recorded entry"                  col={C.accent}  delay="0.25s"/>
+          <StatCard C={C} icon={<FontAwesomeIcon icon={faShoePrints} aria-hidden="true" />} label="Lifetime Steps" value={M?.totalSteps||0}                   sub={`across ${M?.uniqueUsers} athletes`} col={C.accent}  delay="0s"/>
+          <StatCard C={C} icon={<FontAwesomeIcon icon={faFire} aria-hidden="true" />} label="Calories"     value={M?.totalCal||0}                     sub="total burned"                        col={C.amber}   delay="0.05s"/>
+          <StatCard C={C} icon={<FontAwesomeIcon icon={faRuler} aria-hidden="true" />} label="Kilometres"   value={Math.round((M?.totalDist||0)/1000)} sub="total distance"                      col={C.emerald} delay="0.10s"/>
+          <StatCard C={C} icon={<FontAwesomeIcon icon={faBolt} aria-hidden="true" />} label="Sync Events"  value={M?.totalEvents||0}                  sub="tracking hits"                       col={C.cyan}    delay="0.15s"/>
+          <StatCard C={C} icon={<FontAwesomeIcon icon={faTrophy} aria-hidden="true" />} label="Peak Day"     value={M?.maxSingle||0}                    sub="single athlete"                      col={C.rose}    delay="0.20s"/>
+          <StatCard C={C} icon={<FontAwesomeIcon icon={faCalendarDays} aria-hidden="true" />} label="Avg/Day"      value={M?.avgSteps||0}                     sub="per recorded entry"                  col={C.accent}  delay="0.25s"/>
         </div>
 
         {/* ── DAILY TREND ── */}
@@ -742,7 +754,7 @@ export default function InsightsDashboard() {
 
             <div style={{marginTop:16,padding:"14px 14px",borderRadius:12,background:C.accentBgSubtle,border:`1px solid ${C.accentBorder}`}}>
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
-                <span style={{fontSize:15}}>💡</span>
+                <span style={{fontSize:15}}><FontAwesomeIcon icon={faLightbulb} aria-hidden="true" /></span>
                 <div style={{fontSize:13,fontWeight:700,color:C.text}}>The Leaderboard Effect</div>
               </div>
               <div className="effect-grid">
@@ -771,23 +783,25 @@ export default function InsightsDashboard() {
 
                   let bestStreak=0,bestStreakPid=null;
                   Object.keys(profiles).forEach(pid=>{
+                    if (STORE_REVIEWER_IDS.has(pid)) return;
                     const days=snapshots.filter(s=>s.profile_id===pid).map(s=>s.day).sort();
+                    if (!days.length) return;
                     let streak=1,max=1;
                     for(let i=1;i<days.length;i++){const diff=(new Date(days[i])-new Date(days[i-1]))/86400000;if(diff===1){streak++;max=Math.max(max,streak);}else{streak=1;}}
                     if(max>bestStreak){bestStreak=max;bestStreakPid=pid;}
                   });
                   const streakProfile=bestStreakPid?profiles[bestStreakPid]:null;
-                  const streakName=streakProfile?[streakProfile.name,streakProfile.surname].filter(Boolean).join(" ")||streakProfile.username:"Unknown";
+                  const streakName=streakProfile?[streakProfile.name,streakProfile.surname].filter(Boolean).join(" ")||streakProfile.username:"No athlete data yet";
 
-                  const topDay=snapshots.reduce((best,s)=>(s.steps||0)>(best?.steps||0)?s:best,null);
+                  const topDay=snapshots.filter(s=>!STORE_REVIEWER_IDS.has(s.profile_id)).reduce((best,s)=>(s.steps||0)>(best?.steps||0)?s:best,null);
                   const topDayProfile=topDay?profiles[topDay.profile_id]:null;
-                  const topDayName=topDayProfile?[topDayProfile.name,topDayProfile.surname].filter(Boolean).join(" ")||topDayProfile.username:"Unknown";
+                  const topDayName=topDayProfile?[topDayProfile.name,topDayProfile.surname].filter(Boolean).join(" ")||topDayProfile.username:"No athlete data yet";
 
                   const cards=[
-                    {icon:"🎯",label:"Training Consistency",stat:`${activePct}%`,sub:"athletes log 3+ days/week",col:C.accent},
-                    {icon:"📈",label:"Platform Progress",stat:avgImprovement>=0?`+${avgImprovement}%`:`${Math.abs(avgImprovement)}%`,sub:avgImprovement>=0?"more steps vs when joined":"fewer steps vs when joined",col:avgImprovement>=0?C.emerald:C.rose},
-                    {icon:"🔥",label:"Top Streak",stat:`${bestStreak} days`,sub:streakName,col:C.amber},
-                    {icon:"👑",label:"Best Single Day",stat:fmtFull(topDay?.steps||0),sub:`${topDayName} — ${topDay?new Date(topDay.day).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):""}`,col:C.rose},
+                    {icon:<FontAwesomeIcon icon={faBullseye} aria-hidden="true" />,label:"Training Consistency",stat:`${activePct}%`,sub:"athletes log 3+ days/week",col:C.accent},
+                    {icon:<FontAwesomeIcon icon={faChartLine} aria-hidden="true" />,label:"Platform Progress",stat:avgImprovement>=0?`+${avgImprovement}%`:`${Math.abs(avgImprovement)}%`,sub:avgImprovement>=0?"more steps vs when joined":"fewer steps vs when joined",col:avgImprovement>=0?C.emerald:C.rose},
+                    {icon:<FontAwesomeIcon icon={faFire} aria-hidden="true" />,label:"Top Streak",stat:`${bestStreak} ${bestStreak===1?"day":"days"}`,sub:streakName,col:C.amber},
+                    {icon:<FontAwesomeIcon icon={faCrown} aria-hidden="true" />,label:"Best Single Day",stat:fmtFull(topDay?.steps||0),sub:topDay?`${topDayName} — ${new Date(topDay.day).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}`:topDayName,col:C.rose},
                   ];
 
                   return cards.map(card=>(
@@ -820,7 +834,7 @@ export default function InsightsDashboard() {
               const profile=profiles[u.pid];
               const maxT=M.leaderboard[0]?.trophies||1;
               const pct=Math.round((u.trophies/maxT)*100);
-              const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":null;
+              const medal=i<3;
               const rowCol=i===0?C.amber:i===1?"#94A3B8":i===2?"#C97B3A":C.accent;
               const displayName=profile?[profile.name,profile.surname].filter(Boolean).join(" ")||profile.username||`@${u.pid.slice(0,8)}`:`@${u.pid.slice(0,8)}`;
               const username=profile?.username?`@${profile.username}`:null;
@@ -828,7 +842,7 @@ export default function InsightsDashboard() {
               return(
                 <div key={u.pid} className="lb-table-row" style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,background:i===0?`${C.amber}05`:"transparent",transition:"background 0.15s ease"}}>
                   <div style={{width:32,height:32,borderRadius:8,background:i<3?`${rowCol}18`:C.bgAlt,border:`1px solid ${i<3?rowCol+"30":C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:medal?13:11,fontWeight:800,color:rowCol}}>
-                    {medal||u.rank}
+                    {medal ? <><FontAwesomeIcon icon={faMedal} aria-hidden="true" /><span className="insights-sr-only">Rank {u.rank}</span></> : u.rank}
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
                     <Avatar profile={profile} C={C} size={32}/>
@@ -848,7 +862,7 @@ export default function InsightsDashboard() {
                   </div>
                   {/* Trophies */}
                   <div style={{textAlign:"right",fontFamily:"'Sora',sans-serif",fontSize:12,fontWeight:800,color:i<3?rowCol:C.text}}>
-                    🏆 {fmtFull(u.trophies)}
+                    <FontAwesomeIcon icon={faTrophy} aria-hidden="true" /> {fmtFull(u.trophies)}
                   </div>
                   {/* Lifetime Steps */}
                   <div className="lb-hide-mobile" style={{textAlign:"right",fontSize:12,fontWeight:600,color:C.textSecondary}}>
@@ -1035,9 +1049,9 @@ export default function InsightsDashboard() {
             </ResponsiveContainer>
             <div className="hourly-pills">
               {[
-                {icon:"🌅",label:"Morning rush",time:"6–9am",color:C.amber},
-                {icon:"☀️",label:"Lunchtime peak",time:"12–2pm",color:C.emerald},
-                {icon:"🌆",label:"Evening check-in",time:"7–10pm",color:C.accent},
+                {icon:<FontAwesomeIcon icon={faCloudSun} aria-hidden="true" />,label:"Morning rush",time:"6–9am",color:C.amber},
+                {icon:<FontAwesomeIcon icon={faSun} aria-hidden="true" />,label:"Lunchtime peak",time:"12–2pm",color:C.emerald},
+                {icon:<FontAwesomeIcon icon={faCity} aria-hidden="true" />,label:"Evening check-in",time:"7–10pm",color:C.accent},
               ].map(h=>(
                 <div key={h.label} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 14px",borderRadius:11,background:C.bgAlt,border:`1px solid ${C.border}`}}>
                   <span style={{fontSize:15}}>{h.icon}</span>
@@ -1056,7 +1070,7 @@ export default function InsightsDashboard() {
           <div style={{borderRadius:24,padding:"clamp(28px,5vw,48px)",background:C.accentBgSubtle,border:`1px solid ${C.accentBorder}`,boxShadow:C.shadowGlow}}>
             <div style={{maxWidth:680,margin:"0 auto",textAlign:"center"}}>
               <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"5px 14px",borderRadius:999,background:C.accentBgLight,border:`1px solid ${C.accentBorder}`,fontSize:11,fontWeight:700,color:C.accent,textTransform:"uppercase",letterSpacing:0.5,marginBottom:20}}>
-                📊 The Insight
+                <FontAwesomeIcon icon={faChartColumn} aria-hidden="true" /> The Insight
               </div>
               <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:"clamp(24px,4vw,36px)",fontWeight:900,letterSpacing:-0.8,color:C.text,marginBottom:16,lineHeight:1.2}}>
                 Competition creates <span className="grad-text">curiosity</span>.<br/>
