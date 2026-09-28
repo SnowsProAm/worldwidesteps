@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMedal, faRuler, faTrophy, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
+import countryCodes from "./assets/country-codes.json";
 import GlobeScene from "./GlobeScene.jsx";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
 
@@ -116,14 +117,14 @@ const makeCSS = () => `
   .country-toolbar { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
   .country-search { width:100%; max-width:420px; }
   .country-search label { display:block; font-size:12px; font-weight:600; margin-bottom:8px; }
-  .country-search-field { display:flex; align-items:center; gap:12px; min-height:48px; padding:0 12px; border:1px solid #b9c8dc; border-radius:6px; background:#fff; }
+  .country-search-field { display:flex; align-items:center; gap:12px; min-height:48px; padding:0 14px; border:1px solid #b9c8dc; border-radius:14px; background:#fff; }
   .country-search-field:focus-within { outline:2px solid #0C69C8; outline-offset:3px; border-color:#0C69C8; }
   .country-search-field > svg { color:#53617a; flex-shrink:0; }
   .country-search input { width:100%; min-width:0; min-height:46px; border:0; background:transparent; color:#0A1D44; font:inherit; font-size:16px; }
   .country-search input::placeholder { color:#67758b; }
   .country-search input:focus-visible { outline:none; }
   .country-search input::-webkit-search-cancel-button { display:none; }
-  .country-search button { min-height:44px; border:0; background:transparent; color:#0C69C8; font-size:12px; font-weight:600; padding:0 6px; }
+  .country-search button { min-height:44px; min-width:44px; border:0; background:transparent; color:#0C69C8; font-size:12px; font-weight:600; padding:0 6px; }
   .country-results { color:#53617a; font-size:12px; line-height:1.6; padding-bottom:4px; }
   .card { transition:transform .2s,border-color .2s; }
   .card:hover { transform:translateY(-2px); border-color:#0c69c850 !important; }
@@ -177,7 +178,9 @@ const fmt     = n => n>=1e6?`${(n/1e6).toFixed(1)}M`:n>=1e3?`${(n/1e3).toFixed(1
 const fmtFull = n => (n||0).toLocaleString();
 const dayLbl  = d => new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 
+const normaliseSearch = value => value.trim().normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
 const COUNTRY_ISO = {
+  ...countryCodes,
   "Ireland":"ie","Republic of Ireland":"ie",
   "United Kingdom":"gb","UK":"gb","Great Britain":"gb","England":"gb","Scotland":"gb","Wales":"gb",
   "United States":"us","USA":"us","United States of America":"us",
@@ -206,14 +209,15 @@ const COUNTRY_ISO = {
   "North Macedonia":"mk","Bosnia and Herzegovina":"ba","Montenegro":"me",
 };
 
-const isoFor  = c => COUNTRY_ISO[c] || null;
+const COUNTRY_LOOKUP = new Map(Object.entries(COUNTRY_ISO).map(([name,iso])=>[normaliseSearch(name),iso]));
+const isoFor  = c => COUNTRY_LOOKUP.get(normaliseSearch(String(c||""))) || null;
 const flagUrl = c => { const iso=isoFor(c); return iso?`https://flagcdn.com/w40/${iso}.png`:null; };
-const normaliseSearch = value => value.trim().normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase();
 
 const FlagImg = ({ country, size=28 }) => {
   const url = flagUrl(country);
-  if (!url) return <span style={{fontSize:size*0.75,lineHeight:1}}><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true" /></span>;
-  return <img src={url} alt={country} style={{width:size*1.4,height:size,objectFit:"cover",borderRadius:4,flexShrink:0,display:"block"}} onError={e=>{e.target.style.display="none";}}/>;
+  const [failedUrl,setFailedUrl]=useState(null);
+  if (!url || failedUrl===url) return <span role="img" aria-label={country} style={{width:size*1.4,height:size,fontSize:size*0.75,lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true" /></span>;
+  return <img src={url} alt={country} style={{width:size*1.4,height:size,objectFit:"cover",borderRadius:4,flexShrink:0,display:"block"}} onError={()=>setFailedUrl(url)}/>;
 };
 
 const AnimNum = ({ value, duration=2400 }) => {
