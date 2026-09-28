@@ -79,7 +79,7 @@ const makeCSS = () => `
   .hero-content h1 { font-family:'Sora',sans-serif; font-size:clamp(34px,4.5vw,62px); font-weight:700; line-height:1.14; letter-spacing:-2.5px; }
   .grad-text { background:linear-gradient(110deg,#0C69C8,#0A1D44); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
   .hero-intro { color:#53617a; font-size:16px; line-height:1.8; margin:20px 0 30px; }
-  .world-total { border-left:3px solid #0C69C8; padding-left:22px; }
+  .world-total { padding:0; }
   .world-total-label { font-size:12px; font-weight:700; color:#53617a; margin-bottom:5px; }
   .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.5vw,76px); font-weight:700; letter-spacing:-3px; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
   .world-total-note { display:block; color:#67758b; font-size:11px; line-height:1.6; margin-top:8px; }
@@ -91,7 +91,7 @@ const makeCSS = () => `
   .globe-canvas { position:absolute; inset:0; transition:opacity .5s; }
   .globe-canvas canvas { width:100%; height:100%; display:block; }
   .globe-halo { position:absolute; inset:10%; border-radius:50%; background:radial-gradient(circle,#0c69c80e,transparent 70%); }
-  .globe-fallback { position:absolute; inset:16%; border-radius:50%; background:radial-gradient(circle at 32% 28%,#71bbff,#0C69C8 48%,#0A1D44); box-shadow:inset -20px -15px 45px #0a1d4450,0 20px 65px #0c69c81a; animation:globeFloat 6s ease-in-out infinite; transition:opacity .5s; }
+  .globe-fallback { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; transition:opacity .5s; }
   .globe-caption { position:absolute; bottom:1%; width:100%; text-align:center; color:#67758b; font-size:11px; letter-spacing:.2px; }
   .world-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid #e7edf5; border-bottom:1px solid #e7edf5; margin-top:48px; padding:24px 0; }
   .world-summary > div { display:flex; align-items:center; justify-content:center; gap:18px; padding:0 14px; }
@@ -136,7 +136,6 @@ const makeCSS = () => `
     .hero-grid { grid-template-columns:1fr; gap:12px; }
     .hero-content h1 { font-size:clamp(32px,7.8vw,52px); letter-spacing:-1.5px; }
     .hero-intro { font-size:14px; margin:16px 0 24px; }
-    .world-total { padding-left:16px; }
     .world-total-number { font-size:clamp(32px,10vw,62px); letter-spacing:-1.5px; }
     .hero-actions { gap:12px 22px; margin-top:24px; }
     .world-globe { max-width:340px; margin:0 auto; }
