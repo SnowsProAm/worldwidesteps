@@ -6,6 +6,7 @@ import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
 import GlobeScene from "./GlobeScene.jsx";
+import { worldwideStepTotal } from "./worldwideStepTotal.js";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
 
 // Store review accounts are not public competitors. IDs match the mobile app reviewer list.
@@ -83,7 +84,16 @@ const makeCSS = () => `
   .hero-slogan { display:block; font-family:'Sora',sans-serif; font-size:clamp(18px,2vw,22px); font-weight:600; color:#0A1D44; letter-spacing:-.5px; margin-bottom:6px; }
   .world-total { padding:0; }
   .world-total-label { font-size:12px; font-weight:700; color:#53617a; margin-bottom:5px; }
+  .world-total-value { display:flex; align-items:center; gap:5px; }
+  .world-total-refresh { width:44px; height:44px; flex:0 0 44px; display:inline-grid; place-items:center; border:0; border-radius:50%; background:transparent; color:#53617a; font-size:13px; }
+  .world-total-refresh:hover { color:#0C69C8; background:#edf5fd; }
+  .world-total-refresh:disabled { opacity:.55; cursor:wait; }
+  .world-total-refresh[data-refreshing="true"] svg { animation:spin .8s linear infinite; }
   .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.5vw,76px); font-weight:700; letter-spacing:-3px; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
+  .world-total-feedback { min-height:24px; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:#53617a; }
+  .world-total-delta { display:inline-block; padding:3px 9px; border-radius:999px; background:#e9f8f0; color:#047857; font-variant-numeric:tabular-nums; }
+  .world-total-delta[data-direction="down"] { background:#fff0ef; color:#b42318; }
+  .world-total-error { color:#b42318; }
   .world-total-note { display:block; color:#67758b; font-size:11px; line-height:1.6; margin-top:8px; }
   .hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:24px; margin-top:28px; }
   .primary-action { min-height:48px; padding:14px 18px; display:inline-flex; gap:16px; align-items:center; justify-content:center; border:0; border-radius:6px; background:linear-gradient(115deg,#0C69C8,#084c98); color:#fff; font-weight:600; font-size:13px; box-shadow:0 5px 15px #0c69c81a; transition:transform .2s,box-shadow .2s; }
@@ -220,14 +230,14 @@ const FlagImg = ({ country, size=28 }) => {
   return <img src={url} alt={country} style={{width:size*1.4,height:size,objectFit:"cover",borderRadius:4,flexShrink:0,display:"block"}} onError={()=>setFailedUrl(url)}/>;
 };
 
-const AnimNum = ({ value, duration=4200 }) => {
+const AnimNum = ({ value, duration=3000 }) => {
   const [v,setV] = useState(0);
   const current = useRef(0);
   useEffect(()=>{
     const motion=window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame;
     const finish=()=>{cancelAnimationFrame(frame);current.current=value;setV(value);};
-    const from=current.current, start=performance.now()+(from===0 ? 400 : 0);
+    const from=current.current, start=performance.now()+(from===0 ? 200 : 0);
     const tick=now=>{
       const p=Math.min(1,Math.max(0,(now-start)/duration));
       const next=Math.round(from+(value-from)*p);
@@ -322,6 +332,9 @@ export default function InsightsDashboard() {
   const [sportProfiles,setSportProfiles]= useState([]);
   const [activities,   setActivities]   = useState([]);
   const [loading,      setLoading]      = useState(true);
+  const [refreshingSteps,setRefreshingSteps] = useState(false);
+  const [stepRefreshDelta,setStepRefreshDelta] = useState(null);
+  const [stepRefreshError,setStepRefreshError] = useState(false);
 
   useEffect(()=>{
     let active=true;
@@ -362,6 +375,24 @@ export default function InsightsDashboard() {
 
   const fitnessProfiles=useMemo(()=>sportProfiles.filter(sp=>sp.sport_id==="Fitness"),[sportProfiles]);
 
+  const refreshWorldwideSteps = async () => {
+    if (refreshingSteps) return;
+    const previousTotal = M.totalSteps;
+    setRefreshingSteps(true);
+    setStepRefreshError(false);
+    setStepRefreshDelta(null);
+    try {
+      const updated = await fetchAll("sport_profiles", "profile_id,sport_id,trophies,lifetime_steps,league", null, "Fitness");
+      setSportProfiles(updated);
+      setStepRefreshDelta(worldwideStepTotal(updated) - previousTotal);
+    } catch (error) {
+      console.error("Worldwide steps refresh error:", error);
+      setStepRefreshError(true);
+    } finally {
+      setRefreshingSteps(false);
+    }
+  };
+
   const M = useMemo(()=>{
     // Fitness is the source of truth for worldwide steps and athletes. Keep
     // returning a complete zero-value model while data is empty so slow/public
@@ -375,7 +406,7 @@ export default function InsightsDashboard() {
         lifetimeSteps
       );
     });
-    const totalSteps  = Object.values(lifetimeStepsByProfile).reduce((a,steps)=>a+steps,0);
+    const totalSteps  = worldwideStepTotal(fitnessProfiles);
     const fitnessIds=new Set(Object.keys(lifetimeStepsByProfile));
     const fitnessSnapshots=snapshots.filter(s=>fitnessIds.has(s.profile_id));
     const snapshotDist = fitnessSnapshots.reduce((a,s)=>a+(Number(s.distance_m)||0),0);
@@ -491,7 +522,13 @@ export default function InsightsDashboard() {
               <p className="hero-intro"><strong className="hero-slogan">Where Athletes Belong</strong>See how far we are moving together.</p>
               <div className="world-total" aria-label="Total lifetime steps worldwide">
                 <div className="world-total-label">Steps taken worldwide</div>
-                <div className="world-total-number"><AnimNum value={M.totalSteps}/></div>
+                <div className="world-total-value">
+                  <div className="world-total-number"><AnimNum value={M.totalSteps}/></div>
+                  <button type="button" className="world-total-refresh" onClick={refreshWorldwideSteps} disabled={refreshingSteps} data-refreshing={refreshingSteps} aria-label="Refresh worldwide steps" aria-busy={refreshingSteps} title="Refresh worldwide steps"><FontAwesomeIcon icon={faArrowRotateRight} aria-hidden="true" /></button>
+                </div>
+                <div className="world-total-feedback" role="status" aria-live="polite">
+                  {refreshingSteps ? "Refreshing…" : stepRefreshError ? <span className="world-total-error">Could not refresh. Try again.</span> : stepRefreshDelta !== null ? <span className="world-total-delta" data-direction={stepRefreshDelta < 0 ? "down" : "up"}>{stepRefreshDelta > 0 ? "+" : ""}{fmtFull(stepRefreshDelta)}<span className="insights-sr-only"> steps since last refresh</span></span> : null}
+                </div>
                 <div className="world-total-note">All time steps recorded on Snows ProAm</div>
               </div>
               <div className="hero-actions"><a className="primary-action" href="#leaderboard">Explore the leaderboard <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a><a className="text-action" href="#countries">Meet the world <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a></div>
