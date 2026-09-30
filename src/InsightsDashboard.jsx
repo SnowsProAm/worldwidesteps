@@ -220,21 +220,21 @@ const FlagImg = ({ country, size=28 }) => {
   return <img src={url} alt={country} style={{width:size*1.4,height:size,objectFit:"cover",borderRadius:4,flexShrink:0,display:"block"}} onError={()=>setFailedUrl(url)}/>;
 };
 
-const AnimNum = ({ value, duration=2400 }) => {
+const AnimNum = ({ value, duration=4200 }) => {
   const [v,setV] = useState(0);
   const current = useRef(0);
   useEffect(()=>{
     const motion=window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame;
     const finish=()=>{cancelAnimationFrame(frame);current.current=value;setV(value);};
-    const from=current.current, start=performance.now();
+    const from=current.current, start=performance.now()+(from===0 ? 400 : 0);
     const tick=now=>{
-      const p=Math.min(1,(now-start)/duration);
-      const next=Math.round(from+(value-from)*(1-Math.pow(1-p,4)));
+      const p=Math.min(1,Math.max(0,(now-start)/duration));
+      const next=Math.round(from+(value-from)*p);
       current.current=next;setV(next);
       if(p<1)frame=requestAnimationFrame(tick);
     };
-    if(motion.matches)finish();else frame=requestAnimationFrame(tick);
+    if(motion.matches || from===value)finish();else frame=requestAnimationFrame(tick);
     const change=()=>{if(motion.matches)finish();};
     motion.addEventListener("change",change);
     return()=>{cancelAnimationFrame(frame);motion.removeEventListener("change",change);};
