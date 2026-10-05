@@ -1,30 +1,12 @@
-.school-walk-scene {--sw-duration:28s;--sw-bus-width:220px;--sw-school-width:170px;position:relative;width:100%;height:164px;overflow:hidden;pointer-events:none;isolation:isolate;}
+.school-walk-scene {--sw-bus-width:220px;--sw-school-width:170px;position:relative;width:100%;height:164px;overflow:hidden;pointer-events:none;isolation:isolate;}
 .sw-path {position:absolute;bottom:13px;left:0;right:0;border-bottom:2px dashed #cedfed;}
 .sw-school {position:absolute;right:22px;bottom:12px;width:var(--sw-school-width);height:auto;z-index:1;}
-.sw-bus {position:absolute;left:0;bottom:0;width:var(--sw-bus-width);z-index:3;animation:sw-bus-trip var(--sw-duration) linear infinite;}
+.sw-bus {position:absolute;left:0;bottom:0;width:var(--sw-bus-width);z-index:3;will-change:transform;}
 .sw-bus img {display:block;width:100%;height:auto;}
-.sw-walking-group {position:absolute;bottom:12px;left:0;width:110px;height:78px;display:flex;align-items:flex-end;z-index:4;animation:sw-school-walk var(--sw-duration) linear infinite;}
-.sw-student {width:45px;height:77px;overflow:visible;flex-shrink:0;margin-left:-9px;}
-.sw-student-two {width:41px;height:70px;}
-.sw-student-three {width:46px;height:80px;}
-.sw-leg {transform-origin:29px 56px;animation:sw-leg-swing .7s ease-in-out infinite alternate;}
-.sw-leg-back {animation-direction:alternate-reverse;}
-.sw-student-two .sw-leg {animation-delay:-.3s;}
-.sw-student-three .sw-leg {animation-delay:-.5s;}
-.sw-arm {transform-origin:34px 34px;animation:sw-arm-swing .7s ease-in-out infinite alternate;}
-.sw-body {animation:sw-body-bob .7s ease-in-out infinite alternate;}
-.sw-step-bubbles {position:absolute;bottom:90px;left:0;width:120px;}
-.sw-step-bubbles span {position:absolute;bottom:0;left:0;background:#e8f5ff;color:#0866ce;border:1px solid #b9daf5;border-radius:999px;padding:6px 10px;font:700 11px/1.2 'DM Sans',sans-serif;white-space:nowrap;animation:sw-step-one var(--sw-duration) linear infinite;opacity:0;}
-.sw-step-bubbles span:nth-child(2) {background:#eee8ff;border-color:#d2c3ec;color:#7355a3;animation-name:sw-step-two;}
-.sw-step-bubbles span:nth-child(3) {background:#e5f6ed;border-color:#bcdccb;color:#26745c;animation-name:sw-step-three;}
+.sw-walking-group {position:absolute;inset:0;z-index:4;}
+.sw-student {position:absolute;bottom:8px;left:0;width:45.5px;height:78px;overflow:visible;opacity:0;will-change:transform;}
+.sw-step-bubbles {position:absolute;bottom:101px;left:0;opacity:0;}
+.sw-step-bubbles span {display:block;background:#e8f5ff;color:#0866ce;border:1px solid #b9daf5;border-radius:999px;padding:6px 10px;font:700 11px/1.2 'DM Sans',sans-serif;white-space:nowrap;}
 .sw-caption {position:absolute;bottom:31px;left:24px;font:italic 12px/1.4 'DM Sans',sans-serif;color:#637c92;}
-@keyframes sw-bus-trip {0%{transform:translateX(-240px)}22%,36%{transform:translateX(calc(42.857vw - var(--sw-bus-width) + 22px))}64%,100%{transform:translateX(calc(100vw + 30px))}}
-@keyframes sw-school-walk {0%,25%{transform:translate(calc(42.857vw - 25px),-14px);opacity:0}29%{transform:translate(calc(42.857vw - 25px),0);opacity:1}35%{transform:translate(calc(42.857vw - 15px),0);opacity:1}89%{transform:translate(calc(100vw - var(--sw-school-width) / 2 - 95px),0);opacity:1}95%,100%{transform:translate(calc(100vw - var(--sw-school-width) / 2 - 70px),0);opacity:0}}
-@keyframes sw-leg-swing {from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
-@keyframes sw-arm-swing {from{transform:rotate(-13deg)}to{transform:rotate(12deg)}}
-@keyframes sw-body-bob {from{transform:translateY(0)}to{transform:translateY(-1.5px)}}
-@keyframes sw-step-one {0%,36%,49%,100%{opacity:0;transform:translateY(7px)}39%,46%{opacity:1;transform:translateY(-5px)}}
-@keyframes sw-step-two {0%,51%,66%,100%{opacity:0;transform:translateY(7px)}54%,63%{opacity:1;transform:translateY(-5px)}}
-@keyframes sw-step-three {0%,68%,86%,100%{opacity:0;transform:translateY(7px)}71%,82%{opacity:1;transform:translateY(-5px)}}
-@media(max-width:600px){.school-walk-scene{--sw-bus-width:150px;--sw-school-width:100px;height:140px;}.sw-school{right:7px;}.sw-walking-group{width:72px;height:58px;}.sw-student{width:31px;height:54px;margin-left:-7px;}.sw-student-two{width:29px;height:50px;}.sw-student-three{width:32px;height:57px;}.sw-step-bubbles{bottom:66px;}.sw-step-bubbles span{font-size:9px;padding:5px 7px;}.sw-caption{left:16px;bottom:96px;font-size:10px;}}
-@media(prefers-reduced-motion:reduce){.school-walk-scene *{animation:none!important;}.sw-bus{display:none;}.sw-walking-group{left:48%;transform:translateX(-50%);opacity:1;}.sw-step-bubbles span{display:none;}.sw-step-bubbles span:first-child{display:block;opacity:1;transform:none;}}
+@media(max-width:600px){.school-walk-scene{--sw-bus-width:150px;--sw-school-width:100px;height:140px;}.sw-school{right:7px;}.sw-student{width:33.833px;height:58px;}.sw-step-bubbles{bottom:78px;}.sw-step-bubbles span{font-size:9px;padding:5px 7px;}.sw-caption{left:16px;bottom:111px;font-size:10px;}}
+@media(prefers-reduced-motion:reduce){.sw-bus{display:none;}}

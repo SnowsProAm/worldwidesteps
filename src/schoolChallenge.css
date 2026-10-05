@@ -877,3 +877,14 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-eva-contact strong {display:flex;align-items:center;gap:12px;}
 .sc-eva-contact>span {font-size:12px;font-weight:500;}
 @media(max-width:600px){.sc-hero{padding-bottom:168px;}.sc-bus-lane{height:140px;}.sc-how-bottom{align-items:flex-start;}}
+.sc-countdown {margin-bottom:18px;}
+.sc-school-outreach {display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 38px;padding:26px 30px;border:1px solid #c8e2f5;border-radius:24px;background:linear-gradient(110deg,#eaf6ff,#f1edff);}
+.sc-school-outreach .sc-eyebrow {margin:0 0 8px;color:#486785;}
+.sc-school-outreach h3 {font-family:Sora,sans-serif;font-size:clamp(25px,3vw,34px);letter-spacing:-1px;margin:0 0 8px;color:#14375c;}
+.sc-school-outreach p:not(.sc-eyebrow) {font-size:20px;line-height:1.4;color:#385f7e;margin:0;}
+.sc-school-outreach>a {display:flex;align-items:center;gap:26px;text-decoration:none;color:#0866ce;padding:18px 22px;background:#ffffffdc;border:1px solid #c9def2;border-radius:18px;}
+.sc-school-outreach>a>span>span,.sc-school-outreach strong {display:block;}
+.sc-school-outreach strong {font-size:22px;margin-bottom:4px;color:#153b61;}
+.sc-school-outreach>a>span>span {font-size:15px;margin:4px 0;}
+.sc-school-outreach .sc-outreach-email {font-size:17px;font-weight:700;overflow-wrap:anywhere;}
+@media(max-width:650px){.sc-school-outreach{align-items:stretch;flex-direction:column;padding:23px 18px;gap:20px;}.sc-school-outreach p:not(.sc-eyebrow){font-size:18px;}.sc-school-outreach>a{padding:17px 14px;gap:12px;justify-content:space-between;}.sc-school-outreach .sc-outreach-email{font-size:15px;}}
