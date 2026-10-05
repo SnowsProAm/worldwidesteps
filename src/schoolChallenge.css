@@ -639,7 +639,7 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-search, .sc-county-select select { border-radius: 13px; }
 .sc-search input, .sc-county-select select { font-size: 13px; min-height: 48px; }
 .sc-table-head { font-size: 10px; padding-top: 22px; }
-.sc-school-row { --row-color: #589bef; --row-tint: #eef6ff; border-radius: 17px; border-left: 5px solid var(--row-color); min-height: 125px; padding-top: 19px; padding-bottom: 19px; margin-bottom: 12px; background: linear-gradient(105deg, var(--row-tint), #fff 50%); }
+.sc-school-row { --row-color: #589bef; --row-tint: #eef6ff; border-radius: 17px; min-height: 125px; padding-top: 19px; padding-bottom: 19px; margin-bottom: 12px; background: linear-gradient(105deg, var(--row-tint), #fff 50%); }
 .sc-school-row:nth-child(4n+2) { --row-color: #a480e9; --row-tint: #f4edff; }
 .sc-school-row:nth-child(4n+3) { --row-color: #59c9a6; --row-tint: #edfaf4; }
 .sc-school-row:nth-child(4n+4) { --row-color: #ed9c83; --row-tint: #fff3ed; }
@@ -882,9 +882,11 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-school-outreach .sc-eyebrow {margin:0 0 8px;color:#486785;}
 .sc-school-outreach h3 {font-family:Sora,sans-serif;font-size:clamp(25px,3vw,34px);letter-spacing:-1px;margin:0 0 8px;color:#14375c;}
 .sc-school-outreach p:not(.sc-eyebrow) {font-size:20px;line-height:1.4;color:#385f7e;margin:0;}
-.sc-school-outreach>a {display:flex;align-items:center;gap:26px;text-decoration:none;color:#0866ce;padding:18px 22px;background:#ffffffdc;border:1px solid #c9def2;border-radius:18px;}
-.sc-school-outreach>a>span>span,.sc-school-outreach strong {display:block;}
+.sc-outreach-contact {display:flex;flex-direction:column;align-items:flex-start;padding:18px 22px;background:#ffffffdc;border:1px solid #c9def2;border-radius:18px;}
+.sc-outreach-contact>span,.sc-school-outreach strong {display:block;}
 .sc-school-outreach strong {font-size:22px;margin-bottom:4px;color:#153b61;}
-.sc-school-outreach>a>span>span {font-size:15px;margin:4px 0;}
-.sc-school-outreach .sc-outreach-email {font-size:17px;font-weight:700;overflow-wrap:anywhere;}
-@media(max-width:650px){.sc-school-outreach{align-items:stretch;flex-direction:column;padding:23px 18px;gap:20px;}.sc-school-outreach p:not(.sc-eyebrow){font-size:18px;}.sc-school-outreach>a{padding:17px 14px;gap:12px;justify-content:space-between;}.sc-school-outreach .sc-outreach-email{font-size:15px;}}
+.sc-outreach-contact>span {font-size:15px;margin:4px 0;}
+.sc-school-outreach .sc-outreach-email {display:inline-flex;align-items:center;min-height:44px;font-size:17px;font-weight:700;color:#0866ce;overflow-wrap:anywhere;}
+.sc-outreach-demo {display:inline-flex;align-items:center;gap:10px;min-height:44px;font-size:15px;font-weight:750;color:#0866ce;text-underline-offset:4px;}
+.sc-outreach-contact a:focus-visible {outline:3px solid #0866ce;outline-offset:3px;border-radius:4px;}
+@media(max-width:650px){.sc-school-outreach{align-items:stretch;flex-direction:column;padding:23px 18px;gap:20px;}.sc-school-outreach p:not(.sc-eyebrow){font-size:18px;}.sc-outreach-contact{padding:17px 14px;}.sc-school-outreach .sc-outreach-email{font-size:15px;}}
