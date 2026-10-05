@@ -644,6 +644,9 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-school-row:nth-child(4n+3) { --row-color: #59c9a6; --row-tint: #edfaf4; }
 .sc-school-row:nth-child(4n+4) { --row-color: #ed9c83; --row-tint: #fff3ed; }
 .sc-school-row.sc-leading { --row-color: #e2ad29; --row-tint: #fff5cf; border-color: #e4be55; background: linear-gradient(100deg, #fff0ba, #fffaf0 53%, #fff); box-shadow: 0 4px 0 #e8c76530; }
+.sc-show-more-schools {display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;margin:16px 0 4px;padding:12px 18px;border:1px solid #b8d9f2;border-radius:15px;background:#eaf6ff;color:#0759aa;font:750 14px 'DM Sans',sans-serif;cursor:pointer;}
+.sc-show-more-schools:hover {background:#dff0ff;border-color:#8bbde3;}
+.sc-show-more-schools:focus-visible {outline:3px solid #0866ce;outline-offset:3px;}
 .sc-leading::before { display: none; }
 .sc-rank { font-size: 21px; font-weight: 700; }
 .sc-medal { width: 38px; height: 42px; font-size: 19px; border-radius: 13px; }

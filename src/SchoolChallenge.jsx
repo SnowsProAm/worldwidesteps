@@ -12,6 +12,7 @@ import WorldSiteFooter from './WorldSiteFooter';
 const Icon = ({ icon, ...props }) => <FontAwesomeIcon icon={icon} aria-hidden="true" {...props} />;
 const logo = '/favicon.png';
 const demoBookingUrl = 'https://calendly.com/admin-snowsproam/30min';
+const mobileSchoolPreviewCount = 8;
 
 function AnimatedNumber({ value, paused, className = '' }) {
   const [display, setDisplay] = useState(value);
@@ -146,9 +147,19 @@ export default function SchoolChallenge() {
   const [view, setView] = useState('schools');
   const [query, setQuery] = useState('');
   const [county, setCounty] = useState('');
+  const [smallScreen, setSmallScreen] = useState(() => window.matchMedia('(max-width: 600px)').matches);
+  const [showAllSchools, setShowAllSchools] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 600px)');
+    const update = () => setSmallScreen(media.matches);
+    update(); media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
   const [prize, setPrize] = useState(null);
   const schools = data?.schools || [];
   const visibleSchools = useMemo(() => filterSchools(schools, query, county), [schools, query, county]);
+  const previewSchools = smallScreen && !showAllSchools && !query.trim() && !county && visibleSchools.length > mobileSchoolPreviewCount;
+  const shownSchools = previewSchools ? visibleSchools.slice(0, mobileSchoolPreviewCount) : visibleSchools;
   const leader = schools[0];
   const seasonName = data?.season?.name;
   const autumn = new Date().getMonth() >= 8 && new Date().getMonth() <= 10;
@@ -202,9 +213,10 @@ export default function SchoolChallenge() {
         <div role="tabpanel" id="sc-panel-schools" aria-labelledby="sc-tab-schools" hidden={view !== 'schools'} tabIndex={0}>
           {loading ? <div className="sc-loading" role="status" aria-label="Loading school leaderboard">{[0, 1, 2, 3, 4].map(item => <div key={item} className="sc-skeleton-row"><span className="sc-skeleton" /><span className="sc-skeleton" /><span className="sc-skeleton" /></div>)}<span className="sc-sr-only">Loading school leaderboard…</span></div> : data && <>
             <div className="sc-table-head" aria-hidden="true"><span>RANK</span><span>SCHOOL / COUNTY</span><span>TOTAL STEPS</span><span>THEIR PACESETTER</span></div>
-            <ol className="sc-school-list" aria-label="Schools ranked by total steps">{visibleSchools.map(school => <SchoolRow key={school.id} school={school} movement={movements[school.id]} maxSteps={leader?.total_steps} paused={paused} onPrize={kind => setPrize(kind === 'student' ? '1' : 'school')} />)}</ol>
+            <ol className="sc-school-list" id="sc-school-list" aria-label="Schools ranked by total steps">{shownSchools.map(school => <SchoolRow key={school.id} school={school} movement={movements[school.id]} maxSteps={leader?.total_steps} paused={paused} onPrize={kind => setPrize(kind === 'student' ? '1' : 'school')} />)}</ol>
+            {previewSchools && <button className="sc-show-more-schools" type="button" aria-controls="sc-school-list" aria-expanded="false" onClick={() => setShowAllSchools(true)}>See all {visibleSchools.length} schools <Icon icon={faChevronDown} /></button>}
             {!visibleSchools.length && <div className="sc-empty"><Icon icon={faGraduationCap} /><h3>{schools.length ? 'Let’s find your school.' : 'The starting line is ready.'}</h3><p>{schools.length ? 'No schools match that search. Try a shorter name or a different county.' : 'Participating schools will appear here as they join the challenge.'}</p>{schools.length ? <button className="sc-primary" onClick={() => { setQuery(''); setCounty(''); }}>Show all schools</button> : <a className="sc-primary" href="#sc-how">How to get involved <Icon icon={faArrowRight} /></a>}</div>}
-            <div className="sc-league-footer"><span role="status">{visibleSchools.length} of {schools.length} schools{(query || county) ? ' · national ranks retained' : ' · ranked by school steps'}</span><span><Icon icon={faCheck} />{checkedAt ? `Checked ${checkedAt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : 'Waiting for update'} · refreshes every 10s</span></div>
+            <div className="sc-league-footer"><span role="status">{shownSchools.length} of {schools.length} schools{(query || county) ? ' · national ranks retained' : ' · ranked by school steps'}</span><span><Icon icon={faCheck} />{checkedAt ? `Checked ${checkedAt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : 'Waiting for update'} · refreshes every 10s</span></div>
           </>}
         </div>
 
