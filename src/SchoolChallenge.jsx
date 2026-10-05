@@ -198,6 +198,7 @@ export default function SchoolChallenge() {
       <section className="sc-community-stats" aria-label="Challenge at a glance"><div className="sc-stat-total"><span className="sc-stat-icon"><Icon icon={faShoePrints} /></span><div><span>Every school. Every step.</span><strong>{data ? <AnimatedNumber value={data.totalSteps} paused={paused} /> : loading ? <span className="sc-skeleton sc-number-skeleton" /> : '—'}<small>steps together</small></strong></div></div>
         <div><strong>{data ? schools.length : '—'}</strong><span>schools moving</span></div><div><strong>{data ? data.counties.length : '—'}</strong><span>counties represented</span></div><div className="sc-stat-prize"><strong>€1,000</strong><span>for the top school</span></div>
       </section>
+      <section className="sc-purpose" aria-labelledby="sc-purpose-heading"><div><p className="sc-eyebrow">Why we walk</p><h2 id="sc-purpose-heading">Healthy habits start together.</h2></div><p>Walking is simple. Doing it together makes it fun. Snows ProAm turns everyday steps into a friendly school challenge that lifts school spirit and celebrates students’ effort. The healthy habits they build now can support their wellbeing long after school.</p></section>
 
       <section className="sc-leaderboard-section" id="sc-leaderboard" aria-labelledby="sc-league-heading">
         <SchoolChallengeCountdown />

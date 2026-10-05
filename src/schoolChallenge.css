@@ -893,3 +893,8 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-outreach-demo {display:inline-flex;align-items:center;gap:10px;min-height:44px;font-size:15px;font-weight:750;color:#0866ce;text-underline-offset:4px;}
 .sc-outreach-contact a:focus-visible {outline:3px solid #0866ce;outline-offset:3px;border-radius:4px;}
 @media(max-width:650px){.sc-school-outreach{align-items:stretch;flex-direction:column;padding:23px 18px;gap:20px;}.sc-school-outreach p:not(.sc-eyebrow){font-size:18px;}.sc-outreach-contact{padding:17px 14px;}.sc-school-outreach .sc-outreach-email{font-size:15px;}}
+.sc-purpose {display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);align-items:center;gap:28px;margin:-20px 0 40px;padding:23px 27px;border:1px solid #d2e6ef;border-radius:22px;background:linear-gradient(110deg,#f0f8ff,#f3faef 65%,#fff9ea);}
+.sc-purpose .sc-eyebrow {margin:0 0 7px;color:#32688e;}
+.sc-purpose h2 {font:750 clamp(23px,2.4vw,32px)/1.2 'Sora',sans-serif;letter-spacing:-1px;color:#14375c;}
+.sc-purpose>p {font-size:14px;line-height:1.65;color:#38546e;margin:0;}
+@media(max-width:650px){.sc-purpose{grid-template-columns:1fr;gap:10px;margin-top:-12px;padding:20px 18px;}.sc-purpose h2{font-size:24px;}.sc-purpose>p{font-size:13px;}}
