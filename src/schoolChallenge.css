@@ -850,6 +850,8 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .school-challenge { overflow-x: clip; }
 .sc-bus-lane { left: 50%; right: auto; width: 100vw; transform: translateX(-50%); }
 
-/* Full-width page layout with a small, consistent edge inset at every size. */
-#sc-main { padding-left: 12px; padding-right: 12px; }
-.sc-header, .sc-footer { padding-left: 12px; padding-right: 12px; }
+/* Full-width content with modest breathing room; the bus remains edge to edge. */
+#sc-main, .sc-header, .sc-footer { padding-left: 24px; padding-right: 24px; }
+@media (max-width: 760px) {
+  #sc-main, .sc-header, .sc-footer { padding-left: 16px; padding-right: 16px; }
+}
