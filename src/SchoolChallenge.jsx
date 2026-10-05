@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, MotionConfig } from 'motion/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faArrowUp, faArrowDown, faArrowRotateRight, faTrophy, faGraduationCap, faLocationDot, faMagnifyingGlass, faXmark, faGift, faShoePrints, faPause, faPlay, faGlobe, faExpand, faLeaf, faChevronDown, faCircleInfo, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faArrowUp, faArrowDown, faTrophy, faGraduationCap, faLocationDot, faMagnifyingGlass, faXmark, faGift, faShoePrints, faGlobe, faExpand, faLeaf, faChevronDown, faCircleInfo, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { AutumnLeaves, GiftBox, WalkingDoodle, SchoolBus } from './SchoolChallengeArt';
 import { filterSchools, number } from './schoolChallengeData';
 import { useSchoolChallenge } from './useSchoolChallenge';
 import './schoolChallenge.css';
+import SchoolChallengeCountdown from './SchoolChallengeCountdown';
 
 const Icon = ({ icon, ...props }) => <FontAwesomeIcon icon={icon} aria-hidden="true" {...props} />;
 const logo = '/favicon.png';
@@ -49,8 +50,8 @@ function StudentAvatar({ student, large = false }) {
 
 function Cheque({ expanded = false }) {
   return <div className={`sc-cheque ${expanded ? 'sc-cheque-expanded' : ''}`}>
-    <div className="sc-cheque-top"><span className="sc-cheque-brand"><img src={logo} alt="" />Snows ProAm</span><span>SCHOOL CHALLENGE</span></div>
-    <div className="sc-cheque-pay"><span>TOP SCHOOL PRIZE</span><strong>Ireland’s top school</strong></div>
+    <div className="sc-cheque-top"><span className="sc-cheque-brand"><img src={logo} alt="" />Snows ProAm</span><span>Secondary School Step Challenge</span></div>
+    <div className="sc-cheque-pay"><span>TOP SCHOOL PRIZE</span><strong>Ireland’s top steppers</strong></div>
     <div className="sc-cheque-value"><span>For your school</span><strong>€1,000<span>.00</span></strong></div>
     <div className="sc-cheque-bottom"><span>Where Athletes Belong</span><span className="sc-cheque-signature">Snows ProAm</span></div>
     <div className="sc-cheque-seal"><Icon icon={faTrophy} /><span>1ST<br />SCHOOL</span></div>
@@ -67,7 +68,7 @@ function PrizeDialog({ prize, onClose, leader, paused }) {
     return () => {
       dialog.close(); document.body.style.overflow = previousOverflow;
       if (previousFocus?.isConnected) previousFocus.focus();
-      else document.querySelector('.sc-live-controls button:not([disabled])')?.focus();
+      else document.querySelector('#sc-tab-schools')?.focus();
     };
   }, []);
   const school = prize === 'school';
@@ -82,7 +83,7 @@ function PrizeDialog({ prize, onClose, leader, paused }) {
       </motion.div>
       <p>{school ? '€1,000 for the school that finishes on top. Keep moving together and give your school something to celebrate.' : 'The national student prize line-up is still under wraps. Check back here for the reveal.'}</p>
       {school && leader?.total_steps > 0 && <div className="sc-reveal-leader"><Crest url={leader.logo_url} name={leader.name} /><span><small>Currently leading · final result still to come</small><strong>{leader.name}</strong></span></div>}
-      <span className="sc-prize-fineprint">{school ? 'Prize preview · final eligibility, dates and award details to be confirmed.' : 'Mystery prize preview · contents and award details to be confirmed.'}</span>
+      <span className="sc-prize-fineprint">{school ? 'Prize preview · final eligibility and award details to be confirmed.' : 'Mystery prize preview · contents and award details to be confirmed.'}</span>
       <button className="sc-primary" onClick={onClose}>Back to the challenge <Icon icon={faArrowRight} /></button>
     </div>
   </dialog>;
@@ -139,8 +140,7 @@ export default function SchoolChallenge() {
       document.querySelector(`meta[name="${name}"], meta[property="${name}"]`)?.setAttribute('content', content);
     }
   }, []);
-  const [motionPaused, setMotionPaused] = useState(false);
-  const paused = Boolean(reducedMotion || motionPaused);
+  const paused = reducedMotion;
   const [view, setView] = useState('schools');
   const [query, setQuery] = useState('');
   const [county, setCounty] = useState('');
@@ -148,7 +148,6 @@ export default function SchoolChallenge() {
   const schools = data?.schools || [];
   const visibleSchools = useMemo(() => filterSchools(schools, query, county), [schools, query, county]);
   const leader = schools[0];
-  const live = Boolean(data && !error && !offline);
   const seasonName = data?.season?.name;
   const autumn = new Date().getMonth() >= 8 && new Date().getMonth() <= 10;
   const selectView = next => setView(next);
@@ -188,8 +187,9 @@ export default function SchoolChallenge() {
       </section>
 
       <section className="sc-leaderboard-section" id="sc-leaderboard" aria-labelledby="sc-league-heading">
+        <SchoolChallengeCountdown />
         <div className="sc-section-heading"><div><p className="sc-eyebrow">School pride. On the line.</p><h2 id="sc-league-heading">The leaderboard<span className="sc-heading-dot">.</span></h2><p>Find your crew. Follow the climb. Cheer them on.</p></div>
-          <div className="sc-live-controls"><span className={`sc-live-label ${live ? '' : 'sc-not-live'}`}><i />{offline ? 'Offline' : error ? 'Updates interrupted' : loading ? 'Connecting' : 'Updating live'}</span><button className="sc-icon-button" disabled={refreshing || offline} onClick={refresh} aria-label="Refresh school leaderboard"><Icon className={refreshing ? 'sc-spin' : ''} icon={faArrowRotateRight} /></button></div>
+
         </div>
         <div className="sc-leaderboard-toolbar"><div className="sc-tabs" role="tablist" aria-label="Leaderboard view"><button role="tab" id="sc-tab-schools" aria-controls="sc-panel-schools" aria-selected={view === 'schools'} tabIndex={view === 'schools' ? 0 : -1} onKeyDown={tabKeys} onClick={() => selectView('schools')}><Icon icon={faGraduationCap} />Schools<span>{data ? schools.length : '—'}</span></button><button role="tab" id="sc-tab-students" aria-controls="sc-panel-students" aria-selected={view === 'students'} tabIndex={view === 'students' ? 0 : -1} onKeyDown={tabKeys} onClick={() => selectView('students')}><Icon icon={faTrophy} />National top 3</button></div>
           {view === 'schools' && <div className="sc-filters"><div className="sc-search"><Icon icon={faMagnifyingGlass} /><label className="sc-sr-only" htmlFor="sc-school-search">Search school or county</label><input id="sc-school-search" type="search" placeholder="Find your school…" value={query} onChange={event => setQuery(event.target.value)} />{query && <button onClick={() => setQuery('')} aria-label="Clear school search"><Icon icon={faXmark} /></button>}</div><div className="sc-county-select"><label className="sc-sr-only" htmlFor="sc-county">Filter by county</label><select id="sc-county" value={county} onChange={event => setCounty(event.target.value)}><option value="">All counties</option>{data?.counties.map(name => <option key={name}>{name}</option>)}</select><Icon icon={faChevronDown} /></div></div>}
@@ -213,9 +213,9 @@ export default function SchoolChallenge() {
         <div className="sc-mystery-prizes"><div className="sc-prize-track-heading"><span>National student prizes</span><span className="sc-soft-pill">The reveal is coming</span></div><div className="sc-gift-grid">{['blue', 'lilac', 'peach'].map((tone, index) => <button key={tone} className={`sc-prize-box sc-prize-box-${tone}`} onClick={() => setPrize(String(index + 1))}><span className="sc-prize-position">{['1ST', '2ND', '3RD'][index]} STUDENT</span><GiftBox tone={tone} /><strong>Mystery prize</strong><span>To be revealed <Icon icon={faArrowRight} /></span></button>)}</div><p>Prize previews. Contents, eligibility and award details to be confirmed.</p></div>
       </section>
 
-      <section id="sc-how" className="sc-how-section" aria-labelledby="sc-how-heading"><div className="sc-section-heading"><div><p className="sc-eyebrow">Ready, set, step.</p><h2 id="sc-how-heading">Your school. Your move.</h2></div><Icon icon={faShoePrints} /></div><div className="sc-how-grid"><article><span>01</span><h3>Find your school.</h3><p>Open Snows ProAm and join your school through your teacher or school coordinator.</p></article><article><span>02</span><h3>Make your move.</h3><p>A walk to school. A lunchtime lap. Open the app to sync your steps and help your school climb.</p></article><article><span>03</span><h3>Cheer each other on.</h3><p>Follow the live standings, celebrate your pacesetters, and see what you can do together.</p></article></div><div className="sc-how-bottom"><span>Can’t see your school? Let’s get your community moving.</span><a href="mailto:support@snowsproam.com?subject=Irish%20Secondary%20School%20Step%20Challenge">Get in touch <Icon icon={faArrowRight} /></a></div></section>
+      <section id="sc-how" className="sc-how-section" aria-labelledby="sc-how-heading"><div className="sc-section-heading"><div><p className="sc-eyebrow">Ready, set, step.</p><h2 id="sc-how-heading">Your school. Your move.</h2></div><Icon icon={faShoePrints} /></div><div className="sc-how-grid"><article><span>01</span><h3>Find your school.</h3><p>Open Snows ProAm and join your school through your teacher or school coordinator.</p></article><article><span>02</span><h3>Make your move.</h3><p>A walk to school. A lunchtime walk. Open the app to sync your steps and help your school climb.</p></article><article><span>03</span><h3>Cheer each other on.</h3><p>Follow the live standings, celebrate your pacesetters, and see what you can do together.</p></article></div><div className="sc-how-bottom"><span>Can’t see your school? Let’s get your community moving.</span><a className="sc-eva-contact" href="mailto:eva.bellova@snowsproam.com?subject=Irish%20Secondary%20School%20Step%20Challenge"><strong>Eva Bellova <Icon icon={faArrowRight} /></strong><span>Head of Growth</span><span>eva.bellova@snowsproam.com</span></a></div></section>
 
-      <section className="sc-about" aria-label="About the standings"><details className="sc-display-settings"><summary>Display settings <Icon icon={faChevronDown} /></summary><div><p>{reducedMotion ? 'Reduced motion is on in your device settings.' : 'Control decorative motion and animated step counters.'}</p><button className="sc-motion-setting" aria-label={paused ? 'Resume animations' : 'Pause animations'} aria-pressed={paused} disabled={Boolean(reducedMotion)} title={reducedMotion ? 'Reduced motion follows your device settings' : paused ? 'Resume animations' : 'Pause animations'} onClick={() => setMotionPaused(value => !value)}><Icon icon={paused ? faPlay : faPause} />{paused ? 'Resume animations' : 'Pause animations'}</button></div></details><details><summary>How the leaderboard works <Icon icon={faChevronDown} /></summary><div><p>School positions use the current totals of active members in the app’s School group. Only active Irish school workspaces are included; demo workspaces and duplicate year-group views are excluded. These are school challenge totals, which may include steps from before the current app season.</p><p>Student spotlights show active students who have enabled leaderboard visibility, using their leaderboard names and photos. School admins are excluded from student prize rankings. The national top three ranks individual students across all schools, so multiple students can represent the same school. Equal step totals share a rank; tied entries are displayed in a stable order.</p><p>Standings refresh every 10 seconds while this page is visible and online. Steps appear after they sync from the app. {seasonName ? `${seasonName} is the current app season. ` : ''}A current lead is not a final prize award. Competition dates, prize eligibility and final award details will be confirmed here.</p></div></details></section>
+      <section className="sc-about" aria-label="About the standings"><details><summary>How the leaderboard works <Icon icon={faChevronDown} /></summary><div><p>School positions use the current totals of active members in the app’s School group. Only active Irish school workspaces are included; demo workspaces and duplicate year-group views are excluded. These are school challenge totals, which may include steps from before the current app season.</p><p>Student spotlights show active students who have enabled leaderboard visibility, using their leaderboard names and photos. School admins are excluded from student prize rankings. The national top three ranks individual students across all schools, so multiple students can represent the same school. Equal step totals share a rank; tied entries are displayed in a stable order.</p><p>Standings refresh every 10 seconds while this page is visible and online. Steps appear after they sync from the app. {seasonName ? `${seasonName} is the current app season. ` : ''}A current lead is not a final prize award. The challenge runs from 12 October through 12 November 2026, Irish time. Prize eligibility and final award details will be confirmed here.</p></div></details></section>
     </main>
 
     <footer className="sc-footer"><a className="sc-brand" href="/"><img src={logo} alt="" /><span><strong>Snows ProAm</strong><small>Where Athletes Belong</small></span></a><p>Every step belongs to something bigger.</p><a href="/"><Icon icon={faGlobe} />Explore World Wide Steps <Icon icon={faArrowRight} /></a></footer>

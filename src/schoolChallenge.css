@@ -855,3 +855,25 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 @media (max-width: 760px) {
   #sc-main, .sc-header, .sc-footer { padding-left: 16px; padding-right: 16px; }
 }
+
+.sc-countdown { margin:0 0 38px; padding:26px 30px; border:1px solid #dce8f6; border-radius:26px; background:linear-gradient(115deg,#edf7ff 0%,#f2edff 57%,#fff4da 100%); display:grid; grid-template-columns:1fr auto; gap:20px 32px; }
+.sc-countdown .sc-eyebrow {font-size:10px; color:#47617e; margin:0 0 10px;}
+.sc-countdown h3 {font-family:Sora,sans-serif;font-size:clamp(24px,3vw,34px);letter-spacing:-1px;margin:0 0 8px;color:#13365d;}
+.sc-countdown p {margin:0;color:#50637d;font-size:14px;}
+.sc-countdown-clock>span {display:block;font-size:11px;font-weight:750;color:#47617e;margin-bottom:9px;text-align:center;}
+.sc-countdown-clock>div {display:flex;gap:8px;}
+.sc-countdown-clock>div>span {width:74px;padding:10px 8px;background:#ffffffd9;border:1px solid #ffffff;border-radius:15px;text-align:center;}
+.sc-countdown-clock strong {display:block;font-size:30px;line-height:1.15;color:#0866ce;font-variant-numeric:tabular-nums;}
+.sc-countdown-clock small {font-size:10px;color:#53667e;}
+.sc-countdown-progress {grid-column:1/-1;}
+.sc-countdown-labels {display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#53667e;}
+.sc-countdown-track {height:9px;border-radius:20px;background:#ffffffb3;margin:8px 0;overflow:hidden;}
+.sc-countdown-track>span {display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#1688e7,#9773df,#e2ac42);}
+@media(max-width:600px){.sc-countdown {padding:22px 18px;grid-template-columns:1fr;gap:20px;}.sc-countdown-clock {justify-self:start;}.sc-countdown-clock>span{text-align:left;}.sc-countdown-clock>div>span{width:70px;}}
+.sc-hero {padding-bottom:185px;}
+.sc-bus-lane {height:164px;}
+.sc-bus-lane::after {display:none;}
+.sc-eva-contact {display:flex!important;flex-direction:column;align-items:flex-start!important;gap:4px!important;}
+.sc-eva-contact strong {display:flex;align-items:center;gap:12px;}
+.sc-eva-contact>span {font-size:12px;font-weight:500;}
+@media(max-width:600px){.sc-hero{padding-bottom:168px;}.sc-bus-lane{height:140px;}.sc-how-bottom{align-items:flex-start;}}

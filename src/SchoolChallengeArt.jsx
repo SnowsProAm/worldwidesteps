@@ -1,4 +1,5 @@
 import React, { useId } from 'react';
+import SchoolWalkScene from './SchoolWalkScene';
 
 export function GiftBox({ tone = 'blue', className = '' }) {
   const colors = { blue: ['#75ceff', '#329deb', '#084bb0'], lilac: ['#c7a4ff', '#a675ed', '#6132b3'], peach: ['#ffc179', '#ff986e', '#c64548'], mint: ['#9af0d4', '#49cfae', '#127e65'] };
@@ -44,8 +45,9 @@ export function WalkingDoodle() {
 
 export function AutumnLeaves() {
   const leafId = useId().replaceAll(':', '');
+  const palettes = [['#f1c84c', '#d69b26', '#a66c18'], ['#eea04b', '#d0782b', '#9c4b22'], ['#d87848', '#b65331', '#853b29'], ['#c85c45', '#a33b32', '#742e2c']];
   return <div className="sc-leaves" aria-hidden="true">{[0, 1, 2, 3, 4, 5, 6].map(index => <svg key={index} viewBox="0 0 64 78" style={{ '--leaf': index, '--leaf-size': `${31 + (index % 3) * 4}px`, '--leaf-drift': `${index % 2 ? -30 : 30}px` }}>
-    <defs><linearGradient id={`${leafId}-${index}`} x1="0" y1="0" x2="1" y2=".8"><stop stopColor="#d99835" /><stop offset=".52" stopColor="#ba6f22" /><stop offset="1" stopColor="#87451c" /></linearGradient></defs>
+    <defs><linearGradient id={`${leafId}-${index}`} x1="0" y1="0" x2="1" y2=".8"><stop stopColor={palettes[index % 4][0]} /><stop offset=".52" stopColor={palettes[index % 4][1]} /><stop offset="1" stopColor={palettes[index % 4][2]} /></linearGradient></defs>
     <path d="m32 4 5 15 6-5-1 17 12-8-1 11 8 1-12 13 4 6-17 3-4 9-4-9-17-3 4-6L3 35l8-1-1-11 12 8-1-17 6 5Z" fill={`url(#${leafId}-${index})`} stroke="#8f521d" strokeWidth=".6" strokeLinejoin="round" />
     <path d="m32 13 0 47-3 15m3-23L13 37m19 8 17-12M32 36l-7-13m7 9 6-11m-6 34 11-4m-11 4-13-4" stroke="#edc578" strokeWidth=".9" fill="none" strokeLinecap="round" />
     <path d="m32 14 2 31-2 17" stroke="#7e4117" opacity=".45" fill="none" />
@@ -53,5 +55,5 @@ export function AutumnLeaves() {
 }
 
 export function SchoolBus() {
-  return <div className="sc-bus-lane" aria-hidden="true"><div className="sc-bus-drive"><img src="/schools/yellow-school-bus.webp" width="768" height="384" alt="" className="sc-school-bus" /></div></div>;
+  return <div className="sc-bus-lane"><SchoolWalkScene /></div>;
 }
