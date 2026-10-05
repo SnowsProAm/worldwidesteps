@@ -6,6 +6,7 @@ import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
 import GlobeScene from "./GlobeScene.jsx";
+import WorldSiteFooter from "./WorldSiteFooter.jsx";
 import { worldwideStepTotal } from "./worldwideStepTotal.js";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
 
@@ -663,7 +664,7 @@ export default function InsightsDashboard() {
             </div>
           </section>
 
-        <footer className="world-footer"><div><h2>Every step belongs to something bigger.</h2><p>Keep moving. Your next step is part of our worldwide story.</p></div><a href="mailto:support@snowsproam.com">Contact us <FontAwesomeIcon icon={faArrowRight} aria-hidden="true"/></a></footer>
+        <WorldSiteFooter />
 
       </main>
     </div>

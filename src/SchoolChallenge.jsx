@@ -7,6 +7,7 @@ import { filterSchools, number } from './schoolChallengeData';
 import { useSchoolChallenge } from './useSchoolChallenge';
 import './schoolChallenge.css';
 import SchoolChallengeCountdown from './SchoolChallengeCountdown';
+import WorldSiteFooter from './WorldSiteFooter';
 
 const Icon = ({ icon, ...props }) => <FontAwesomeIcon icon={icon} aria-hidden="true" {...props} />;
 const logo = '/favicon.png';
@@ -219,7 +220,7 @@ export default function SchoolChallenge() {
       <section className="sc-about" aria-label="About the standings"><details><summary>How the leaderboard works <Icon icon={faChevronDown} /></summary><div><p>School positions use the current totals of active members in the app’s School group. Only active Irish school workspaces are included; demo workspaces and duplicate year-group views are excluded. These are school challenge totals, which may include steps from before the current app season.</p><p>Student spotlights show active students who have enabled leaderboard visibility, using their leaderboard names and photos. School admins are excluded from student prize rankings. The national top three ranks individual students across all schools, so multiple students can represent the same school. Equal step totals share a rank; tied entries are displayed in a stable order.</p><p>Standings refresh every 10 seconds while this page is visible and online. Steps appear after they sync from the app. {seasonName ? `${seasonName} is the current app season. ` : ''}A current lead is not a final prize award. The challenge runs from 12 October through 12 November 2026, Irish time. Prize eligibility and final award details will be confirmed here.</p></div></details></section>
     </main>
 
-    <footer className="sc-footer"><a className="sc-brand" href="/"><img src={logo} alt="" /><span><strong>Snows ProAm</strong><small>Where Athletes Belong</small></span></a><p>Every step belongs to something bigger.</p><a href="/"><Icon icon={faGlobe} />Explore World Wide Steps <Icon icon={faArrowRight} /></a></footer>
+    <WorldSiteFooter />
     {prize && <PrizeDialog prize={prize} onClose={() => setPrize(null)} leader={leader} paused={paused} />}
   </div></MotionConfig>;
 }

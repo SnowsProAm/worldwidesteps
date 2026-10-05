@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { walkingLeg, WALK_CYCLE } from './schoolWalkMotion';
+import { walkingLeg, WALK_CYCLE, walkingGroupSteps, runningStepTotal } from './schoolWalkMotion';
 import './schoolWalkScene.css';
 
 function Student({ tone, skin, hair, variant, hairStyle = "short", index }) {
@@ -32,6 +32,7 @@ export default function SchoolWalkScene() {
     const people = [...scene.querySelectorAll('.sw-student')].map(svg => ({ svg, body: svg.querySelector('.sw-body'), arm: svg.querySelector('.sw-arm'), legs: [...svg.querySelectorAll('.sw-leg')].map(leg => ({ line: leg.children[0], shoe: leg.children[1] })) }));
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     let width = scene.clientWidth, visible = true, frame = 0, last = 0, elapsed = 0;
+    let completedSteps = 0, previousCycleSteps = 0;
     const paint = (time, still = false) => {
       const mobile = width <= 600, busWidth = mobile ? 150 : 220, schoolWidth = mobile ? 100 : 170;
       const scale = (mobile ? 58 : 78) / 96, speed = mobile ? 34 : 54;
@@ -43,7 +44,7 @@ export default function SchoolWalkScene() {
       const busX = t < 6 ? -busWidth + (stop + busWidth) * (t / 6) : t <= 11 ? stop : stop + (width + busWidth - stop) * Math.min(1, (t - 11) / 7);
       bus.style.transform = `translate3d(${busX}px,0,0)`;
       bus.style.opacity = still ? '0' : '1';
-      let totalSteps = 0, sumX = 0, walkers = 0;
+      let sumX = 0, walkers = 0;
       people.forEach(({ svg, body, arm, legs }, index) => {
         const exitAt = 7 + index * .42, walkingTime = Math.max(0, t - exitAt - .45);
         const distance = Math.min(end - start, walkingTime * speed);
@@ -61,8 +62,12 @@ export default function SchoolWalkScene() {
           line.setAttribute('d', `M29 ${p.hipY} Q${p.kneeX} ${p.kneeY} ${p.x} ${p.y - 2}`);
           shoe.setAttribute('d', `M${p.x - 4} ${p.y - 3} L${p.x + 3} ${p.y - 3} L${p.x + 9} ${p.y + 1} Q${p.x + 10} ${p.y + 3} ${p.x + 5} ${p.y + 3} L${p.x - 5} ${p.y + 3} Z`);
         });
-        if (opacity > .2 && !still) { walkers++; sumX += x; totalSteps += Math.floor(walkingTime / (WALK_CYCLE / 2)); }
+        if (opacity > .2 && !still) { walkers++; sumX += x;  }
       });
+      const cycleSteps = walkingGroupSteps(t, end - start, speed);
+      const running = runningStepTotal(previousCycleSteps, cycleSteps, completedSteps);
+      completedSteps = running.carried; previousCycleSteps = cycleSteps;
+      const totalSteps = running.total;
       bubble.style.opacity = walkers && totalSteps ? '1' : '0';
       bubble.style.transform = `translate3d(${walkers ? sumX / walkers : 0}px,0,0)`;
       const text = `+${totalSteps} steps`;

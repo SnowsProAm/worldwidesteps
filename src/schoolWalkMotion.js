@@ -13,3 +13,16 @@ export function walkingLeg(time, speed, offset = 0) {
   const bend = Math.sqrt(Math.max(0, 20 * 20 - distance * distance / 4));
   return { x, y, hipY, kneeX: 29 + dx / 2 + bend * dy / distance, kneeY: hipY + dy / 2 - bend * dx / distance, planted: phase < stance };
 }
+
+export function walkingGroupSteps(time, distance, speed, students = 7) {
+  let total = 0;
+  for (let index = 0; index < students; index++) {
+    const walked = Math.max(0, Math.min(time - 7.45 - index * .42, distance / speed));
+    total += Math.floor(walked / (WALK_CYCLE / 2));
+  }
+  return total;
+}
+export function runningStepTotal(previousCycle, currentCycle, carried) {
+  const nextCarried = currentCycle < previousCycle ? carried + previousCycle : carried;
+  return { carried: nextCarried, total: nextCarried + currentCycle };
+}
