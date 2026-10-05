@@ -1,4 +1,5 @@
 export const WALK_CYCLE = 0.8;
+export const GROUP_ARRIVAL_STEPS = 16273;
 // During stance, the foot moves backwards in SVG space at exactly the body's
 // forward speed. Its position on the pavement therefore stays fixed.
 export function walkingLeg(time, speed, offset = 0) {
@@ -16,9 +17,13 @@ export function walkingLeg(time, speed, offset = 0) {
 
 export function walkingGroupSteps(time, distance, speed, students = 7) {
   let total = 0;
+  const journey = Math.max(0, distance / speed);
+  const base = Math.floor(GROUP_ARRIVAL_STEPS / students);
+  const remainder = GROUP_ARRIVAL_STEPS % students;
   for (let index = 0; index < students; index++) {
-    const walked = Math.max(0, Math.min(time - 7.45 - index * .42, distance / speed));
-    total += Math.floor(walked / (WALK_CYCLE / 2));
+    const walked = Math.max(0, Math.min(time - 7.45 - index * .42, journey));
+    const share = base + (index < remainder ? 1 : 0);
+    total += journey ? Math.floor(share * walked / journey) : 0;
   }
   return total;
 }

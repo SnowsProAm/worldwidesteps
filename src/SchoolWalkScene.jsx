@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { walkingLeg, WALK_CYCLE, walkingGroupSteps, runningStepTotal } from './schoolWalkMotion';
+import { walkingLeg, WALK_CYCLE, walkingGroupSteps, runningStepTotal, GROUP_ARRIVAL_STEPS } from './schoolWalkMotion';
 import './schoolWalkScene.css';
 
 function Student({ tone, skin, hair, variant, hairStyle = "short", index }) {
@@ -68,9 +68,9 @@ export default function SchoolWalkScene() {
       const running = runningStepTotal(previousCycleSteps, cycleSteps, completedSteps);
       completedSteps = running.carried; previousCycleSteps = cycleSteps;
       const totalSteps = running.total;
-      bubble.style.opacity = walkers && totalSteps ? '1' : '0';
-      bubble.style.transform = `translate3d(${walkers ? sumX / walkers : 0}px,0,0)`;
-      const text = `+${totalSteps} steps`;
+      bubble.style.opacity = totalSteps && (walkers || cycleSteps === GROUP_ARRIVAL_STEPS) ? '1' : '0';
+      bubble.style.transform = `translate3d(${Math.min(walkers ? sumX / walkers : end, width - (mobile ? 85 : 112))}px,0,0)`;
+      const text = `+${totalSteps.toLocaleString('en-IE')} steps`;
       if (label.textContent !== text) label.textContent = text;
     };
     const tick = now => { if (last) elapsed += Math.min(now - last, 80) / 1000; last = now; paint(elapsed); frame = requestAnimationFrame(tick); };
