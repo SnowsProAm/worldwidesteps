@@ -68,13 +68,13 @@ const makeCSS = () => `
   @keyframes globeFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
   .fu,.fu2,.fu3,.fu4 { animation:fadeUp .8s both; }
   .insights-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-  .world-header { position:sticky; top:0; z-index:100; min-height:76px; padding:12px max(24px,calc((100vw - 1232px)/2)); display:flex; align-items:center; justify-content:space-between; gap:16px; background:rgba(255,255,255,.94); backdrop-filter:blur(16px); border-bottom:1px solid #e7edf5; }
+  .world-header { position:sticky; top:0; z-index:100; min-height:76px; padding:12px 12px; display:flex; align-items:center; justify-content:space-between; gap:16px; background:rgba(255,255,255,.94); backdrop-filter:blur(16px); border-bottom:1px solid #e7edf5; }
   .world-brand { display:flex; align-items:center; gap:10px; color:#0A1D44; font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.6px; }
   .world-brand img { width:30px; height:30px; object-fit:contain; }
   .world-header nav { display:flex; gap:28px; font-size:13px; font-weight:600; color:#53617a; }
   .world-header nav a { min-height:44px; display:flex; align-items:center; }
   .world-header nav a:hover,.text-action:hover { color:#0C69C8; }
-  .main-pad { max-width:1280px; padding:58px 24px 0; margin:auto; }
+  .main-pad { width:100%; padding:58px 12px 0; }
   .section-eyebrow { display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:1.7px; text-transform:uppercase; color:#0C69C8; margin-bottom:14px; }
   .hero-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:20px; align-items:center; }
   .hero-content { position:relative; z-index:1; min-width:0; }
@@ -151,8 +151,8 @@ const makeCSS = () => `
   .data-notice button { border:0; background:transparent; color:#0C69C8; text-decoration:underline; min-height:44px; padding:0 10px; }
   @media (max-width:1000px) { .country-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   @media (max-width:760px) {
-    .main-pad { padding:34px 20px 0; }
-    .world-header { min-height:68px; padding:10px 20px; }
+    .main-pad { padding:34px 12px 0; }
+    .world-header { min-height:68px; padding:10px 12px; }
     .world-brand { font-size:14px; gap:8px; letter-spacing:-.4px; }
     .world-brand img { width:26px; height:26px; }
     .world-header nav { font-size:11px; gap:14px; }
