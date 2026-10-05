@@ -510,7 +510,7 @@ export default function InsightsDashboard() {
 
       <header className="world-header">
         <a href="#top" className="world-brand"><img src={logo} alt="" /><span>World Wide Steps</span></a>
-        <nav aria-label="Page navigation"><a href="#leaderboard">Leaderboard</a><a className="countries-nav" href="#countries">Countries</a></nav>
+        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="#leaderboard">Leaderboard</a><a className="countries-nav" href="#countries">Countries</a></nav>
       </header>
       <main className="main-pad" id="top">
         {partialError&&<div className="data-notice" role="status">Some activity details could not load. <button onClick={()=>setReloadKey(v=>v+1)}>Try again</button></div>}
