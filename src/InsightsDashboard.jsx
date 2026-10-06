@@ -87,6 +87,9 @@ const makeCSS = () => `
   .world-total-label { font-size:12px; font-weight:700; color:#53617a; margin-bottom:5px; }
   .world-total-value { display:flex; align-items:center; gap:5px; }
   .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.6vw,80px); font-weight:700; letter-spacing:-3px; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
+  .world-total-delta { min-height:22px; margin-top:4px; color:#047857; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .world-total-delta[data-direction="down"] { color:#b42318; }
+  .world-total-delta[data-direction="same"] { color:#53617a; }
   .world-total-note { display:block; color:#67758b; font-size:11px; line-height:1.6; margin-top:8px; }
   .hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:24px; margin-top:28px; }
   .primary-action { min-height:48px; padding:14px 18px; display:inline-flex; gap:16px; align-items:center; justify-content:center; border:0; border-radius:6px; background:linear-gradient(115deg,#0C69C8,#084c98); color:#fff; font-weight:600; font-size:13px; box-shadow:0 5px 15px #0c69c81a; transition:transform .2s,box-shadow .2s; }
@@ -328,6 +331,7 @@ export default function InsightsDashboard() {
   const [activities,   setActivities]   = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [updateError,  setUpdateError]  = useState(false);
+  const [initialSteps, setInitialSteps] = useState(null);
 
   useEffect(()=>{
     let active=true, busy=false, hasLoaded=false, lastDetailsAt=0;
@@ -359,7 +363,10 @@ export default function InsightsDashboard() {
           profs.value.forEach(p => { map[p.id] = p; });
           setProfiles(map);
         }
-        if (sProfs.status === "fulfilled") setSportProfiles(sProfs.value);
+        if (sProfs.status === "fulfilled") {
+          setInitialSteps(previous => previous ?? worldwideStepTotal(sProfs.value));
+          setSportProfiles(sProfs.value);
+        }
         if (includeDetails) {
           if (snaps.status === "fulfilled") {
             if (snaps.value.length) setSnapshots(snaps.value);
@@ -492,6 +499,7 @@ export default function InsightsDashboard() {
 
   const nextMilestone=(Math.floor(M.totalSteps/10000000)+1)*10000000;
   const milestoneProgress=Math.min(100,(M.totalSteps/nextMilestone)*100);
+  const stepsSinceLoad=initialSteps === null ? 0 : M.totalSteps-initialSteps;
 
   if(loading) return(
     <div role="status" style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
@@ -530,6 +538,7 @@ export default function InsightsDashboard() {
                 <div className="world-total-value">
                   <div className="world-total-number"><AnimNum value={M.totalSteps}/></div>
                 </div>
+                {initialSteps !== null && <div className="world-total-delta" data-direction={stepsSinceLoad > 0 ? "up" : stepsSinceLoad < 0 ? "down" : "same"}>{stepsSinceLoad > 0 ? "+" : stepsSinceLoad < 0 ? "−" : ""}<AnimNum value={Math.abs(stepsSinceLoad)} duration={900}/>{stepsSinceLoad < 0 ? " fewer steps" : " new steps"} since this page loaded</div>}
                 <div className="world-total-note">All time steps recorded on Snows ProAm</div>
               </div>
               <div className="hero-actions"><a className="primary-action" href="#leaderboard">Explore the leaderboard <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a><a className="text-action" href="#countries">Meet the world <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a></div>
