@@ -5,6 +5,9 @@ app_rows as (select * from public.get_public_institute_leaderboard('School', 'Na
 select
   to_regprocedure('public.get_public_school_step_challenge()') is not null as function_exists,
   has_function_privilege('anon', 'public.get_public_school_step_challenge()', 'EXECUTE') as public_execution,
+  position('nullif(btrim(p.username)' in pg_get_functiondef(to_regprocedure('public.get_public_school_step_challenge()'))) > 0
+    and position('nullif(btrim(p.name)' in pg_get_functiondef(to_regprocedure('public.get_public_school_step_challenge()'))) = 0
+    as usernames_or_aliases_only,
   not ((select data::text from payload) ~ '(access_code|profile_id|email|surname|username|profile_img)') as no_private_fields,
   (select data->>'scoring' from payload) = case
     when now() < timestamptz '2026-10-12 00:00:00+01:00' then 'warmup_school_totals'

@@ -152,8 +152,6 @@ body { margin: 0; background: #fff; }
 .sc-small-gift > svg { width: 100%; height: 100%; }
 .sc-league-footer { display: flex; justify-content: space-between; gap: 16px; color: #7e8b9d; font-size: 10px; margin-top: 17px; }
 .sc-league-footer svg { color: #76a590; margin-right: 5px; }
-.sc-privacy-note { display: flex; align-items: baseline; justify-content: center; gap: 8px; margin-top: 23px !important; font-size: 10px; color: #71849b; }
-.sc-privacy-note svg { color: #97a9bd; flex-shrink: 0; }
 .sc-student-intro { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 25px 0; }
 .sc-student-intro h3 { font: 550 19px 'Sora', sans-serif; letter-spacing: -.5px; }
 .sc-student-intro p { margin-top: 6px; font-size: 12px; color: var(--muted); }
@@ -444,7 +442,6 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
   .sc-student-icon { width: 22px; height: 22px; font-size: 9px; }
   .sc-small-gift { height: 44px; width: 36px; margin-top: -6px; margin-bottom: -6px; }
   .sc-league-footer { flex-direction: column; gap: 8px; font-size: 9px; padding: 0 3px; }
-  .sc-privacy-note { font-size: 9px; justify-content: flex-start; line-height: 1.8; margin-top: 20px !important; }
   .sc-student-intro { gap: 14px; padding: 21px 0 7px; }
   .sc-student-intro h3 { font-size: 16px; line-height: 1.5; }
   .sc-student-intro p { font-size: 11px; line-height: 1.8; }
@@ -535,14 +532,13 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 /* Keep secondary labels readable on white, including small-screen school cards. */
 .sc-school-identity h3 { font-size: 14px; }
 .sc-location, .sc-school-total > span, .sc-school-student small, .sc-school-student > div > span,
-.sc-privacy-note, .sc-league-footer, .sc-table-head, .sc-prize-position, .sc-prize-box > span:last-child,
+.sc-league-footer, .sc-table-head, .sc-prize-position, .sc-prize-box > span:last-child,
 .sc-mystery-prizes > p, .sc-prize-fineprint, .sc-soft-pill, .sc-footer > p { color: #5e7189; }
 .sc-school-student strong { font-size: 12px; }
 .sc-school-student > div > span { font-size: 10px; }
 .sc-school-student small { font-size: 8px; }
 .sc-location { font-size: 11px; }
 .sc-leading-prize { color: #81601d; }
-.sc-privacy-note { font-size: 11px; }
 .sc-league-footer { font-size: 11px; }
 .sc-podium-place { color: #806329; }
 .sc-podium-2 .sc-podium-place { color: #75608e; }
@@ -564,7 +560,7 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
   .sc-school-student strong { font-size: 11px; }
   .sc-school-student > div > span { font-size: 10px; text-align: right; }
   .sc-student-icon { width: 27px; height: 27px; font-size: 11px; }
-  .sc-privacy-note, .sc-league-footer { font-size: 10px; }
+  .sc-league-footer { font-size: 10px; }
   .sc-prize-box > strong { font-size: 10px; }
   .sc-prize-box > span:last-child { font-size: 8px; }
   .sc-prize-position { font-size: 7px; }
