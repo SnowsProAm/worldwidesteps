@@ -10,6 +10,10 @@ test('sorts totals numerically, preserves tied national ranks and includes zero-
   assert.deepEqual(result.schools.map(s => [s.id, s.rank]), [['b', 1], ['c', 2], ['a', 2], ['d', 4]]);
   assert.equal(result.totalSteps, 298);
 });
+test('a fresh start gives zero-step schools distinct neutral positions', () => {
+  const result = normalize([school('c', 'Cavan', 0), school('a', 'Abbey', 0), school('b', 'Belvedere', 0)]);
+  assert.deepEqual(result.schools.map(s => [s.id, s.rank]), [['a', 1], ['b', 2], ['c', 3]]);
+});
 test('county and accent-insensitive search retain national rank', () => {
   const { schools } = normalize([school('a', 'Abbey', 100), school('b', 'Coláiste Cholmcille', 50, 'Donegal')]);
   assert.equal(filterSchools(schools, 'colaiste', 'Donegal')[0].rank, 2);

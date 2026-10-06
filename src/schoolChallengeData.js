@@ -23,7 +23,7 @@ export function normalizeChallenge(payload) {
     } : null,
   })).sort((a, b) => b.total_steps - a.total_steps || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
   schools.forEach((school, index) => {
-    school.rank = index > 0 && school.total_steps === schools[index - 1].total_steps ? schools[index - 1].rank : index + 1;
+    school.rank = school.total_steps > 0 && index > 0 && school.total_steps === schools[index - 1].total_steps ? schools[index - 1].rank : index + 1;
   });
   return {
     schools,

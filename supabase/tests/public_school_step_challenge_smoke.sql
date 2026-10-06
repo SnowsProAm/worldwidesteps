@@ -6,11 +6,16 @@ select
   to_regprocedure('public.get_public_school_step_challenge()') is not null as function_exists,
   has_function_privilege('anon', 'public.get_public_school_step_challenge()', 'EXECUTE') as public_execution,
   not ((select data::text from payload) ~ '(access_code|profile_id|email|surname|username|profile_img)') as no_private_fields,
+  (select data->>'scoring' from payload) = case
+    when now() < timestamptz '2026-10-12 00:00:00+01:00' then 'warmup_school_totals'
+    else 'challenge_steps_oct12_nov12_2026'
+  end as scoring_phase_matches_clock,
   not exists (
     select 1 from school_rows s join app_rows a on a.id::text = s.school->>'id'
-    where (s.school->>'total_steps')::bigint <> a.total_steps
-       or s.school->>'name' <> a.name
-  ) as totals_and_names_match_app,
+    where s.school->>'name' <> a.name
+       or (now() < timestamptz '2026-10-12 00:00:00+01:00'
+         and (s.school->>'total_steps')::bigint <> a.total_steps)
+  ) as warmup_totals_and_names_match_app,
   not exists (
     select 1 from school_rows s join public.institutes i on i.id::text = s.school->>'id'
     where not i.is_active or i.archived_at is not null or i.teams or i.institute_type <> 'School'

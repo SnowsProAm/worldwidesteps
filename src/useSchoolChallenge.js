@@ -18,7 +18,7 @@ export function useSchoolChallenge() {
         if (error) throw error;
         const normalized = normalizeChallenge(data);
         if (active) setState(previous => ({ ...previous, data: normalized, loading: false, refreshing: false,
-          error: false, checkedAt: new Date(), movements: rankMovements(previous.data?.schools, normalized.schools) }));
+          error: false, checkedAt: new Date(), movements: previous.data?.scoring === normalized.scoring ? rankMovements(previous.data?.schools, normalized.schools) : {} }));
       } catch {
         if (active) setState(previous => ({ ...previous, loading: false, refreshing: false, error: true }));
       } finally { clearTimeout(timeout); busy = false; }
