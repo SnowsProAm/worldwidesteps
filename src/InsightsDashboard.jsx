@@ -86,15 +86,7 @@ const makeCSS = () => `
   .world-total { padding:0; }
   .world-total-label { font-size:12px; font-weight:700; color:#53617a; margin-bottom:5px; }
   .world-total-value { display:flex; align-items:center; gap:5px; }
-  .world-total-refresh { width:44px; height:44px; flex:0 0 44px; display:inline-grid; place-items:center; border:0; border-radius:50%; background:transparent; color:#53617a; font-size:13px; }
-  .world-total-refresh:hover { color:#0C69C8; background:#edf5fd; }
-  .world-total-refresh:disabled { opacity:.55; cursor:wait; }
-  .world-total-refresh[data-refreshing="true"] svg { animation:spin .8s linear infinite; }
-  .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.5vw,76px); font-weight:700; letter-spacing:-3px; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
-  .world-total-feedback { min-height:24px; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:#53617a; }
-  .world-total-delta { display:inline-block; padding:3px 9px; border-radius:999px; background:#e9f8f0; color:#047857; font-variant-numeric:tabular-nums; }
-  .world-total-delta[data-direction="down"] { background:#fff0ef; color:#b42318; }
-  .world-total-error { color:#b42318; }
+  .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.6vw,80px); font-weight:700; letter-spacing:-3px; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
   .world-total-note { display:block; color:#67758b; font-size:11px; line-height:1.6; margin-top:8px; }
   .hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:24px; margin-top:28px; }
   .primary-action { min-height:48px; padding:14px 18px; display:inline-flex; gap:16px; align-items:center; justify-content:center; border:0; border-radius:6px; background:linear-gradient(115deg,#0C69C8,#084c98); color:#fff; font-weight:600; font-size:13px; box-shadow:0 5px 15px #0c69c81a; transition:transform .2s,box-shadow .2s; }
@@ -110,9 +102,9 @@ const makeCSS = () => `
   .world-summary > div { display:flex; align-items:center; justify-content:center; gap:18px; padding:0 14px; }
   .world-summary > div+div { border-left:1px solid #e7edf5; }
   .world-summary svg { color:#0C69C8; font-size:24px; }
-  .world-summary strong { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:26px; font-variant-numeric:tabular-nums; }
-  .world-summary strong small { font-size:14px; font-weight:500; }
-  .world-summary span { display:block; font-size:11px; color:#67758b; margin-top:5px; }
+  .world-summary strong { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:32px; font-variant-numeric:tabular-nums; line-height:1.2; }
+  .world-summary strong small { font-size:16px; font-weight:500; }
+  .world-summary > div > div > span { display:block; font-size:11px; color:#67758b; margin-top:5px; }
   .hero-mb,.section-mb { margin-bottom:64px; }
   .milestone-section { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; padding:30px 32px; background:linear-gradient(105deg,#f2f7fd,#f9fbfe); border-left:3px solid #0C69C8; }
   .milestone-section .section-eyebrow { margin-bottom:10px; }
@@ -167,8 +159,9 @@ const makeCSS = () => `
     .world-summary { margin-top:20px; padding:22px 0; }
     .world-summary > div { flex-direction:column; gap:9px; padding:0 6px; text-align:center; }
     .world-summary svg { font-size:18px; }
-    .world-summary strong { font-size:clamp(17px,5vw,23px); }
-    .world-summary span { font-size:10px; line-height:1.5; }
+    .world-summary strong { font-size:clamp(20px,5.6vw,27px); }
+    .world-summary strong small { font-size:12px; }
+    .world-summary > div > div > span { font-size:10px; line-height:1.5; }
     .hero-mb,.section-mb { margin-bottom:44px; }
     .milestone-section { grid-template-columns:1fr; gap:22px; padding:22px 20px; }
     .milestone-section h2 { font-size:18px; }
@@ -231,7 +224,7 @@ const FlagImg = ({ country, size=28 }) => {
   return <img src={url} alt={country} style={{width:size*1.4,height:size,objectFit:"cover",borderRadius:4,flexShrink:0,display:"block"}} onError={()=>setFailedUrl(url)}/>;
 };
 
-const AnimNum = ({ value, duration=3000 }) => {
+const AnimNum = ({ value, duration=1200, format=fmtFull }) => {
   const [v,setV] = useState(0);
   const current = useRef(0);
   useEffect(()=>{
@@ -250,7 +243,7 @@ const AnimNum = ({ value, duration=3000 }) => {
     motion.addEventListener("change",change);
     return()=>{cancelAnimationFrame(frame);motion.removeEventListener("change",change);};
   },[value,duration]);
-  return <><span aria-hidden="true">{v.toLocaleString()}</span><span className="insights-sr-only">{value.toLocaleString()}</span></>;
+  return <span>{format(v)}</span>;
 };
 
 const SHead = ({C,tag,title,sub}) => (
@@ -323,6 +316,7 @@ export default function InsightsDashboard() {
   const [reducedMotion,setReducedMotion]=useState(()=>window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   useEffect(()=>{const q=window.matchMedia("(prefers-reduced-motion: reduce)");const update=()=>setReducedMotion(q.matches);q.addEventListener("change",update);return()=>q.removeEventListener("change",update);},[]);
   const [reloadKey,setReloadKey]=useState(0);
+  const refreshRef=useRef(()=>{});
   const [showAllCountries,setShowAllCountries]=useState(false);
   const [countrySearch,setCountrySearch]=useState("");
   const countrySearchInput=useRef(null);
@@ -333,66 +327,76 @@ export default function InsightsDashboard() {
   const [sportProfiles,setSportProfiles]= useState([]);
   const [activities,   setActivities]   = useState([]);
   const [loading,      setLoading]      = useState(true);
-  const [refreshingSteps,setRefreshingSteps] = useState(false);
-  const [stepRefreshDelta,setStepRefreshDelta] = useState(null);
-  const [stepRefreshError,setStepRefreshError] = useState(false);
+  const [updateError,  setUpdateError]  = useState(false);
 
   useEffect(()=>{
-    let active=true;
-    (async()=>{
-      setLoading(true);
-      setLoadError(false);
+    let active=true, busy=false, hasLoaded=false, lastDetailsAt=0;
+    const refresh = async () => {
+      if (!active || busy || document.hidden) return;
+      if (!navigator.onLine) {
+        if (hasLoaded) setUpdateError(true);
+        else { setLoading(false); setLoadError(true); }
+        return;
+      }
+      busy=true;
+      const includeDetails = !hasLoaded || Date.now()-lastDetailsAt >= 60_000;
       try {
         const results = await Promise.allSettled([
-          fetchAll("daily_step_snapshots", "profile_id,day,steps,calories,distance_m,tracking_mode", "day"),
           fetchAll("profiles",             "id,username,name,surname,profile_img,country,current_country,level", null),
           fetchAll("sport_profiles",       "profile_id,sport_id,trophies,lifetime_steps,league", null, "Fitness"),
-          fetchAll("step_update_log",      "profile_id,steps_added,created_at", "created_at"),
-          fetchAll("activities",           "profile_id,distance_m,calories,created_at,started_at", "created_at"),
+          ...(includeDetails ? [
+            fetchAll("daily_step_snapshots", "profile_id,day,steps,calories,distance_m,tracking_mode", "day"),
+            fetchAll("step_update_log",      "profile_id,steps_added,created_at", "created_at"),
+            fetchAll("activities",           "profile_id,distance_m,calories,created_at,started_at", "created_at"),
+          ] : []),
         ]);
 
         if (!active) return;
-        if (results[1].status === "rejected" || results[2].status === "rejected") throw new Error("Worldwide data unavailable");
-        const [snaps, profs, sProfs, stepLog, activityRows] = results.map(r=>r.status === "fulfilled" ? r.value : []);
-        setPartialError(results.some(r=>r.status === "rejected"));
-
-        const effectiveSnapshots = snaps.length ? snaps : snapshotsFromStepLog(stepLog);
-        setSnapshots(effectiveSnapshots);
-        setSportProfiles(sProfs);
-        setActivities(activityRows);
-
-        const map = {};
-        profs.forEach(p => { map[p.id] = p; });
-        setProfiles(map);
+        const [profs, sProfs, snaps, stepLog, activityRows] = results;
+        if (!hasLoaded && (profs.status === "rejected" || sProfs.status === "rejected")) throw new Error("Worldwide data unavailable");
+        if (profs.status === "fulfilled") {
+          const map = {};
+          profs.value.forEach(p => { map[p.id] = p; });
+          setProfiles(map);
+        }
+        if (sProfs.status === "fulfilled") setSportProfiles(sProfs.value);
+        if (includeDetails) {
+          if (snaps.status === "fulfilled") {
+            if (snaps.value.length) setSnapshots(snaps.value);
+            else if (stepLog.status === "fulfilled") setSnapshots(snapshotsFromStepLog(stepLog.value));
+          }
+          if (activityRows.status === "fulfilled") setActivities(activityRows.value);
+          if (results.slice(2).every(result => result.status === "fulfilled")) lastDetailsAt=Date.now();
+        }
+        if (includeDetails) setPartialError(results.slice(2).some(result => result.status === "rejected"));
+        setUpdateError(results.slice(0,2).some(result => result.status === "rejected"));
+        hasLoaded=true;
+        setLoadError(false);
       } catch (err) {
         console.error("Dashboard load error:", err);
-        if(active)setLoadError(true);
+        if(active) hasLoaded ? setUpdateError(true) : setLoadError(true);
       } finally {
+        busy=false;
         if(active)setLoading(false);
       }
-    })();
-    return()=>{active=false;};
+    };
+    const onVisible=()=>{if(!document.hidden)refresh();};
+    refreshRef.current=refresh;
+    refresh();
+    const interval=setInterval(refresh,15_000);
+    window.addEventListener("online",refresh);
+    window.addEventListener("offline",refresh);
+    document.addEventListener("visibilitychange",onVisible);
+    return()=>{
+      active=false;
+      clearInterval(interval);
+      window.removeEventListener("online",refresh);
+      window.removeEventListener("offline",refresh);
+      document.removeEventListener("visibilitychange",onVisible);
+    };
   },[reloadKey]);
 
   const fitnessProfiles=useMemo(()=>sportProfiles.filter(sp=>sp.sport_id==="Fitness"),[sportProfiles]);
-
-  const refreshWorldwideSteps = async () => {
-    if (refreshingSteps) return;
-    const previousTotal = M.totalSteps;
-    setRefreshingSteps(true);
-    setStepRefreshError(false);
-    setStepRefreshDelta(null);
-    try {
-      const updated = await fetchAll("sport_profiles", "profile_id,sport_id,trophies,lifetime_steps,league", null, "Fitness");
-      setSportProfiles(updated);
-      setStepRefreshDelta(worldwideStepTotal(updated) - previousTotal);
-    } catch (error) {
-      console.error("Worldwide steps refresh error:", error);
-      setStepRefreshError(true);
-    } finally {
-      setRefreshingSteps(false);
-    }
-  };
 
   const M = useMemo(()=>{
     // Fitness is the source of truth for worldwide steps and athletes. Keep
@@ -514,7 +518,7 @@ export default function InsightsDashboard() {
         <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="#leaderboard">Leaderboard</a><a className="countries-nav" href="#countries">Countries</a></nav>
       </header>
       <main className="main-pad" id="top">
-        {partialError&&<div className="data-notice" role="status">Some activity details could not load. <button onClick={()=>setReloadKey(v=>v+1)}>Try again</button></div>}
+        {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures could not update. Showing the last loaded values and trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}
         <section className="world-hero hero-mb" aria-labelledby="world-title">
           <div className="hero-grid">
             <div className="hero-content fu">
@@ -525,10 +529,6 @@ export default function InsightsDashboard() {
                 <div className="world-total-label">Steps taken worldwide</div>
                 <div className="world-total-value">
                   <div className="world-total-number"><AnimNum value={M.totalSteps}/></div>
-                  <button type="button" className="world-total-refresh" onClick={refreshWorldwideSteps} disabled={refreshingSteps} data-refreshing={refreshingSteps} aria-label="Refresh worldwide steps" aria-busy={refreshingSteps} title="Refresh worldwide steps"><FontAwesomeIcon icon={faArrowRotateRight} aria-hidden="true" /></button>
-                </div>
-                <div className="world-total-feedback" role="status" aria-live="polite">
-                  {refreshingSteps ? "Refreshing…" : stepRefreshError ? <span className="world-total-error">Could not refresh. Try again.</span> : stepRefreshDelta !== null ? <span className="world-total-delta" data-direction={stepRefreshDelta < 0 ? "down" : "up"}>{stepRefreshDelta > 0 ? "+" : ""}{fmtFull(stepRefreshDelta)}<span className="insights-sr-only"> steps since last refresh</span></span> : null}
                 </div>
                 <div className="world-total-note">All time steps recorded on Snows ProAm</div>
               </div>
@@ -537,15 +537,15 @@ export default function InsightsDashboard() {
             <GlobeScene/>
           </div>
           <div className="world-summary">
-            <div><FontAwesomeIcon icon={faPersonRunning} aria-hidden="true"/><div><strong>{fmtFull(M.uniqueUsers)}</strong><span>Fitness athletes worldwide</span></div></div>
-            <div><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true"/><div><strong>{countryData.totalCountries||0}</strong><span>Countries represented</span></div></div>
-            <div><FontAwesomeIcon icon={faRuler} aria-hidden="true"/><div><strong>{fmtFull(Math.round(M.totalDist/1000))} <small>km</small></strong><span>Recorded distance</span></div></div>
+            <div><FontAwesomeIcon icon={faPersonRunning} aria-hidden="true"/><div><strong><AnimNum value={M.uniqueUsers}/></strong><span>Fitness athletes worldwide</span></div></div>
+            <div><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true"/><div><strong><AnimNum value={countryData.totalCountries}/></strong><span>Countries represented</span></div></div>
+            <div><FontAwesomeIcon icon={faRuler} aria-hidden="true"/><div><strong><AnimNum value={Math.round(M.totalDist/1000)}/> <small>km</small></strong><span>Recorded distance</span></div></div>
           </div>
         </section>
 
         <section className="milestone-section section-mb" aria-labelledby="milestone-title">
-          <div><div className="section-eyebrow">Our next milestone</div><h2 id="milestone-title">Together, towards {nextMilestone/1000000} million.</h2><p>{fmtFull(nextMilestone-M.totalSteps)} more steps to get there.</p></div>
-          <div className="milestone-meter"><div className="milestone-labels"><span>{fmtFull(M.totalSteps)} steps</span><span>{Math.floor(milestoneProgress)}%</span></div><div className="milestone-track" role="progressbar" aria-label="Progress towards the next worldwide step milestone" aria-valuenow={M.totalSteps} aria-valuemin={0} aria-valuemax={nextMilestone}><div style={{width:`${milestoneProgress}%`}}/></div><span className="world-total-note">Real steps. Shared progress.</span></div>
+          <div><div className="section-eyebrow">Our next milestone</div><h2 id="milestone-title">Together, towards {nextMilestone/1000000} million.</h2><p><AnimNum value={nextMilestone-M.totalSteps}/> more steps to get there.</p></div>
+          <div className="milestone-meter"><div className="milestone-labels"><span><AnimNum value={M.totalSteps}/> steps</span><span><AnimNum value={Math.floor(milestoneProgress)}/>%</span></div><div className="milestone-track" role="progressbar" aria-label="Progress towards the next worldwide step milestone" aria-valuenow={M.totalSteps} aria-valuemin={0} aria-valuemax={nextMilestone}><div style={{width:`${milestoneProgress}%`}}/></div><span className="world-total-note">Real steps. Shared progress.</span></div>
         </section>
 
         {M.dailyTrend.some(d=>d.steps>0)&&<section className="section-mb" aria-label="Daily step activity">
@@ -597,11 +597,11 @@ export default function InsightsDashboard() {
                   </div>
                   {/* Trophies */}
                   <div role="cell" style={{textAlign:"right",fontFamily:"'Sora',sans-serif",fontSize:12,fontWeight:800,color:i<3?rowCol:C.text}}>
-                    <FontAwesomeIcon icon={faTrophy} aria-hidden="true" /> {fmtFull(u.trophies)}
+                    <FontAwesomeIcon icon={faTrophy} aria-hidden="true" /> <AnimNum value={u.trophies}/>
                   </div>
                   {/* Lifetime Steps */}
                   <div role="cell" className="lb-hide-mobile" style={{textAlign:"right",fontSize:12,fontWeight:600,color:C.textSecondary}}>
-                    {fmt(u.lifetimeSteps)}
+                    <AnimNum value={u.lifetimeSteps} format={fmt}/>
                   </div>
                   {/* League */}
                   <div role="cell" className="lb-hide-mobile" style={{textAlign:"right",fontSize:12,fontWeight:600,color:C.textSecondary}}>
@@ -640,7 +640,7 @@ export default function InsightsDashboard() {
                           <FlagImg country={c.country} size={22}/>
                           <div style={{minWidth:0}}>
                             <div style={{fontSize:12,fontWeight:700,color:C.text,lineHeight:1.5}}>{c.country}</div>
-                            <div style={{fontSize:10,color:C.textMuted,fontWeight:500}}>{c.count} athlete{c.count!==1?"s":""}</div>
+                            <div style={{fontSize:10,color:C.textMuted,fontWeight:500}}><AnimNum value={c.count}/> athlete{c.count!==1?"s":""}</div>
                           </div>
                         </div>
                         {c.country===countryData.countries[0]?.country&&<span style={{fontSize:11,fontWeight:700,color:C.accent,flexShrink:0}}>#1</span>}
@@ -659,7 +659,7 @@ export default function InsightsDashboard() {
                 </div>
               )}
               <div style={{fontSize:11,color:C.textSecondary,textAlign:"center",marginTop:6,fontWeight:600}}>
-                Total: {countryData.totalWithCountry + (countryData.noCountryCount || 0)} Fitness athletes
+                Total: <AnimNum value={countryData.totalWithCountry + countryData.noCountryCount}/> Fitness athletes
               </div>
             </div>
           </section>
