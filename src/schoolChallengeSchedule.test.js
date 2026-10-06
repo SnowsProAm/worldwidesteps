@@ -1,7 +1,13 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { challengeSchedule, CHALLENGE_START, CHALLENGE_END, COUNTDOWN_OPEN } from './schoolChallengeSchedule.js';
+import { challengeClockNow, challengeSchedule, CHALLENGE_START, CHALLENGE_END, COUNTDOWN_OPEN } from './schoolChallengeSchedule.js';
 describe('Irish challenge schedule', () => {
+  it('anchors the countdown to server time instead of the device clock', () => {
+    const serverTime = '2026-10-06T10:00:00.000Z';
+    assert.equal(challengeClockNow(serverTime, 100, 1100), Date.parse(serverTime) + 1000);
+    assert.equal(challengeSchedule(challengeClockNow(serverTime, 100, 1100)).phase, 'upcoming');
+    assert.equal(challengeClockNow(null, 100, 1100), null);
+  });
   it('starts at Irish midnight on 12 October', () => { assert.equal(challengeSchedule(CHALLENGE_START - 1).phase, 'upcoming'); assert.equal(challengeSchedule(CHALLENGE_START).phase, 'active'); assert.equal(challengeSchedule(CHALLENGE_START).day, 1); });
   it('moves the launch meter through the countdown week while challenge progress stays at zero', () => {
     assert.equal(challengeSchedule(COUNTDOWN_OPEN).launchProgress, 0);

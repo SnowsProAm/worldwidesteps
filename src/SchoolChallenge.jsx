@@ -203,7 +203,7 @@ export default function SchoolChallenge() {
         <aside className="sc-school-outreach" aria-labelledby="sc-outreach-title"><span className="sc-outreach-plane" aria-hidden="true"><Icon icon={faPaperPlane} /></span><div className="sc-outreach-lead"><p className="sc-eyebrow">Bring your school along</p><h3 id="sc-outreach-title">Can’t see your school?</h3><p>Let’s get your community moving.</p></div><div className="sc-outreach-contact"><strong>Eva Bellova</strong><span>Head of Growth</span><a className="sc-outreach-email" href="mailto:eva.bellova@snowsproam.com?subject=Irish%20Secondary%20School%20Step%20Challenge">eva.bellova@snowsproam.com</a><a className="sc-outreach-demo" href={demoBookingUrl} target="_blank" rel="noopener noreferrer">Book a school demo <Icon icon={faArrowRight} /></a></div></aside></div>
 
       <section className="sc-leaderboard-section" id="sc-leaderboard" aria-labelledby="sc-league-heading">
-        <SchoolChallengeCountdown />
+        <SchoolChallengeCountdown serverUpdatedAt={data?.updatedAt} timeUnavailable={!data && (error || offline)} />
         <div className="sc-section-heading"><div><p className="sc-eyebrow">School pride. On the line.</p><h2 id="sc-league-heading">The leaderboard<span className="sc-heading-dot">.</span></h2><p>{warmup ? 'Warm-up standings today. A fresh race begins on 12 October.' : 'Find your crew. Follow the climb. Cheer them on.'}</p></div>
 
         </div>

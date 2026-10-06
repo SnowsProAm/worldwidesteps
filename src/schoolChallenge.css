@@ -860,6 +860,7 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 }
 
 .sc-countdown { margin:0 0 38px; padding:26px 30px; border:1px solid #dce8f6; border-radius:26px; background:linear-gradient(115deg,#edf7ff 0%,#f2edff 57%,#fff4da 100%); display:grid; grid-template-columns:1fr auto; gap:20px 32px; }
+.sc-countdown-loading {min-height:170px;align-items:center;}
 .sc-countdown .sc-eyebrow {font-size:10px; color:#47617e; margin:0 0 10px;}
 .sc-countdown h3 {font-family:Sora,sans-serif;font-size:clamp(24px,3vw,34px);letter-spacing:-1px;margin:0 0 8px;color:#13365d;}
 .sc-countdown p {margin:0;color:#50637d;font-size:14px;}

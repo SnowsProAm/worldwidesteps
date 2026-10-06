@@ -1,15 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoePrints } from '@fortawesome/free-solid-svg-icons';
-import { challengeSchedule } from './schoolChallengeSchedule';
-export default function SchoolChallengeCountdown() {
-  const [now, setNow] = useState(Date.now);
+import { challengeClockNow, challengeSchedule } from './schoolChallengeSchedule';
+export default function SchoolChallengeCountdown({ serverUpdatedAt, timeUnavailable = false }) {
+  const [now, setNow] = useState(null);
+  const clockAnchor = useRef(null);
   useEffect(() => {
-    const update = () => setNow(Date.now());
+    const receivedAt = performance.now();
+    const serverTime = challengeClockNow(serverUpdatedAt, receivedAt, receivedAt);
+    if (serverTime === null) return;
+    clockAnchor.current = { serverUpdatedAt, receivedAt };
+    setNow(serverTime);
+  }, [serverUpdatedAt]);
+  useEffect(() => {
+    const update = () => {
+      const anchor = clockAnchor.current;
+      if (anchor) setNow(challengeClockNow(anchor.serverUpdatedAt, anchor.receivedAt, performance.now()));
+    };
     const timer = setInterval(update, 15000);
     window.addEventListener('focus', update);
     return () => { clearInterval(timer); window.removeEventListener('focus', update); };
   }, []);
+  if (now === null) return <section className="sc-countdown sc-countdown-loading" aria-label="Challenge dates and progress">
+    <div className="sc-countdown-copy"><span className="sc-eyebrow">12 October – 12 November 2026 · Irish time</span><h3>{timeUnavailable ? 'Challenge clock unavailable.' : 'Getting the countdown ready…'}</h3><p role="status">{timeUnavailable ? 'Reconnect to see the live countdown and standings.' : 'Checking the live start time.'}</p></div>
+  </section>;
   const { phase, completedDays, dateLabel, days, hours, minutes, launchProgress, progress } = challengeSchedule(now);
   const meterProgress = phase === 'upcoming' ? launchProgress : progress;
   return <section className={`sc-countdown sc-countdown-${phase}`} aria-label="Challenge dates and progress">
