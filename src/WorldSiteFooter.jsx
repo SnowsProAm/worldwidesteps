@@ -13,7 +13,7 @@ export default function WorldSiteFooter() {
   return <footer className="ws-site-footer">
     <div className="ws-footer-main">
       <div className="ws-footer-about"><a className="ws-footer-brand" href="/"><img src="/favicon.png" alt="" width="38" height="38"/><span><strong>Snows ProAm</strong><small>WORLD WIDE STEPS</small></span></a><h2>Every step belongs to something bigger.</h2><p>Where Athletes Belong.</p></div>
-      <nav className="ws-footer-links" aria-label="Footer navigation"><h3>Explore</h3><a href="/">Worldwide steps</a><a href="/schools">School challenge</a><a href="/schools#sc-prizes">Prizes</a><a href="mailto:eva.bellova@snowsproam.com?subject=Irish%20Secondary%20School%20Step%20Challenge">Get in touch</a></nav>
+      <nav className="ws-footer-links" aria-label="Footer navigation"><h3>Explore</h3><a href="/">Worldwide steps</a><a href="/schools">School challenge</a><a href="/schools#sc-prizes">Prizes</a><a href="https://calendly.com/admin-snowsproam/30min" target="_blank" rel="noopener noreferrer">Book a school demo</a></nav>
       <div className="ws-footer-social"><h3>Follow the journey</h3><p>Come along for every step.</p><div>{socials.map(({ label, href, icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon}/></svg><span>{label}</span><FontAwesomeIcon icon={faArrowUpRightFromSquare} aria-hidden="true"/></a>)}</div></div>
     </div>
     <div className="ws-footer-bottom"><span>© {new Date().getFullYear()} Snows ProAm</span><span>Big steps. Bigger possibilities.</span></div>

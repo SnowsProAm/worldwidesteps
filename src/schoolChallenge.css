@@ -241,7 +241,9 @@ button:hover .sc-gift-lid { transform: translateY(-5px) rotate(-4deg); }
 .sc-dialog-content { padding: 46px; text-align: center; position: relative; overflow: hidden; }
 .sc-dialog-close { position: absolute; right: 10px; top: 10px; z-index: 3; }
 .sc-dialog h2 { font-size: 28px; line-height: 1.3; font-weight: 600; letter-spacing: -.9px; margin: 10px auto 30px; max-width: 500px; }
-.sc-reveal-art { position: relative; margin: 0 auto 28px; width: 95%; }
+.sc-reveal-art { position: relative; margin: 0 auto 28px; width: 95%; animation: sc-reveal-in .65s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes sc-reveal-in { from { opacity: 0; transform: translateY(26px) scale(.94) rotate(-3deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+@media (prefers-reduced-motion: reduce) { .sc-reveal-art { animation: none; } }
 .sc-cheque-expanded { padding: 30px 35px; text-align: left; }
 .sc-cheque-expanded .sc-cheque-brand { font-size: 15px; }
 .sc-cheque-expanded .sc-cheque-pay strong { font-size: 24px; }
@@ -873,9 +875,6 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-hero {padding-bottom:185px;}
 .sc-bus-lane {height:164px;}
 .sc-bus-lane::after {display:none;}
-.sc-eva-contact {display:flex!important;flex-direction:column;align-items:flex-start!important;gap:4px!important;}
-.sc-eva-contact strong {display:flex;align-items:center;gap:12px;}
-.sc-eva-contact>span {font-size:12px;font-weight:500;}
 @media(max-width:600px){.sc-hero{padding-bottom:168px;}.sc-bus-lane{height:140px;}.sc-how-bottom{align-items:flex-start;}}
 .sc-countdown {margin-bottom:18px;}
 .sc-school-outreach {display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 38px;padding:26px 30px;border:1px solid #c8e2f5;border-radius:24px;background:linear-gradient(110deg,#eaf6ff,#f1edff);}
@@ -883,13 +882,9 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-school-outreach h3 {font-family:Sora,sans-serif;font-size:clamp(25px,3vw,34px);letter-spacing:-1px;margin:0 0 8px;color:#14375c;}
 .sc-school-outreach p:not(.sc-eyebrow) {font-size:20px;line-height:1.4;color:#385f7e;margin:0;}
 .sc-outreach-contact {display:flex;flex-direction:column;align-items:flex-start;padding:18px 22px;background:#ffffffdc;border:1px solid #c9def2;border-radius:18px;}
-.sc-outreach-contact>span,.sc-school-outreach strong {display:block;}
-.sc-school-outreach strong {font-size:22px;margin-bottom:4px;color:#153b61;}
-.sc-outreach-contact>span {font-size:15px;margin:4px 0;}
-.sc-school-outreach .sc-outreach-email {display:inline-flex;align-items:center;min-height:44px;font-size:17px;font-weight:700;color:#0866ce;overflow-wrap:anywhere;}
 .sc-outreach-demo {display:inline-flex;align-items:center;gap:10px;min-height:44px;font-size:15px;font-weight:750;color:#0866ce;text-underline-offset:4px;}
 .sc-outreach-contact a:focus-visible {outline:3px solid #0866ce;outline-offset:3px;border-radius:4px;}
-@media(max-width:650px){.sc-school-outreach{align-items:stretch;flex-direction:column;padding:23px 18px;gap:20px;}.sc-school-outreach p:not(.sc-eyebrow){font-size:18px;}.sc-outreach-contact{padding:17px 14px;}.sc-school-outreach .sc-outreach-email{font-size:15px;}}
+@media(max-width:650px){.sc-school-outreach{align-items:stretch;flex-direction:column;padding:23px 18px;gap:20px;}.sc-school-outreach p:not(.sc-eyebrow){font-size:18px;}.sc-outreach-contact{padding:17px 14px;}}
 .sc-purpose {display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);align-items:center;gap:28px;margin:-20px 0 40px;padding:23px 27px;border:1px solid #d2e6ef;border-radius:22px;background:linear-gradient(110deg,#f0f8ff,#f3faef 65%,#fff9ea);}
 .sc-purpose .sc-eyebrow {margin:0 0 7px;color:#32688e;}
 .sc-purpose h2 {font:750 clamp(23px,2.4vw,32px)/1.2 'Sora',sans-serif;letter-spacing:-1px;color:#14375c;}
@@ -925,7 +920,6 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-intro-row .sc-school-outreach h3 {font-size:clamp(24px,2.5vw,30px);margin-bottom:4px;}
 .sc-intro-row .sc-school-outreach p:not(.sc-eyebrow) {font-size:16px;}
 .sc-intro-row .sc-outreach-contact {position:relative;z-index:1;padding:13px 16px;}
-.sc-intro-row .sc-outreach-contact strong {font-size:19px;}
 .sc-purpose-trail {position:absolute;left:28px;right:28px;bottom:19px;height:56px;pointer-events:none;}
 .sc-trail-line {position:absolute;left:3%;right:36px;top:29px;border-top:2px dashed #9bcbe7;transform:rotate(-1deg);transform-origin:left center;}
 .sc-trail-step,.sc-trail-school {position:absolute;top:5px;display:grid;place-items:center;width:43px;height:43px;border:1px solid #b8def6;border-radius:15px;background:#e2f2ff;color:#0c73ca;font-size:19px;box-shadow:0 4px 0 #c8e6f7;}
