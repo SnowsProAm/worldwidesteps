@@ -133,9 +133,9 @@ export default function SchoolChallenge() {
     // Also covers static hosts that serve the root HTML for /schools.
     document.title = 'Irish Secondary School Step Challenge | Snows ProAm';
     const metadata = {
-      description: 'Your school. Your county. Every step counts. Follow Ireland’s secondary school step leaderboard, national student pacesetters and the €1,000 school prize with Snows ProAm.',
+      description: 'Follow the Irish Secondary School Step Challenge on World Wide Steps. Find your school, see live school and student leaderboards, and follow the €1,000 prize.',
       'og:title': document.title,
-      'og:description': 'Walk together. Climb the leaderboard. Make your school proud. Live Irish school standings and the €1,000 school prize.',
+      'og:description': 'Find your school and follow live Irish secondary school step challenge standings and the €1,000 school prize.',
       'og:url': 'https://worldwidesteps.com/schools',
       'theme-color': '#ffffff',
     };
@@ -185,6 +185,7 @@ export default function SchoolChallenge() {
         <div className="sc-hero-copy"><div className="sc-season-tag"><Icon icon={autumn ? faLeaf : faShoePrints} /><strong>{seasonName || 'Current season'}</strong></div>
 
           <h1 id="sc-title">Irish Secondary School<br /><span>Step Challenge.</span></h1>
+          <p className="sc-hero-description">Schools across Ireland are moving together. Find your school, follow the live steps leaderboard, and see how your community is doing.</p>
 
           <div className="sc-hero-actions"><a className="sc-primary" href="#sc-leaderboard">Find your school <Icon icon={faArrowRight} /></a><a className="sc-text-link" href="#sc-prizes">Check out the prizes <Icon icon={faGift} /></a></div>
           <div className="sc-hero-community"><span className="sc-mini-crests">{schools.slice(0, 3).map(school => <Crest key={school.id} url={school.logo_url} name={school.name} />)}</span><span>{data ? <><strong>{schools.length} schools.</strong> One big challenge.</> : 'One school community. One step at a time.'}</span></div>

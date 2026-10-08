@@ -6,6 +6,7 @@ import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
 import GlobeScene from "./GlobeScene.jsx";
+import WorldLoading from "./WorldLoading.jsx";
 import WorldSiteFooter from "./WorldSiteFooter.jsx";
 import { worldwideStepTotal } from "./worldwideStepTotal.js";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
@@ -139,6 +140,10 @@ const makeCSS = () => `
   .world-footer a { color:#0C69C8; font-size:12px; font-weight:600; min-height:44px; display:flex; align-items:center; gap:14px; white-space:nowrap; }
   .countries-expand { display:flex; align-items:center; gap:12px; min-height:44px; margin:16px auto 0; padding:8px 0; border:0; background:transparent; color:#0C69C8; font-size:13px; font-weight:600; }
   .empty-state { padding:28px; font-size:13px; color:#53617a; line-height:1.7; }
+  .world-about { max-width:820px; padding:28px 32px; border:1px solid #e1eaf4; border-radius:14px; background:#f8fbff; }
+  .world-about h2 { font-family:'Sora',sans-serif; font-size:20px; line-height:1.35; letter-spacing:-.5px; }
+  .world-about p { margin-top:10px; color:#53617a; font-size:13px; line-height:1.75; }
+  .world-about a { color:#0C69C8; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
   .load-error { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:24px; padding:24px; text-align:center; }
   .load-error > svg { color:#0C69C8; font-size:44px; }
   .load-error p { max-width:420px; color:#53617a; line-height:1.7; }
@@ -171,6 +176,7 @@ const makeCSS = () => `
   }
   @media (max-width:600px) { .lb-table-head,.lb-table-row { grid-template-columns:32px minmax(0,1fr) 86px; gap:8px; } .lb-hide-mobile { display:none !important; } }
   @media (max-width:420px) { .country-grid { grid-template-columns:1fr; } .primary-action { padding:13px 14px; gap:12px; font-size:12px; } .text-action { font-size:12px; } }
+  @media (max-width:600px) { .world-about { padding:22px 20px; } }
   @media (prefers-reduced-motion:reduce) {
     html { scroll-behavior:auto; }
     *,*::before,*::after { animation:none !important; transition:none !important; }
@@ -500,13 +506,7 @@ export default function InsightsDashboard() {
   const milestoneProgress=Math.min(100,(M.totalSteps/nextMilestone)*100);
   const stepsSinceLoad=initialSteps === null ? 0 : M.totalSteps-initialSteps;
 
-  if(loading) return(
-    <div role="status" style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
-      <style>{makeCSS(C)}</style>
-      <div style={{width:48,height:48,borderRadius:"50%",border:`3px solid ${C.border}`,borderTopColor:C.accent,animation:"spin 0.75s linear infinite"}}/>
-      <div style={{fontFamily:"'Sora',sans-serif",fontSize:13,color:C.textMuted,fontWeight:600}}>Gathering worldwide steps…</div>
-    </div>
-  );
+  if(loading) return <WorldLoading />;
 
   if(loadError) return <main className="load-error">
     <style>{makeCSS(C)}</style>
@@ -531,7 +531,7 @@ export default function InsightsDashboard() {
             <div className="hero-content fu">
               <div className="section-eyebrow"><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true" /> A world in motion</div>
               <h1 id="world-title">Small steps.<br/><span className="grad-text">Worldwide impact.</span></h1>
-              <p className="hero-intro"><strong className="hero-slogan">Where Athletes Belong</strong>See how far we are moving together.</p>
+              <p className="hero-intro"><strong className="hero-slogan">Where Athletes Belong</strong>Explore live global step totals, athlete rankings and countries represented by the Snows ProAm Fitness community.</p>
               <div className="world-total" aria-label="Total lifetime steps worldwide">
                 <div className="world-total-label">Steps taken worldwide</div>
                 <div className="world-total-value">
@@ -671,6 +671,11 @@ export default function InsightsDashboard() {
               </div>
             </div>
           </section>
+
+        <section className="world-about section-mb" aria-labelledby="world-about-title">
+          <h2 id="world-about-title">How World Wide Steps works</h2>
+          <p>These worldwide step totals come from the <a href="https://snowsproam.com/">Snows ProAm</a> Fitness community. Each athlete’s highest recorded lifetime step total is counted once. Follow our <a href="/schools">Irish Secondary School Step Challenge</a> to see schools moving together.</p>
+        </section>
 
         <WorldSiteFooter />
 

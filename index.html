@@ -6,20 +6,56 @@
     <meta name="theme-color" content="#020711" />
     <meta
       name="description"
-      content="World Wide Steps from Snows ProAm, with worldwide step totals, athlete rankings, and a global community in motion."
+      content="Explore live global step totals, athlete rankings and countries on World Wide Steps, powered by the Snows ProAm fitness community."
     />
+    <link rel="canonical" href="https://worldwidesteps.com/" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://worldwidesteps.com/" />
     <meta property="og:title" content="World Wide Steps | Snows ProAm" />
-    <meta property="og:description" content="Worldwide steps, athlete rankings, and a global community in motion with Snows ProAm." />
+    <meta property="og:description" content="Explore live global step totals, athlete rankings and countries on World Wide Steps." />
+    <meta property="og:image" content="https://worldwidesteps.com/snows-proam-logo.png" />
+    <meta property="og:site_name" content="World Wide Steps" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="World Wide Steps | Snows ProAm" />
-    <meta name="twitter:description" content="Worldwide steps, athlete rankings, and a global community in motion with Snows ProAm." />
+    <meta name="twitter:description" content="Explore live global step totals, athlete rankings and countries on World Wide Steps." />
+    <meta name="twitter:image" content="https://worldwidesteps.com/snows-proam-logo.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://worldwidesteps.com/#website",
+            "url": "https://worldwidesteps.com/",
+            "name": "World Wide Steps",
+            "alternateName": "Worldwide Steps",
+            "publisher": { "@id": "https://snowsproam.com/#organization" }
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://worldwidesteps.com/#webpage",
+            "url": "https://worldwidesteps.com/",
+            "name": "World Wide Steps | Snows ProAm",
+            "description": "Live global step totals, athlete rankings and countries in the Snows ProAm fitness community.",
+            "isPartOf": { "@id": "https://worldwidesteps.com/#website" }
+          }
+        ]
+      }
+    </script>
     <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+    <style>
+      body { margin: 0; background: #fff; }
+      .world-loading { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; background: #fff; }
+      .world-loading-icon { position: relative; display: grid; place-items: center; width: 64px; height: 64px; color: #0c69c8; }
+      .world-loading-icon::before { content: ""; position: absolute; inset: 0; border: 2px solid #dce9f7; border-top-color: currentColor; border-radius: 50%; animation: world-loading-spin 1.2s linear infinite; }
+      .world-loading-icon svg { width: 42px; height: 42px; stroke: currentColor; stroke-width: 1.5; }
+      @keyframes world-loading-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .world-loading-icon::before { animation: none; } }
+    </style>
     <title>World Wide Steps | Snows ProAm</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="world-loading" role="status" aria-label="Loading World Wide Steps"><span class="world-loading-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="18" /><ellipse cx="24" cy="24" rx="8" ry="18" /><path d="M6 24h36M9 14h30M9 34h30" /></svg></span></div></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
