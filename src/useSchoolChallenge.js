@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient';
 import { normalizeChallenge, rankMovements, REFRESH_INTERVAL } from './schoolChallengeData';
 
 export function useSchoolChallenge() {
-  const [state, setState] = useState({ data: null, loading: navigator.onLine, refreshing: false, error: false, offline: !navigator.onLine, movements: {}, checkedAt: null });
+  const [state, setState] = useState({ data: null, loading: navigator.onLine, refreshing: false, error: false, offline: !navigator.onLine, movements: {} });
   const refreshRef = useRef(() => {});
   useEffect(() => {
     let active = true, busy = false, controller;
@@ -18,7 +18,7 @@ export function useSchoolChallenge() {
         if (error) throw error;
         const normalized = normalizeChallenge(data);
         if (active) setState(previous => ({ ...previous, data: normalized, loading: false, refreshing: false,
-          error: false, checkedAt: new Date(), movements: previous.data?.scoring === normalized.scoring ? rankMovements(previous.data?.schools, normalized.schools) : {} }));
+          error: false, movements: previous.data?.scoring === normalized.scoring ? rankMovements(previous.data?.schools, normalized.schools) : {} }));
       } catch {
         if (active) setState(previous => ({ ...previous, loading: false, refreshing: false, error: true }));
       } finally { clearTimeout(timeout); busy = false; }

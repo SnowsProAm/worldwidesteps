@@ -1,4 +1,4 @@
-export const REFRESH_INTERVAL = 10_000;
+export const REFRESH_INTERVAL = 60_000;
 export const number = new Intl.NumberFormat('en-IE');
 export const safeCount = value => Math.max(0, Math.floor(Number(value) || 0));
 export const searchKey = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();

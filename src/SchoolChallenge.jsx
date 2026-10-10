@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, MotionConfig } from 'motion/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faArrowUp, faArrowDown, faTrophy, faGraduationCap, faLocationDot, faMagnifyingGlass, faXmark, faGift, faShoePrints, faGlobe, faExpand, faLeaf, faChevronDown, faCircleInfo, faCheck, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faArrowUp, faArrowDown, faTrophy, faGraduationCap, faLocationDot, faMagnifyingGlass, faXmark, faGift, faShoePrints, faGlobe, faExpand, faLeaf, faChevronDown, faCircleInfo, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { AutumnLeaves, GiftBox, WalkingDoodle, SchoolBus } from './SchoolChallengeArt';
 import { filterSchools, number } from './schoolChallengeData';
 import { useSchoolChallenge } from './useSchoolChallenge';
@@ -121,7 +121,7 @@ function SchoolRow({ school, movement, maxSteps, paused, warmup, onPrize }) {
 }
 
 export default function SchoolChallenge() {
-  const { data, loading, refreshing, error, offline, movements, checkedAt, refresh } = useSchoolChallenge();
+  const { data, loading, refreshing, error, offline, movements, refresh } = useSchoolChallenge();
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -219,7 +219,7 @@ export default function SchoolChallenge() {
             <ol className="sc-school-list" id="sc-school-list" aria-label="Schools ranked by total steps">{shownSchools.map(school => <SchoolRow key={school.id} school={school} movement={movements[school.id]} maxSteps={leader?.total_steps} paused={paused} warmup={warmup} onPrize={kind => setPrize(kind === 'student' ? '1' : 'school')} />)}</ol>
             {previewSchools && <button className="sc-show-more-schools" type="button" aria-controls="sc-school-list" aria-expanded="false" onClick={() => setShowAllSchools(true)}>See all {visibleSchools.length} schools <Icon icon={faChevronDown} /></button>}
             {!visibleSchools.length && <div className="sc-empty"><Icon icon={faGraduationCap} /><h3>{schools.length ? 'Let’s find your school.' : 'The starting line is ready.'}</h3><p>{schools.length ? 'No schools match that search. Try a shorter name or a different county.' : 'Participating schools will appear here as they join the challenge.'}</p>{schools.length ? <button className="sc-primary" onClick={() => { setQuery(''); setCounty(''); }}>Show all schools</button> : <a className="sc-primary" href="#sc-how">How to get involved <Icon icon={faArrowRight} /></a>}</div>}
-            <div className="sc-league-footer"><span role="status">{shownSchools.length} of {schools.length} schools{(query || county) ? ' · national ranks retained' : warmup ? ' · warm-up ranking' : ' · ranked by challenge steps'}</span><span><Icon icon={faCheck} />{checkedAt ? `Checked ${checkedAt.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : 'Waiting for update'} · refreshes every 10s</span></div>
+            <div className="sc-league-footer"><span role="status">{shownSchools.length} of {schools.length} schools{(query || county) ? ' · national ranks retained' : warmup ? ' · warm-up ranking' : ' · ranked by challenge steps'}</span></div>
           </>}
         </div>
 
