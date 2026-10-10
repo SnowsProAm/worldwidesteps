@@ -36,6 +36,7 @@ export function normalizeChallenge(payload) {
     season: payload.season || null,
     scoring: payload.scoring,
     totalSteps: schools.reduce((sum, school) => sum + school.total_steps, 0),
+    totalParticipants: schools.reduce((sum, school) => sum + school.member_count, 0),
     counties: [...new Set(schools.map(school => school.county).filter(Boolean))].sort(),
     updatedAt: payload.updated_at,
   };

@@ -653,6 +653,9 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
 .sc-medal-3 { background: #ffcdac; color: #814021; }
 .sc-school-identity h3 { font-size: 16px; line-height: 1.45; }
 .sc-school-identity { gap: 14px; }
+.sc-school-participants { display: flex; align-items: baseline; gap: 6px; margin-top: 7px !important; color: #173f73; }
+.sc-school-participants strong { font: 750 18px/1.2 'Sora', sans-serif; letter-spacing: -.5px; }
+.sc-school-participants span { font-size: 11px; font-weight: 700; }
 .sc-school-total > strong { font-size: 23px; font-weight: 700; }
 .sc-school-total > span { font-size: 11px; }
 .sc-crest { width: 62px; height: 66px; border-radius: 13px; border-color: #dce5f2; }
@@ -774,6 +777,7 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
   .sc-school-row { grid-template-columns: 30px minmax(0, 1fr); gap: 12px; padding: 17px 14px 12px; }
   .sc-school-identity { gap: 12px; }
   .sc-school-identity h3 { font-size: 15px; }
+  .sc-school-participants strong { font-size: 16px; }
   .sc-school-identity .sc-crest { width: 49px; height: 55px; padding: 6px; }
   .sc-school-identity .sc-location { font-size: 11px; }
   .sc-medal { width: 30px; height: 36px; font-size: 17px; }
