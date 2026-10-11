@@ -32,7 +32,7 @@
 .world-pulse-topline p { max-width: 570px; margin-top: 12px; color: #bed1e9; font-size: 14px; line-height: 1.65; }
 .world-pulse-filter { display: grid; gap: 8px; min-width: 210px; color: #c7dcf2; font-size: 12px; font-weight: 700; }
 .world-pulse-filter select { min-height: 48px; border: 1px solid #86bced; border-radius: 8px; padding: 0 38px 0 15px; color: #f4f9ff; background: #153b70; font: inherit; font-size: 14px; }
-.world-pulse-filter select:focus-visible, .world-pulse-scrubber:focus-visible, .world-pulse-state button:focus-visible { outline: 3px solid #f8d071; outline-offset: 3px; }
+.world-pulse-filter select:focus-visible, .world-pulse-state button:focus-visible { outline: 3px solid #f8d071; outline-offset: 3px; }
 .world-pulse-stage { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .76fr); align-items: center; gap: 24px; min-height: 218px; margin-top: 24px; }
 .world-pulse-main-number { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
 .world-pulse-number-label { color: #abd3f8; font-size: 13px; font-weight: 700; letter-spacing: .3px; }
@@ -49,14 +49,19 @@
 .world-pulse-metric span { max-width: 112px; margin-top: 6px; color: #c1dcf4; font-size: 11px; line-height: 1.35; }
 .world-pulse-clockline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; color: #d7eafa; font-size: 12px; font-weight: 700; }
 .world-pulse-clockline span:last-child { color: #8bc7ff; }
-.world-pulse-bars { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); align-items: end; gap: clamp(3px, .55vw, 9px); height: 174px; margin-top: 14px; border-bottom: 1px solid rgba(178, 222, 255, .45); }
+.world-pulse-chart { position: relative; }
+.world-pulse-chart:focus-within { outline: 3px solid #f8d071; outline-offset: 4px; }
+.world-pulse-bars { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); align-items: end; gap: clamp(3px, .55vw, 9px); height: 174px; margin-top: 14px; border-bottom: 1px solid rgba(178, 222, 255, .45); cursor: pointer; touch-action: pan-y; }
 .world-pulse-bar-track { display: flex; align-items: end; height: 100%; min-width: 0; background: linear-gradient(to top, rgba(112, 180, 242, .03), transparent 45%); }
 .world-pulse-bar { width: 100%; min-height: 2px; border-radius: 4px 4px 0 0; background: linear-gradient(to top, #1683d6, #67cbff); opacity: .65; transition: height .75s ease, opacity .3s ease, background .3s ease; }
 .world-pulse-bar-track.is-selected .world-pulse-bar { opacity: 1; background: linear-gradient(to top, #d8a327, #ffe389); }
 .world-pulse-bar-track.is-current .world-pulse-bar { box-shadow: 0 0 16px rgba(105, 205, 255, .65); animation: world-pulse-glow 3s ease-in-out infinite; }
-.world-pulse-axis { display: flex; justify-content: space-between; color: #a8c8e6; font-size: 11px; padding-top: 9px; }
-.world-pulse-scrubber { display: block; width: 100%; min-height: 44px; margin: 6px 0 0; accent-color: #ffd66e; }
-.world-pulse-inspection { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; margin-top: 2px; color: #e5f2ff; font-size: 13px; }
+.world-pulse-axis { display: grid; grid-template-columns: repeat(5, 1fr); color: #a8c8e6; font-size: 11px; padding-top: 9px; }
+.world-pulse-axis span { text-align: center; }
+.world-pulse-axis span:first-child { text-align: left; }
+.world-pulse-axis span:last-child { text-align: right; }
+.world-pulse-scrubber { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.world-pulse-inspection { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; color: #e5f2ff; font-size: 13px; }
 .world-pulse-inspection strong { color: #ffe08a; font-weight: 700; }
 .world-pulse-footnote { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; padding-top: 18px; margin-top: 18px; border-top: 1px solid rgba(184, 219, 255, .15); color: #a8c8e6; font-size: 11px; line-height: 1.5; }
 .world-pulse-state { display: flex; align-items: center; min-height: 174px; color: #d7eafa; }
@@ -81,6 +86,8 @@
   .world-pulse-metric strong { font-size: clamp(15px, 4vw, 22px); }
   .world-pulse-metric span { font-size: 10px; }
   .world-pulse-bars { height: 146px; }
+  .world-pulse-axis { grid-template-columns: repeat(3, 1fr); }
+  .world-pulse-axis span:nth-child(2), .world-pulse-axis span:nth-child(4) { display: none; }
 }
 @media (max-width: 390px) {
   .world-pulse-inner { padding-inline: 16px; }

@@ -10,6 +10,7 @@ const dayLabel = (date, timeZone) => new Intl.DateTimeFormat("en-IE", {
 }).format(date);
 
 const number = (value) => Math.max(0, Number(value) || 0).toLocaleString("en-IE");
+const axisHours = [0, 6, 12, 18, 23];
 
 export default function WorldPulse({ rows = [], loading = false, error = false, onRetry, updatedAt }) {
   const [country, setCountry] = useState("");
@@ -77,7 +78,7 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
         </div>
 
         <div className="world-pulse-clockline">
-          <span>{focusName} activity</span>
+          <span>Steps recorded each hour</span>
           <span>Now {currentTime} · {timeContext}</span>
         </div>
 
@@ -89,16 +90,22 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
           <div className="world-pulse-state" role="status">No steps recorded in the last 24 hours yet. Check back soon.</div>
         ) : (
           <>
-            <div className="world-pulse-bars" role="img" aria-label={`${focusName}: ${number(total)} steps recorded in the last 24 hours. Busiest hour ${peakTime}, ${timeContext}, with ${number(peakHour.steps)} steps.`}>
-              {hours.map((hour, index) => (
-                <div className={`world-pulse-bar-track${index === selectedHour ? " is-selected" : ""}${index === 23 ? " is-current" : ""}`} key={hour.date.toISOString()}>
-                  <div className="world-pulse-bar" style={{ height: `${hour.steps > 0 ? Math.max(5, hour.steps / peak * 100) : 2}%` }} />
-                </div>
-              ))}
+            <div className="world-pulse-chart">
+              <div className="world-pulse-bars" role="img" aria-label={`${focusName}: ${number(total)} steps recorded in the last 24 hours. Busiest hour ${peakTime}, ${timeContext}, with ${number(peakHour.steps)} steps.`}
+                onClick={(event) => {
+                  const bounds = event.currentTarget.getBoundingClientRect();
+                  setSelectedHour(Math.min(23, Math.max(0, Math.floor((event.clientX - bounds.left) / bounds.width * 24))));
+                }}>
+                {hours.map((hour, index) => (
+                  <div className={`world-pulse-bar-track${index === selectedHour ? " is-selected" : ""}${index === 23 ? " is-current" : ""}`} key={hour.date.toISOString()}>
+                    <div className="world-pulse-bar" style={{ height: `${hour.steps > 0 ? Math.max(5, hour.steps / peak * 100) : 2}%` }} />
+                  </div>
+                ))}
+              </div>
+              <input className="world-pulse-scrubber" type="range" min="0" max="23" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))}
+                aria-label="Explore hourly steps" aria-valuetext={`${selectedTime}, ${timeContext}: ${number(inspected.steps)} steps recorded by ${number(inspected.athletes)} athletes`} />
             </div>
-            <div className="world-pulse-axis" aria-hidden="true"><span>24h ago</span><span>18h</span><span>12h</span><span>6h</span><span>Now</span></div>
-            <input className="world-pulse-scrubber" type="range" min="0" max="23" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))}
-              aria-label="Inspect an hour" aria-valuetext={`${selectedTime}, ${timeContext}: ${number(inspected.steps)} steps recorded by ${number(inspected.athletes)} athletes`} />
+            <div className="world-pulse-axis" aria-hidden="true">{axisHours.map((index) => <span key={index}>{index === 23 ? "Now" : `${dayLabel(hours[index].date, displayZone)} ${hourLabel(hours[index].date, displayZone)}`}</span>)}</div>
             <div className="world-pulse-inspection" aria-live="polite">
               <strong>{selectedTime} · {timeContext}</strong>
               <span>{number(inspected.steps)} steps · {number(inspected.athletes)} athletes</span>
