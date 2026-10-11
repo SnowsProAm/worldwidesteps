@@ -34,6 +34,7 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
   const total = hours.reduce((sum, hour) => sum + hour.steps, 0);
   const peak = Math.max(1, ...hours.map((hour) => hour.steps));
   const peakHour = hours.reduce((best, hour) => hour.steps > best.steps ? hour : best, hours[0]);
+  const hasTrackedSteps = total > 0;
   const current = hours[23];
   const inspected = hours[selectedHour];
   const focusName = country || "Worldwide";
@@ -47,7 +48,6 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
 
   return (
     <section className="world-pulse" aria-labelledby="world-pulse-title">
-      <div className="world-pulse-grain" aria-hidden="true" />
       <div className="world-pulse-inner">
         <div className="world-pulse-topline">
           <div>
@@ -69,12 +69,21 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
             <strong className="world-pulse-number" key={`${country}:${total}`}>{unavailable ? "—" : number(total)}</strong>
             <span className="world-pulse-number-unit">steps tracked</span>
           </div>
-          <div className="world-pulse-orbit" aria-hidden="true"><span /><span /><span /></div>
-          <div className="world-pulse-metrics">
-            <div className="world-pulse-metric"><strong>{unavailable ? "—" : number(current.steps)}</strong><span>steps tracked this hour</span></div>
-            <div className="world-pulse-metric"><strong>{unavailable ? "—" : number(current.athletes)}</strong><span>athletes adding steps this hour</span></div>
-            <div className="world-pulse-metric"><strong>{unavailable ? "—" : number(peakHour.steps)}</strong><span>steps in the busiest hour</span></div>
-          </div>
+          <dl className="world-pulse-metrics">
+            <div className="world-pulse-metric world-pulse-metric--peak">
+              <dt>Busiest hour</dt>
+              <dd><strong>{unavailable || !hasTrackedSteps ? "—" : number(peakHour.steps)}</strong>{hasTrackedSteps && <span> steps</span>}</dd>
+              <span className="world-pulse-metric-detail">{hasTrackedSteps ? `${peakTime} · ${timeContext}` : "No tracked steps in this view yet"}</span>
+            </div>
+            <div className="world-pulse-metric">
+              <dt>Steps this hour</dt>
+              <dd><strong>{unavailable ? "—" : number(current.steps)}</strong></dd>
+            </div>
+            <div className="world-pulse-metric">
+              <dt>Athletes this hour</dt>
+              <dd><strong>{unavailable ? "—" : number(current.athletes)}</strong></dd>
+            </div>
+          </dl>
         </div>
 
         <div className="world-pulse-clockline">
@@ -91,13 +100,15 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
         ) : (
           <>
             <div className="world-pulse-chart">
-              <div className="world-pulse-bars" role="img" aria-label={`${focusName}: ${number(total)} steps tracked in the last 24 hours. Busiest hour ${peakTime}, ${timeContext}, with ${number(peakHour.steps)} steps.`}
+              <div className="world-pulse-bars" role="img" aria-label={hasTrackedSteps
+                ? `${focusName}: ${number(total)} steps tracked in the last 24 hours. Busiest hour ${peakTime}, ${timeContext}, with ${number(peakHour.steps)} steps.`
+                : `${focusName}: no steps tracked in the last 24 hours.`}
                 onClick={(event) => {
                   const bounds = event.currentTarget.getBoundingClientRect();
                   setSelectedHour(Math.min(23, Math.max(0, Math.floor((event.clientX - bounds.left) / bounds.width * 24))));
                 }}>
                 {hours.map((hour, index) => (
-                  <div className={`world-pulse-bar-track${index === selectedHour ? " is-selected" : ""}${index === 23 ? " is-current" : ""}`} key={hour.date.toISOString()}>
+                  <div className={`world-pulse-bar-track${hasTrackedSteps && hour === peakHour ? " is-peak" : ""}${index === selectedHour ? " is-selected" : ""}${index === 23 ? " is-current" : ""}`} key={hour.date.toISOString()}>
                     <div className="world-pulse-bar" style={{ height: `${hour.steps > 0 ? Math.max(5, hour.steps / peak * 100) : 2}%` }} />
                   </div>
                 ))}

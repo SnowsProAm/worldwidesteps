@@ -564,8 +564,6 @@ export default function InsightsDashboard() {
           </div>
         </section>
 
-        <WorldPulse rows={pulseRows} loading={loading} error={pulseError} updatedAt={pulseUpdatedAt} onRetry={() => refreshRef.current()}/>
-
         <section className="milestone-section section-mb" aria-labelledby="milestone-title">
           <div><div className="section-eyebrow">Our next milestone</div><h2 id="milestone-title">Together, towards {nextMilestone/1000000} million.</h2><p><AnimNum value={nextMilestone-M.totalSteps}/> more steps to get there.</p></div>
           <div className="milestone-meter"><div className="milestone-labels"><span><AnimNum value={M.totalSteps}/> steps</span><span><AnimNum value={Math.floor(milestoneProgress)}/>%</span></div><div className="milestone-track" role="progressbar" aria-label="Progress towards the next worldwide step milestone" aria-valuenow={M.totalSteps} aria-valuemin={0} aria-valuemax={nextMilestone}><div style={{width:`${milestoneProgress}%`}}/></div><span className="world-total-note">Real steps. Shared progress.</span></div>
@@ -691,6 +689,8 @@ export default function InsightsDashboard() {
           <h2 id="world-about-title">How World Wide Steps works</h2>
           <p>These worldwide step totals come from the <a href="https://snowsproam.com/">Snows ProAm</a> Fitness community. Each athlete’s highest recorded lifetime step total is counted once. Follow our <a href="/schools">Irish Secondary School Step Challenge</a> to see schools moving together.</p>
         </section>
+
+        <WorldPulse rows={pulseRows} loading={loading} error={pulseError} updatedAt={pulseUpdatedAt} onRetry={() => refreshRef.current()}/>
 
         <WorldSiteFooter />
 
