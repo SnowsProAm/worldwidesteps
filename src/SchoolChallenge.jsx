@@ -8,6 +8,7 @@ import { useSchoolChallenge } from './useSchoolChallenge';
 import './schoolChallenge.css';
 import SchoolChallengeCountdown from './SchoolChallengeCountdown';
 import WorldSiteFooter from './WorldSiteFooter';
+import WorldLoading from './WorldLoading';
 
 const Icon = ({ icon, ...props }) => <FontAwesomeIcon icon={icon} aria-hidden="true" {...props} />;
 const logo = '/favicon.png';
@@ -172,6 +173,7 @@ export default function SchoolChallenge() {
       selectView(next); document.getElementById(`sc-tab-${next}`)?.focus();
     }
   };
+  if (loading && !data) return <WorldLoading />;
   return <MotionConfig reducedMotion={paused ? 'always' : 'never'}><div className={`school-challenge ${paused ? 'sc-motion-paused' : ''}`}>
     <a className="sc-skip" href="#sc-leaderboard">Skip to leaderboard</a>
     <header className="sc-header"><a href="/" className="sc-brand"><img src={logo} alt="" /><span><strong>Snows ProAm</strong><small>WORLD WIDE STEPS</small></span></a>
