@@ -9,6 +9,7 @@ import GlobeScene from "./GlobeScene.jsx";
 import WorldLoading from "./WorldLoading.jsx";
 import WorldSiteFooter from "./WorldSiteFooter.jsx";
 import { worldwideStepTotal } from "./worldwideStepTotal.js";
+import WorldPulse from "./WorldPulse.jsx";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
 
 // Store review accounts are not public competitors. IDs match the mobile app reviewer list.
@@ -334,6 +335,9 @@ export default function InsightsDashboard() {
   const [profiles,     setProfiles]     = useState({});
   const [sportProfiles,setSportProfiles]= useState([]);
   const [activities,   setActivities]   = useState([]);
+  const [pulseRows,    setPulseRows]    = useState([]);
+  const [pulseError,   setPulseError]   = useState(false);
+  const [pulseUpdatedAt,setPulseUpdatedAt]=useState(null);
   const [loading,      setLoading]      = useState(true);
   const [updateError,  setUpdateError]  = useState(false);
   const [initialSteps, setInitialSteps] = useState(null);
@@ -357,11 +361,15 @@ export default function InsightsDashboard() {
             fetchAll("daily_step_snapshots", "profile_id,day,steps,calories,distance_m,tracking_mode", "day"),
             fetchAll("step_update_log",      "profile_id,steps_added,created_at", "created_at"),
             fetchAll("activities",           "profile_id,distance_m,calories,created_at,started_at", "created_at"),
+            supabase.rpc("worldwide_hourly_step_pulse").then(({data,error}) => {
+              if (error) throw error;
+              return data || [];
+            }),
           ] : []),
         ]);
 
         if (!active) return;
-        const [profs, sProfs, snaps, stepLog, activityRows] = results;
+        const [profs, sProfs, snaps, stepLog, activityRows, pulse] = results;
         if (!hasLoaded && (profs.status === "rejected" || sProfs.status === "rejected")) throw new Error("Worldwide data unavailable");
         if (profs.status === "fulfilled") {
           const map = {};
@@ -378,6 +386,11 @@ export default function InsightsDashboard() {
             else if (stepLog.status === "fulfilled") setSnapshots(snapshotsFromStepLog(stepLog.value));
           }
           if (activityRows.status === "fulfilled") setActivities(activityRows.value);
+          if (pulse.status === "fulfilled") {
+            setPulseRows(pulse.value);
+            setPulseUpdatedAt(new Date());
+          }
+          setPulseError(pulse.status === "rejected");
           if (results.slice(2).every(result => result.status === "fulfilled")) lastDetailsAt=Date.now();
         }
         if (includeDetails) setPartialError(results.slice(2).some(result => result.status === "rejected"));
@@ -550,6 +563,8 @@ export default function InsightsDashboard() {
             <div><FontAwesomeIcon icon={faRuler} aria-hidden="true"/><div><strong><AnimNum value={Math.round(M.totalDist/1000)}/> <small>km</small></strong><span>Recorded distance</span></div></div>
           </div>
         </section>
+
+        <WorldPulse rows={pulseRows} loading={loading} error={pulseError} updatedAt={pulseUpdatedAt} onRetry={() => refreshRef.current()}/>
 
         <section className="milestone-section section-mb" aria-labelledby="milestone-title">
           <div><div className="section-eyebrow">Our next milestone</div><h2 id="milestone-title">Together, towards {nextMilestone/1000000} million.</h2><p><AnimNum value={nextMilestone-M.totalSteps}/> more steps to get there.</p></div>
