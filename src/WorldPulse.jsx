@@ -52,7 +52,7 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
         <div className="world-pulse-topline">
           <div>
             <h2 id="world-pulse-title">A day of steps, together.</h2>
-            <p>Follow steps recorded around the world, hour by hour. Each bar covers the same hour everywhere.</p>
+            <p>Follow tracked steps around the world, hour by hour. Each bar covers the same hour everywhere.</p>
           </div>
           <label className="world-pulse-filter">
             <span>Focus on a country</span>
@@ -67,18 +67,18 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
           <div className="world-pulse-main-number">
             <span className="world-pulse-number-label">{focusName} · last 24 hours</span>
             <strong className="world-pulse-number" key={`${country}:${total}`}>{unavailable ? "—" : number(total)}</strong>
-            <span className="world-pulse-number-unit">steps recorded</span>
+            <span className="world-pulse-number-unit">steps tracked</span>
           </div>
           <div className="world-pulse-orbit" aria-hidden="true"><span /><span /><span /></div>
           <div className="world-pulse-metrics">
-            <div className="world-pulse-metric"><strong>{unavailable ? "—" : number(current.steps)}</strong><span>steps recorded this hour</span></div>
+            <div className="world-pulse-metric"><strong>{unavailable ? "—" : number(current.steps)}</strong><span>steps tracked this hour</span></div>
             <div className="world-pulse-metric"><strong>{unavailable ? "—" : number(current.athletes)}</strong><span>athletes adding steps this hour</span></div>
             <div className="world-pulse-metric"><strong>{unavailable ? "—" : number(peakHour.steps)}</strong><span>steps in the busiest hour</span></div>
           </div>
         </div>
 
         <div className="world-pulse-clockline">
-          <span>Steps recorded each hour</span>
+          <span>Tracked steps each hour</span>
           <span>Now {currentTime} · {timeContext}</span>
         </div>
 
@@ -87,11 +87,11 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
         ) : error && !hasData ? (
           <div className="world-pulse-state" role="alert">Hourly activity is unavailable. <button type="button" onClick={onRetry}>Try again</button></div>
         ) : !hasData ? (
-          <div className="world-pulse-state" role="status">No steps recorded in the last 24 hours yet. Check back soon.</div>
+          <div className="world-pulse-state" role="status">No tracked steps in the last 24 hours yet. Check back soon.</div>
         ) : (
           <>
             <div className="world-pulse-chart">
-              <div className="world-pulse-bars" role="img" aria-label={`${focusName}: ${number(total)} steps recorded in the last 24 hours. Busiest hour ${peakTime}, ${timeContext}, with ${number(peakHour.steps)} steps.`}
+              <div className="world-pulse-bars" role="img" aria-label={`${focusName}: ${number(total)} steps tracked in the last 24 hours. Busiest hour ${peakTime}, ${timeContext}, with ${number(peakHour.steps)} steps.`}
                 onClick={(event) => {
                   const bounds = event.currentTarget.getBoundingClientRect();
                   setSelectedHour(Math.min(23, Math.max(0, Math.floor((event.clientX - bounds.left) / bounds.width * 24))));
@@ -103,7 +103,7 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
                 ))}
               </div>
               <input className="world-pulse-scrubber" type="range" min="0" max="23" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))}
-                aria-label="Explore hourly steps" aria-valuetext={`${selectedTime}, ${timeContext}: ${number(inspected.steps)} steps recorded by ${number(inspected.athletes)} athletes`} />
+                aria-label="Explore hourly steps" aria-valuetext={`${selectedTime}, ${timeContext}: ${number(inspected.steps)} steps tracked by ${number(inspected.athletes)} athletes`} />
             </div>
             <div className="world-pulse-axis" aria-hidden="true">{axisHours.map((index) => <span key={index}>{index === 23 ? "Now" : `${dayLabel(hours[index].date, displayZone)} ${hourLabel(hours[index].date, displayZone)}`}</span>)}</div>
             <div className="world-pulse-inspection" aria-live="polite">
@@ -113,7 +113,7 @@ export default function WorldPulse({ rows = [], loading = false, error = false, 
           </>
         )}
         <div className="world-pulse-footnote">
-          <span>Based on when steps reached Snows ProAm; uploads can arrive after a walk. Country views appear once three athletes have recorded steps.</span>
+          <span>Tracked steps appear when they sync to Snows ProAm, sometimes after a walk. Country views show after three athletes track steps.</span>
           <span>{updatedAt ? `Updated ${hourLabel(updatedAt, displayZone)} ${timeContext}` : "Updates every minute"}{error && hasData ? " · Showing the last available data" : ""}</span>
         </div>
       </div>
