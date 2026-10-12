@@ -283,14 +283,14 @@ const Avatar = ({profile,C,size=36}) => {
 /* ═══════════════════════════════════════════
    FETCH HELPER
 ═══════════════════════════════════════════ */
-const fetchAll = async (table, columns, orderCol, sportId = null) => {
+const fetchAll = async (table, columns, orderCol, sportId = null, signal) => {
   const PAGE = 1000;
   let rows = [], from = 0;
   while (true) {
     let q = supabase.from(table).select(columns);
     if (sportId) q = q.eq("sport_id", sportId);
     if (orderCol) q = q.order(orderCol, { ascending: true });
-    q = q.range(from, from + PAGE - 1);
+    q = q.range(from, from + PAGE - 1).abortSignal(signal);
     const { data, error } = await q;
     if (error) throw error;
     if (!data || data.length === 0) break;
@@ -339,11 +339,13 @@ export default function InsightsDashboard() {
   const [pulseError,   setPulseError]   = useState(false);
   const [pulseUpdatedAt,setPulseUpdatedAt]=useState(null);
   const [loading,      setLoading]      = useState(true);
+  const [detailsLoading, setDetailsLoading] = useState(true);
+  const [distanceReady, setDistanceReady] = useState(false);
   const [updateError,  setUpdateError]  = useState(false);
   const [initialSteps, setInitialSteps] = useState(null);
 
   useEffect(()=>{
-    let active=true, busy=false, hasLoaded=false, lastDetailsAt=0;
+    let active=true, busy=false, hasLoaded=false, lastDetailsAt=0, controller;
     const refresh = async () => {
       if (!active || busy || document.hidden) return;
       if (!navigator.onLine) {
@@ -352,57 +354,79 @@ export default function InsightsDashboard() {
         return;
       }
       busy=true;
+      controller = new AbortController();
+      const signal = controller.signal;
+      const timeout = setTimeout(() => controller.abort(), 12_000);
       const includeDetails = !hasLoaded || Date.now()-lastDetailsAt >= 60_000;
-      try {
-        const results = await Promise.allSettled([
-          fetchAll("profiles",             "id,username,name,surname,profile_img,country,current_country,level", null),
-          fetchAll("sport_profiles",       "profile_id,sport_id,trophies,lifetime_steps,league", null, "Fitness"),
-          ...(includeDetails ? [
-            fetchAll("daily_step_snapshots", "profile_id,day,steps,calories,distance_m,tracking_mode", "day"),
-            fetchAll("step_update_log",      "profile_id,steps_added,created_at", "created_at"),
-            fetchAll("activities",           "profile_id,distance_m,calories,created_at,started_at", "created_at"),
-            supabase.rpc("worldwide_hourly_step_pulse").then(({data,error}) => {
+      if (!hasLoaded) { setLoading(true); setLoadError(false); }
+      if (includeDetails) setDetailsLoading(true);
+
+      // Show the main journey as soon as its data arrives. Historical charts
+      // must never hold the totals, countries and leaderboard behind a spinner.
+      const core = async () => {
+        try {
+          const [profs, sProfs] = await Promise.allSettled([
+            fetchAll("profiles", "id,username,name,surname,profile_img,country,current_country,level", null, null, signal),
+            fetchAll("sport_profiles", "profile_id,sport_id,trophies,lifetime_steps,league", null, "Fitness", signal),
+          ]);
+          if (!active) return;
+          const failed = profs.status === "rejected" || sProfs.status === "rejected";
+          if (!hasLoaded && failed) throw new Error("Worldwide data unavailable");
+          if (profs.status === "fulfilled") {
+            const map = {};
+            profs.value.forEach(p => { map[p.id] = p; });
+            setProfiles(map);
+          }
+          if (sProfs.status === "fulfilled") {
+            setInitialSteps(previous => previous ?? worldwideStepTotal(sProfs.value));
+            setSportProfiles(sProfs.value);
+          }
+          setUpdateError(failed);
+          hasLoaded=true;
+          setLoadError(false);
+        } catch {
+          if (active) hasLoaded ? setUpdateError(true) : setLoadError(true);
+        } finally {
+          if (active) setLoading(false);
+        }
+      };
+      const details = async () => {
+        if (!includeDetails) return;
+        try {
+          const results = await Promise.allSettled([
+            fetchAll("daily_step_snapshots", "profile_id,day,steps,calories,distance_m,tracking_mode", "day", null, signal),
+            fetchAll("step_update_log", "profile_id,steps_added,created_at", "created_at", null, signal),
+            fetchAll("activities", "profile_id,distance_m,calories,created_at,started_at", "created_at", null, signal),
+            supabase.rpc("worldwide_hourly_step_pulse").abortSignal(signal).then(({data,error}) => {
               if (error) throw error;
               return data || [];
             }),
-          ] : []),
-        ]);
-
-        if (!active) return;
-        const [profs, sProfs, snaps, stepLog, activityRows, pulse] = results;
-        if (!hasLoaded && (profs.status === "rejected" || sProfs.status === "rejected")) throw new Error("Worldwide data unavailable");
-        if (profs.status === "fulfilled") {
-          const map = {};
-          profs.value.forEach(p => { map[p.id] = p; });
-          setProfiles(map);
-        }
-        if (sProfs.status === "fulfilled") {
-          setInitialSteps(previous => previous ?? worldwideStepTotal(sProfs.value));
-          setSportProfiles(sProfs.value);
-        }
-        if (includeDetails) {
+          ]);
+          if (!active) return;
+          const [snaps, stepLog, activityRows, pulse] = results;
           if (snaps.status === "fulfilled") {
             if (snaps.value.length) setSnapshots(snaps.value);
             else if (stepLog.status === "fulfilled") setSnapshots(snapshotsFromStepLog(stepLog.value));
           }
           if (activityRows.status === "fulfilled") setActivities(activityRows.value);
+          if (snaps.status === "fulfilled" && activityRows.status === "fulfilled") setDistanceReady(true);
           if (pulse.status === "fulfilled") {
             setPulseRows(pulse.value);
             setPulseUpdatedAt(new Date());
           }
           setPulseError(pulse.status === "rejected");
-          if (results.slice(2).every(result => result.status === "fulfilled")) lastDetailsAt=Date.now();
+          const failed = results.some(result => result.status === "rejected");
+          setPartialError(failed);
+          if (!failed) lastDetailsAt=Date.now();
+        } finally {
+          if (active) setDetailsLoading(false);
         }
-        if (includeDetails) setPartialError(results.slice(2).some(result => result.status === "rejected"));
-        setUpdateError(results.slice(0,2).some(result => result.status === "rejected"));
-        hasLoaded=true;
-        setLoadError(false);
-      } catch (err) {
-        console.error("Dashboard load error:", err);
-        if(active) hasLoaded ? setUpdateError(true) : setLoadError(true);
+      };
+      try {
+        await Promise.allSettled([core(), details()]);
       } finally {
+        clearTimeout(timeout);
         busy=false;
-        if(active)setLoading(false);
       }
     };
     const onVisible=()=>{if(!document.hidden)refresh();};
@@ -414,6 +438,7 @@ export default function InsightsDashboard() {
     document.addEventListener("visibilitychange",onVisible);
     return()=>{
       active=false;
+      controller?.abort();
       clearInterval(interval);
       window.removeEventListener("online",refresh);
       window.removeEventListener("offline",refresh);
@@ -538,7 +563,7 @@ export default function InsightsDashboard() {
         <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="#leaderboard">Leaderboard</a><a className="countries-nav" href="#countries">Countries</a></nav>
       </header>
       <main className="main-pad" id="top">
-        {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures could not update. Showing the last loaded values and trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}
+        {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures are unavailable or could not update. Available figures are shown; we’re trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}
         <section className="world-hero hero-mb" aria-labelledby="world-title">
           <div className="hero-grid">
             <div className="hero-content fu">
@@ -560,7 +585,7 @@ export default function InsightsDashboard() {
           <div className="world-summary">
             <div><FontAwesomeIcon icon={faPersonRunning} aria-hidden="true"/><div><strong><AnimNum value={M.uniqueUsers}/></strong><span>Fitness athletes worldwide</span></div></div>
             <div><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true"/><div><strong><AnimNum value={countryData.totalCountries}/></strong><span>Countries represented</span></div></div>
-            <div><FontAwesomeIcon icon={faRuler} aria-hidden="true"/><div><strong><AnimNum value={Math.round(M.totalDist/1000)}/> <small>km</small></strong><span>Recorded distance</span></div></div>
+            <div><FontAwesomeIcon icon={faRuler} aria-hidden="true"/><div><strong>{distanceReady ? <><AnimNum value={Math.round(M.totalDist/1000)}/> <small>km</small></> : <span aria-label={detailsLoading ? "Loading recorded distance" : "Recorded distance unavailable"}>—</span>}</strong><span>Recorded distance</span></div></div>
           </div>
         </section>
 
@@ -690,7 +715,7 @@ export default function InsightsDashboard() {
           <p>These worldwide step totals come from the <a href="https://snowsproam.com/">Snows ProAm</a> Fitness community. Each athlete’s highest recorded lifetime step total is counted once. Follow our <a href="/schools">Irish Secondary School Step Challenge</a> to see schools moving together.</p>
         </section>
 
-        <WorldPulse rows={pulseRows} loading={loading} error={pulseError} updatedAt={pulseUpdatedAt} onRetry={() => refreshRef.current()}/>
+        <WorldPulse rows={pulseRows} loading={detailsLoading} error={pulseError} updatedAt={pulseUpdatedAt} onRetry={() => refreshRef.current()}/>
 
         <WorldSiteFooter />
 

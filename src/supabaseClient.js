@@ -8,12 +8,12 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error('Supabase environment variables are not defined');
 }
 
-// Initialize Supabase client
+// These pages only read public data. Do not make startup depend on browser
+// storage, a saved login, token refresh, or cross-tab auth locks.
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
-    storage: localStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true, // usually true for web unless using custom routing
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false,
   },
 });

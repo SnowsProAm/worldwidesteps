@@ -8,7 +8,7 @@ export function useSchoolChallenge() {
   useEffect(() => {
     let active = true, busy = false, controller;
     const refresh = async () => {
-      if (!active || busy || document.hidden || !document.hasFocus() || !navigator.onLine) return;
+      if (!active || busy || document.hidden || !navigator.onLine) return;
       busy = true;
       controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 12_000);
