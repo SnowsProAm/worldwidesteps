@@ -20,6 +20,11 @@ test('county and accent-insensitive search retain national rank', () => {
   assert.equal(filterSchools(schools, 'Coláiste', 'Dublin').length, 0);
   assert.equal(filterSchools(schools, 'donegal', '').length, 1);
 });
+test('school search ignores punctuation in names', () => {
+  const { schools } = normalize([school('brendan', "St. Brendan's College", 100)]);
+  assert.equal(filterSchools(schools, 'St Brendan', '')[0].id, 'brendan');
+  assert.equal(filterSchools(schools, 'st. brendans', '')[0].id, 'brendan');
+});
 test('rank changes describe actual movements and do not invent movements for new schools', () => {
   const before = normalize([school('a', 'A', 100), school('b', 'B', 90)]).schools;
   const after = normalize([school('a', 'A', 100), school('b', 'B', 120), school('c', 'C', 1)]).schools;
