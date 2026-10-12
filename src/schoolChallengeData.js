@@ -16,13 +16,13 @@ export function normalizeChallenge(payload) {
   const schools = payload.schools.map(school => {
     const yearGroups = Array.isArray(school.year_groups) ? school.year_groups.map(group => ({
       id: group.id ? String(group.id) : null,
-      name: String(group.name || 'Unassigned students'),
+      name: String(group.name || 'Unassigned members'),
       steps: safeCount(group.steps),
       member_count: safeCount(group.member_count),
     })) : [];
     if (Array.isArray(school.year_groups)
       && yearGroups.reduce((sum, group) => sum + group.steps, 0) !== safeCount(school.total_steps)) {
-      throw new Error(`School total does not match year groups: ${school.id}`);
+      throw new Error(`School total does not match groups: ${school.id}`);
     }
     return {
     id: String(school.id), name: String(school.name || 'School'),
