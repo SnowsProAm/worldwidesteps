@@ -13,15 +13,26 @@ export function normalizeChallenge(payload) {
   if (!payload || !Array.isArray(payload.schools) || !Array.isArray(payload.students)) {
     throw new Error('The school leaderboard response is incomplete.');
   }
-  const schools = payload.schools.map(school => ({
+  const schools = payload.schools.map(school => {
+    const yearGroups = Array.isArray(school.year_groups) ? school.year_groups.map(group => ({
+      id: group.id ? String(group.id) : null,
+      name: String(group.name || 'Unassigned students'),
+      steps: safeCount(group.steps),
+      member_count: safeCount(group.member_count),
+    })) : [];
+    if (Array.isArray(school.year_groups)
+      && yearGroups.reduce((sum, group) => sum + group.steps, 0) !== safeCount(school.total_steps)) {
+      throw new Error(`School total does not match year groups: ${school.id}`);
+    }
+    return {
     id: String(school.id), name: String(school.name || 'School'),
     county: String(school.county || ''), country: String(school.country || 'Ireland'),
     logo_url: safeLogo(school.logo_url), total_steps: safeCount(school.total_steps),
-    member_count: safeCount(school.member_count),
+    member_count: safeCount(school.member_count), year_groups: yearGroups,
     top_student: school.top_student ? {
       alias: String(school.top_student.alias), display_name: String(school.top_student.display_name || school.top_student.alias), avatar_url: safeLogo(school.top_student.avatar_url), steps: safeCount(school.top_student.steps),
     } : null,
-  })).sort((a, b) => b.total_steps - a.total_steps || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+  }; }).sort((a, b) => b.total_steps - a.total_steps || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
   schools.forEach((school, index) => {
     school.rank = school.total_steps > 0 && index > 0 && school.total_steps === schools[index - 1].total_steps ? schools[index - 1].rank : index + 1;
   });

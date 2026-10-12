@@ -47,3 +47,13 @@ test('national prizes keep multiple students from the same school and actual pub
   assert.ok(result.students.every(s => s.school_id === 'same-school'));
   assert.doesNotMatch(JSON.stringify(result), /hidden@test/);
 });
+
+test('school total matches only its student year groups', () => {
+  const schoolWithGroups = { ...school('s', 'St. Brendan', 300), year_groups: [
+    { id: 'first', name: '1st Years', steps: 125, member_count: 2 },
+    { id: 'second', name: '2nd Years', steps: 175, member_count: 1 },
+  ] };
+  const result = normalize([schoolWithGroups]);
+  assert.equal(result.schools[0].year_groups.reduce((sum, group) => sum + group.steps, 0), 300);
+  assert.throws(() => normalize([{ ...schoolWithGroups, total_steps: 301 }]));
+});

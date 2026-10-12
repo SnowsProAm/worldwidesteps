@@ -119,6 +119,16 @@ body { margin: 0; background: #fff; }
 .sc-table-head { padding-top: 20px; padding-bottom: 12px; color: #8090a5; letter-spacing: 1.2px; font-size: 8px; font-weight: 700; }
 .sc-school-list { list-style: none; padding: 0; margin: 0; }
 .sc-school-row { position: relative; min-height: 113px; margin-bottom: 9px; padding-top: 15px; padding-bottom: 15px; border: 1px solid var(--line); border-radius: 10px; background: white; box-shadow: 0 2px 4px #14314c02; }
+.sc-year-breakdown { grid-column: 1 / -1; margin: 0 0 0 46px; border-top: 1px solid var(--line); padding: 10px 0 0; color: #385570; }
+.sc-year-breakdown summary { display: inline-flex; align-items: center; gap: 8px; color: #0c69c8; font-size: 12px; font-weight: 800; list-style: none; cursor: pointer; }
+.sc-year-breakdown summary::-webkit-details-marker { display: none; }
+.sc-year-breakdown summary svg { font-size: 10px; transition: transform .2s ease; }
+.sc-year-breakdown[open] summary svg { transform: rotate(180deg); }
+.sc-year-breakdown > p { margin: 10px 0 8px; color: #607089; font-size: 11px; }
+.sc-year-breakdown ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 7px 15px; list-style: none; padding: 0; margin: 0; }
+.sc-year-breakdown li, .sc-year-total { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
+.sc-year-breakdown li strong, .sc-year-total strong { color: #194b80; font-variant-numeric: tabular-nums; }
+.sc-year-total { border-top: 1px solid var(--line); margin-top: 9px; padding-top: 8px; font-weight: 800; }
 .sc-school-row.sc-leading { background: linear-gradient(105deg, #fffbef 0%, #fffefa 46%, #fff 100%); border-color: #eaddba; box-shadow: 0 3px 12px #c3a35908; }
 .sc-leading::before { content: ''; position: absolute; left: -1px; top: 24%; bottom: 24%; width: 3px; background: #d0ad5a; border-radius: 0 3px 3px 0; }
 .sc-rank { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #7c8b9f; font: 500 17px 'Sora', sans-serif; }
@@ -331,6 +341,7 @@ html:has(.sc-motion-paused) { scroll-behavior: auto; }
   .sc-table-head { display: none; }
   .sc-school-list { margin-top: 17px; }
   .sc-school-row { grid-template-columns: 30px minmax(0, 1fr) 132px; column-gap: 15px; row-gap: 15px; padding: 18px; }
+  .sc-year-breakdown { margin-left: 0; }
   .sc-school-student { grid-column: 2 / 4; border-top: 1px solid var(--line); border-left: 0; padding: 10px 0 0; align-items: center; }
   .sc-school-student > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 12px; }
   .sc-school-student strong { font-size: 10px; }
