@@ -1,7 +1,7 @@
 // Built by Solomon
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMedal, faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
@@ -54,6 +54,12 @@ const LIGHT = {
   amberBg:        "rgba(217,119,6,0.06)",
   rose:           "#DC2626",
 };
+
+const PODIUM_TONES = [
+  { name: "Gold", text: "#996100", background: "#FFF3D6", border: "#E2BD68", row: "#FFFCF5" },
+  { name: "Silver", text: "#59677A", background: "#EDF1F5", border: "#C8D1DD", row: "#FAFBFD" },
+  { name: "Bronze", text: "#8A4226", background: "#F9E4D7", border: "#D6A28B", row: "#FFFAF7" },
+];
 
 /* ═══════════════════════════════════════════
    CSS
@@ -622,15 +628,14 @@ export default function InsightsDashboard() {
               const profile=profiles[u.pid];
               const maxT=M.leaderboard[0]?.trophies||1;
               const pct=Math.round((u.trophies/maxT)*100);
-              const medal=i<3;
-              const rowCol=i===0?C.amber:i===1?"#94A3B8":i===2?"#C97B3A":C.accent;
+              const podiumTone=PODIUM_TONES[i];
               const displayName=profile?[profile.name,profile.surname].filter(Boolean).join(" ")||profile.username||`@${u.pid.slice(0,8)}`:`@${u.pid.slice(0,8)}`;
               const username=profile?.username?`@${profile.username}`:null;
-              const country=profile?.country||profile?.current_country||null;
+              const country=profile?.current_country?.trim()||null;
               return(
-                <div role="row" key={u.pid} className="lb-table-row" style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,background:i===0?`${C.amber}05`:"transparent",transition:"background 0.15s ease"}}>
-                  <div role="cell" style={{width:32,height:32,borderRadius:8,background:i<3?`${rowCol}18`:C.bgAlt,border:`1px solid ${i<3?rowCol+"30":C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:medal?13:11,fontWeight:800,color:rowCol}}>
-                    {medal ? <><FontAwesomeIcon icon={faMedal} aria-hidden="true" /><span className="insights-sr-only">Rank {u.rank}</span></> : u.rank}
+                <div role="row" key={u.pid} className="lb-table-row" style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,background:podiumTone?.row || "transparent",transition:"background 0.15s ease"}}>
+                  <div role="cell" aria-label={podiumTone ? `${podiumTone.name}, rank ${u.rank}` : `Rank ${u.rank}`} style={{width:32,height:32,borderRadius:8,background:podiumTone?.background || C.bgAlt,border:`1px solid ${podiumTone?.border || C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:800,color:podiumTone?.text || C.accent}}>
+                    {u.rank}
                   </div>
                   <div role="cell" style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
                     <Avatar profile={profile} C={C} size={32}/>
@@ -649,7 +654,7 @@ export default function InsightsDashboard() {
                     </div>
                   </div>
                   {/* Fitness steps and today's synced gain */}
-                  <div role="cell" className="lb-score-cell" aria-label={`${fmtFull(u.trophies)} steps${u.todaySteps > 0 ? `, ${fmtFull(u.todaySteps)} steps today` : ''}`} style={{color:i<3?rowCol:C.text}}>
+                  <div role="cell" className="lb-score-cell" aria-label={`${fmtFull(u.trophies)} steps${u.todaySteps > 0 ? `, ${fmtFull(u.todaySteps)} steps today` : ''}`} style={{color:podiumTone?.text || C.text}}>
                     <AnimNum value={u.trophies}/>
                     {u.todaySteps > 0 && <span className="lb-daily-gain">+{fmtFull(u.todaySteps)} today</span>}
                   </div>

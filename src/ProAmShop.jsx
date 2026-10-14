@@ -103,7 +103,7 @@ function ProductCard({ product, item, session, stockAlerts, onAlertSaved, onAler
           <p>For your best fit, we recommend going one size up.</p>
           <table className="proam-size-chart"><caption>Size recommendation</caption><thead><tr><th scope="col">Your usual size</th><th scope="col">Choose ProAm</th></tr></thead><tbody>{[['XS','S'],['S','M'],['M','L'],['L','XL']].map(([usual,recommended]) => <tr key={usual}><th scope="row">{usual}</th><td>{recommended}</td></tr>)}</tbody></table>
         </details>
-        <details className="proam-fit-guide"><summary>Product details</summary><p>{product.material}. The Snows ProAm crest features on the chest, with our community mark on the back.</p></details>
+        <details className="proam-fit-guide"><summary>Product details</summary><p>{product.material}. The Snows ProAm logo features on the chest, with our community mark on the back.</p></details>
         <ProAmReviews client={shopSupabase} productId={item?.id} session={session} onSignIn={onSignIn} />
         {!selectedAvailable ? (
           <>
