@@ -1,7 +1,7 @@
 // Built by Solomon
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMedal, faRuler, faTrophy, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMedal, faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
@@ -9,6 +9,7 @@ import GlobeScene from "./GlobeScene.jsx";
 import WorldLoading from "./WorldLoading.jsx";
 import WorldSiteFooter from "./WorldSiteFooter.jsx";
 import { worldwideStepTotal } from "./worldwideStepTotal.js";
+import { dailyStepGain, localDayKey } from "./leaderboardDailySteps.js";
 import WorldPulse from "./WorldPulse.jsx";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
 
@@ -120,6 +121,8 @@ const makeCSS = () => `
   .chart-loading { height:220px; display:flex; align-items:center; justify-content:center; font-size:13px; color:#67758b; }
   .timeline-chart { padding:20px 10px; border:1px solid #e7edf5; border-radius:10px; }
   .lb-table-head,.lb-table-row { display:grid; grid-template-columns:44px minmax(0,1fr) 110px 120px 64px; gap:10px; align-items:center; }
+  .lb-score-cell { text-align:right; font-family:'Sora',sans-serif; font-size:12px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .lb-daily-gain { display:block; margin-top:3px; color:#047857; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; line-height:1.3; white-space:nowrap; }
   .country-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
   .country-toolbar { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
   .country-search { width:100%; max-width:420px; }
@@ -175,7 +178,7 @@ const makeCSS = () => `
     .milestone-section h2 { font-size:18px; }
     .world-footer { flex-direction:column; align-items:flex-start; gap:12px; }
   }
-  @media (max-width:600px) { .lb-table-head,.lb-table-row { grid-template-columns:32px minmax(0,1fr) 86px; gap:8px; } .lb-hide-mobile { display:none !important; } }
+  @media (max-width:600px) { .lb-table-head,.lb-table-row { grid-template-columns:32px minmax(0,1fr) 86px; gap:8px; } .lb-hide-mobile { display:none !important; } .lb-daily-gain { font-size:10px; } }
   @media (max-width:420px) { .country-grid { grid-template-columns:1fr; } .primary-action { padding:13px 14px; gap:12px; font-size:12px; } .text-action { font-size:12px; } }
   @media (max-width:600px) { .world-about { padding:22px 20px; } }
   @media (prefers-reduced-motion:reduce) {
@@ -343,11 +346,13 @@ export default function InsightsDashboard() {
   const [distanceReady, setDistanceReady] = useState(false);
   const [updateError,  setUpdateError]  = useState(false);
   const [initialSteps, setInitialSteps] = useState(null);
+  const [todayKey, setTodayKey] = useState(localDayKey);
 
   useEffect(()=>{
     let active=true, busy=false, hasLoaded=false, lastDetailsAt=0, controller;
     const refresh = async () => {
       if (!active || busy || document.hidden) return;
+      setTodayKey(localDayKey());
       if (!navigator.onLine) {
         if (hasLoaded) setUpdateError(true);
         else { setLoading(false); setLoadError(true); }
@@ -367,7 +372,7 @@ export default function InsightsDashboard() {
         try {
           const [profs, sProfs] = await Promise.allSettled([
             fetchAll("profiles", "id,username,name,surname,profile_img,country,current_country,level", null, null, signal),
-            fetchAll("sport_profiles", "profile_id,sport_id,trophies,lifetime_steps,league", null, "Fitness", signal),
+            fetchAll("sport_profiles", "profile_id,sport_id,trophies,lifetime_steps,league,todays_steps,last_steps_date", null, "Fitness", signal),
           ]);
           if (!active) return;
           const failed = profs.status === "rejected" || sProfs.status === "rejected";
@@ -488,12 +493,14 @@ export default function InsightsDashboard() {
         trophyMap[pid] = {
           trophies:      sp.trophies      || 0,
           lifetimeSteps,
+          todaySteps:    dailyStepGain(sp, todayKey),
           league:        sp.league        || 1,
           globalRank:    sp.global_rank   || 0,
         };
         return;
       }
       trophyMap[pid].lifetimeSteps = Math.max(trophyMap[pid].lifetimeSteps, lifetimeSteps);
+      trophyMap[pid].todaySteps = Math.max(trophyMap[pid].todaySteps, dailyStepGain(sp, todayKey));
       if ((sp.trophies || 0) > trophyMap[pid].trophies) {
         trophyMap[pid].trophies   = sp.trophies   || 0;
         trophyMap[pid].league     = sp.league     || 1;
@@ -507,7 +514,7 @@ export default function InsightsDashboard() {
       .map(([pid, u], i) => ({ rank: i+1, pid, ...u }));
 
     return { totalSteps,totalDist,uniqueUsers,dailyTrend,leaderboard };
-  },[snapshots,fitnessProfiles,activities]);
+  },[snapshots,fitnessProfiles,activities,todayKey]);
 
   const countryData = useMemo(()=>{
     if(!Object.keys(profiles).length) return {countries:[],totalCountries:0,totalWithCountry:0,noCountryCount:0};
@@ -601,12 +608,12 @@ export default function InsightsDashboard() {
 
         {/* ── LEADERBOARD ── */}
         <section className="section-mb fu3" id="leaderboard">
-          <SHead C={C} tag="Top Athletes" title="Meet the pace setters" sub="Real athletes setting the pace. Ranked by trophies earned across the community."/>
+          <SHead C={C} tag="Top Athletes" title="Meet the pace setters" sub="Fitness athletes ranked by steps, with today’s synced steps shown beneath each total."/>
           <div role="table" aria-label="Worldwide athlete rankings" style={{background:C.bgCard,border:`1px solid ${C.border}`,borderRadius:12,overflow:"hidden",boxShadow:C.shadowMd}}>
             <div role="row" className="lb-table-head" style={{padding:"11px 16px",background:C.bgAlt,borderBottom:`1px solid ${C.border}`,fontSize:10,fontWeight:700,color:C.textMuted,textTransform:"uppercase",letterSpacing:0.4}}>
               <div role="columnheader">#</div>
               <div role="columnheader">Athlete</div>
-              <div role="columnheader" style={{textAlign:"right"}}>Trophies</div>
+              <div role="columnheader" style={{textAlign:"right"}}>Steps</div>
               <div role="columnheader" className="lb-hide-mobile" style={{textAlign:"right"}}>Lifetime Steps</div>
               <div role="columnheader" className="lb-hide-mobile" style={{textAlign:"right"}}>League</div>
             </div>
@@ -641,9 +648,10 @@ export default function InsightsDashboard() {
                       </div>
                     </div>
                   </div>
-                  {/* Trophies */}
-                  <div role="cell" style={{textAlign:"right",fontFamily:"'Sora',sans-serif",fontSize:12,fontWeight:800,color:i<3?rowCol:C.text}}>
-                    <FontAwesomeIcon icon={faTrophy} aria-hidden="true" /> <AnimNum value={u.trophies}/>
+                  {/* Fitness steps and today's synced gain */}
+                  <div role="cell" className="lb-score-cell" aria-label={`${fmtFull(u.trophies)} steps${u.todaySteps > 0 ? `, ${fmtFull(u.todaySteps)} steps today` : ''}`} style={{color:i<3?rowCol:C.text}}>
+                    <AnimNum value={u.trophies}/>
+                    {u.todaySteps > 0 && <span className="lb-daily-gain">+{fmtFull(u.todaySteps)} today</span>}
                   </div>
                   {/* Lifetime Steps */}
                   <div role="cell" className="lb-hide-mobile" style={{textAlign:"right",fontSize:12,fontWeight:600,color:C.textSecondary}}>
