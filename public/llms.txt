@@ -1,0 +1,11 @@
+# World Wide Steps
+
+World Wide Steps is a public Snows ProAm project for exploring global step totals, athlete rankings and countries. The Irish Secondary School Step Challenge shows participating schools, student and school standings, and challenge information.
+
+Public pages:
+- Worldwide dashboard: https://worldwidesteps.com/
+- Irish Secondary School Step Challenge: https://worldwidesteps.com/schools
+- ProAm Store: https://worldwidesteps.com/shop
+- Snows ProAm: https://snowsproam.com/
+
+Step totals, rankings, school participation, product availability and prices are live data. Check the page for current values.
