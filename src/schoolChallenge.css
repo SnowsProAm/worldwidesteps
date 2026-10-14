@@ -128,6 +128,8 @@ body { margin: 0; background: #fff; }
 .sc-year-breakdown ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 7px 15px; list-style: none; padding: 0; margin: 0; }
 .sc-year-breakdown li, .sc-year-total { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
 .sc-year-breakdown li strong, .sc-year-total strong { color: #194b80; font-variant-numeric: tabular-nums; }
+.sc-year-breakdown li small, .sc-year-total small { display: block; color: #607089; font-size: 10px; font-weight: 500; line-height: 1.5; }
+.sc-year-breakdown li strong, .sc-year-total strong { text-align: right; }
 .sc-year-total { border-top: 1px solid var(--line); margin-top: 9px; padding-top: 8px; font-weight: 800; }
 .sc-school-row.sc-leading { background: linear-gradient(105deg, #fffbef 0%, #fffefa 46%, #fff 100%); border-color: #eaddba; box-shadow: 0 3px 12px #c3a35908; }
 .sc-leading::before { content: ''; position: absolute; left: -1px; top: 24%; bottom: 24%; width: 3px; background: #d0ad5a; border-radius: 0 3px 3px 0; }
