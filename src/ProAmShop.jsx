@@ -73,7 +73,7 @@ function ProductCard({ product, item, session, stockAlerts, onAlertSaved, onAler
   };
 
   return (
-    <article className="proam-product-card" aria-labelledby={`${product.key}-title`}>
+    <article id={product.key} className="proam-product-card" aria-labelledby={`${product.key}-title`}>
       <div className={`proam-product-image ${product.colour === 'Black' ? 'is-black' : ''}`}>
         <span className="proam-product-badge">{product.badge}</span>
         <div className="proam-viewer-controls" role="group" aria-label={`${product.title} preview angle`}>

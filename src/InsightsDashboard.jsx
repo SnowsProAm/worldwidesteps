@@ -560,7 +560,7 @@ export default function InsightsDashboard() {
 
       <header className="world-header">
         <a href="#top" className="world-brand"><img src={logo} alt="" /><span>World Wide Steps</span></a>
-        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="#leaderboard">Leaderboard</a><a className="countries-nav" href="#countries">Countries</a><a href="/shop">ProAm Store</a></nav>
+        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a></nav>
       </header>
       <main className="main-pad" id="top">
         {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures are unavailable or could not update. Available figures are shown; we’re trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}
