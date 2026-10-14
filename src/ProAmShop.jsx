@@ -17,9 +17,9 @@ const shopSupabase = SHOP_SUPABASE_URL && SHOP_SUPABASE_KEY
 
 const SIZE_ORDER = ['S', 'M', 'L', 'XL'];
 const PRODUCTS = [
-  { key: 'white-tee', title: 'ProAm Dri-Fit T-Shirt', colour: 'White', badge: 'THE COMMUNITY CLASSIC', image: '/store/white-front-smooth.webp', back: '/store/white-back-smooth.webp', material: 'Performance fabric · exact fibre blend to be confirmed', match: (item) => /t-?shirt/i.test(item.product_type || item.name) },
-  { key: 'black-tee', title: 'ProAm Dri-Fit T-Shirt', colour: 'Black', badge: 'MADE TO MOVE', image: '/store/black-front-smooth.webp', back: '/store/black-back-smooth.webp', material: 'Performance fabric · exact fibre blend to be confirmed', match: (item) => /t-?shirt/i.test(item.product_type || item.name) },
-  { key: 'black-hoodie', title: 'ProAm Performance Hoodie', colour: 'Black', badge: 'FOR EVERY SEASON', image: '/store/hoodie-front.webp', back: '/store/hoodie-back.webp', material: 'Performance fabric · exact fibre blend to be confirmed', match: (item) => /hoodie/i.test(item.product_type || item.name) },
+  { key: 'white-tee', title: 'ProAm Dri-Fit T-Shirt', colour: 'White', badge: 'THE COMMUNITY CLASSIC', image: '/store/white-front-smooth.webp', back: '/store/white-back-smooth.webp', material: '96% polyester / 4% spandex performance fabric', match: (item) => /t-?shirt/i.test(item.product_type || item.name) },
+  { key: 'black-tee', title: 'ProAm Dri-Fit T-Shirt', colour: 'Black', badge: 'MADE TO MOVE', image: '/store/black-front-smooth.webp', back: '/store/black-back-smooth.webp', material: '96% polyester / 4% spandex performance fabric', match: (item) => /t-?shirt/i.test(item.product_type || item.name) },
+  { key: 'black-hoodie', title: 'ProAm Performance Hoodie', colour: 'Black', badge: 'FOR EVERY SEASON', image: '/store/hoodie-front.webp', back: '/store/hoodie-back.webp', material: '85% cotton / 15% polyester fabric', match: (item) => /hoodie/i.test(item.product_type || item.name) },
 ];
 
 const displayPrice = (value) => new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(Number(value || 0));
@@ -102,7 +102,6 @@ function ProductCard({ product, item, session, stockAlerts, onAlertSaved, onAler
           <summary>Size &amp; fit guide</summary>
           <p>For your best fit, we recommend going one size up.</p>
           <table className="proam-size-chart"><caption>Size recommendation</caption><thead><tr><th scope="col">Your usual size</th><th scope="col">Choose ProAm</th></tr></thead><tbody>{[['XS','S'],['S','M'],['M','L'],['L','XL']].map(([usual,recommended]) => <tr key={usual}><th scope="row">{usual}</th><td>{recommended}</td></tr>)}</tbody></table>
-          <p className="proam-size-chart-note">Usually XL? A larger size isn’t available in this collection yet. Exact garment measurements are awaiting supplier confirmation.</p>
         </details>
         <details className="proam-fit-guide"><summary>Product details</summary><p>{product.material}. The Snows ProAm crest features on the chest, with our community mark on the back.</p></details>
         <ProAmReviews client={shopSupabase} productId={item?.id} session={session} onSignIn={onSignIn} />
@@ -277,7 +276,7 @@ export default function ProAmShop() {
         {unsubscribeToken && <section className="proam-unsubscribe"><h2>Manage your restock alert</h2><button type="button" onClick={unsubscribe}>Unsubscribe from this alert</button><p role="status">{unsubscribeMessage}</p></section>}
         <section className="proam-shop-hero" aria-labelledby="proam-shop-title">
           <div className="proam-hero-copy">
-            <span className="proam-kicker"><span className="proam-live-dot" aria-hidden="true"/> PROAM STORE / THE FIRST COLLECTION</span>
+            <span className="proam-kicker">PROAM STORE / THE FIRST COLLECTION</span>
             <h1 id="proam-shop-title">Wear the<br/><span>movement.</span></h1>
             <p>For the training days. The rest days. And everyone moving the world forward.</p>
             <a className="proam-hero-cta" href="#collection">Explore the collection <span aria-hidden="true">↓</span></a>

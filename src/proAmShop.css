@@ -18,7 +18,6 @@
 .proam-header-account{justify-self:end;display:inline-flex;gap:12px;align-items:center;min-height:48px;padding:0 18px;border:1px solid var(--ps-line);background:#fff;border-radius:30px;color:var(--ps-ink);font-weight:600}
 .proam-header-account:hover{border-color:var(--ps-blue);color:var(--ps-blue)}
 .proam-kicker{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.13em;line-height:1.6;color:var(--ps-blue)}
-.proam-live-dot{width:7px;height:7px;border-radius:50%;background:var(--ps-blue)}
 .proam-shop-hero{min-height:620px;padding:64px clamp(24px,5vw,80px);display:grid;grid-template-columns:1fr 1.2fr;align-items:center;gap:20px;overflow:hidden;background:linear-gradient(115deg,#fff 35%,#eef6fc)}
 .proam-hero-copy{max-width:630px;position:relative;z-index:2}
 .proam-hero-copy h1{margin:22px 0 24px;font:800 clamp(64px,7.3vw,112px)/.99 'Manrope',sans-serif;letter-spacing:-.065em}
@@ -121,7 +120,6 @@
 .proam-size-chart th,.proam-size-chart td{padding:10px 12px;border-bottom:1px solid var(--ps-line)}
 .proam-size-chart thead{background:#eff5fb}.proam-size-chart tbody th{font-weight:500}
 .proam-size-chart tbody td{color:var(--ps-blue);font-weight:700}
-.proam-fit-guide .proam-size-chart-note{font-size:14px}
 .proam-hero-backdrop{position:absolute;inset:-9% -12%;z-index:-1;pointer-events:none}
 .proam-hero-backdrop>svg{width:100%;height:100%;overflow:visible}
 .proam-global-orbit{animation:proam-global-flow 28s linear infinite}
@@ -160,5 +158,18 @@
 .proam-checkout-form>label,.proam-checkout-form details>label{display:block;font-size:15px;margin-bottom:16px;font-weight:600}.proam-checkout-form input,.proam-checkout-form select{display:block;margin-top:6px;min-height:50px;width:100%;padding:10px;border:1px solid #b6c5d3;border-radius:5px;background:white;color:var(--ps-ink);font-size:16px;font-weight:400}
 .proam-order-totals{margin:24px 0}.proam-order-totals>div{display:flex;justify-content:space-between;margin:8px 0;gap:12px}.proam-order-totals dd{margin:0}.proam-order-totals .total{padding-top:16px;border-top:1px solid var(--ps-line);font-weight:700;font-size:21px}.proam-checkout-error{color:#a12b3d}.proam-checkout-note{font-size:13px;color:var(--ps-muted)}.proam-checkout-note a{text-decoration:underline}
 @media(max-width:440px){.proam-shop-header{padding:10px 14px;gap:10px}.proam-shop-brand{gap:8px}.proam-shop-brand strong{font-size:11px}.proam-shop-brand small{font-size:9px}.proam-header-actions{gap:5px}.proam-header-account{padding:0 11px;font-size:13px;gap:6px}.proam-header-account svg{display:none}.proam-shop-brand img{width:30px}.proam-bag-items{font-size:15px}}
+
+@media(max-width:760px){
+  .proam-shop-hero{padding-top:20px}
+  .proam-hero-visual{order:-1;height:clamp(270px,76vw,350px);margin:0 0 12px}
+  .proam-hero-copy{width:100%}
+  .proam-hero-copy h1{margin:12px 0 18px}
+  .proam-hero-coordinates{bottom:0}
+}
+@media(max-width:380px){
+  .proam-hero-copy h1{font-size:clamp(50px,15vw,57px)}
+  .proam-hero-shirt{left:0;width:64%}
+  .proam-hero-hoodie{right:2%;width:64%}
+}
 
 .proam-product-card{scroll-margin-top:130px}
