@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './proAmClothesRail.css';
 
-// Generated catalogue mockups include the same ProAm sports hanger on both sides.
-function Garment({ product, back = false }) {
+// Separate dimensional front, back and side mockups keep the garment volume visible.
+function Garment({ product, back = false, side = false }) {
   const [failed, setFailed] = useState(false);
-  return <span className={`proam-rail-garment ${back ? 'shows-back' : ''}`}>
+  return <span className={`proam-rail-garment ${back ? 'shows-back' : ''} ${side ? 'shows-side' : ''}`}>
+    <img className="proam-rail-side" src={`/store/rail-v3/${product.key}-side.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
     <span className="proam-rail-faces">
-      <img className="proam-rail-front" src={`/store/rail-v2/${product.key}-front.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
-      <img className="proam-rail-back" src={`/store/rail-v2/${product.key}-back.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
+      <img className="proam-rail-front" src={`/store/rail-v3/${product.key}-front.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
+      <img className="proam-rail-back" src={`/store/rail-v3/${product.key}-back.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
     </span>
     {failed && <span className="proam-rail-image-error">Preview unavailable. Product details below.</span>}
   </span>;
@@ -40,6 +41,10 @@ export default function ProAmClothesRail({ products }) {
 
   if (!selected) return null;
   const select = (product) => { if (product.key !== selected.key) { setSelectedKey(product.key); setBack(false); } };
+  const turn = (product) => {
+    setSelectedKey(product.key);
+    setBack(product.key === selected.key ? !back : true);
+  };
   const step = (direction) => select(products[(selectedIndex + direction + products.length) % products.length]);
   const chooseSize = () => {
     setOpen(false);
@@ -56,7 +61,7 @@ export default function ProAmClothesRail({ products }) {
 
   return <>
     <div className="proam-rail-showcase" role="region" aria-label="Explore the ProAm clothes rail">
-      <div className="proam-rail-caption"><span>THE PROAM RAIL</span><p>Select a piece. Make it yours.</p></div>
+      <div className="proam-rail-caption"><span>THE PROAM RAIL</span><p id="proam-rail-instructions">Tap a piece to turn it around.</p></div>
       <div className="proam-rail-stage">
         <div className="proam-rail-bar" aria-hidden="true"/>
         {products.map((product, index) => {
@@ -66,8 +71,8 @@ export default function ProAmClothesRail({ products }) {
             if (offset < -1) offset += products.length;
           }
           const active = product.key === selected.key;
-          return <button key={product.key} type="button" className={`proam-rail-piece ${active ? 'is-selected' : ''}`} style={{ '--rail-offset': offset, '--rail-slot': index - (products.length - 1) / 2, '--rail-turn': `${offset === 0 ? 0 : offset > 0 ? -58 : 58}deg` }} aria-label={`Preview ${product.colour} ${product.title}`} aria-pressed={active} onClick={() => select(product)} onPointerEnter={event => { if (event.pointerType === 'mouse' && window.matchMedia('(min-width: 761px)').matches) select(product); }}>
-            <Garment product={product} back={active && back}/>
+          return <button key={product.key} type="button" className={`proam-rail-piece ${active ? 'is-selected' : ''}`} style={{ '--rail-offset': offset, '--rail-slot': index - (products.length - 1) / 2 }} aria-label={`Turn ${product.colour} ${product.title} to ${active && back ? 'front' : 'back'}`} aria-describedby="proam-rail-instructions" onClick={() => turn(product)} onPointerEnter={event => { if (event.pointerType === 'mouse' && window.matchMedia('(min-width: 761px)').matches) select(product); }}>
+            <Garment product={product} back={active && back} side={!active}/>
           </button>;
         })}
         <button className="proam-rail-enlarge" type="button" onClick={() => setOpen(true)} aria-label={`Enlarge ${selected.colour} ${selected.title}`}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M3 3l6 6m12-6-6 6M3 21l6-6m12 6-6-6"/></svg><span>Closer look</span></button>
@@ -76,12 +81,12 @@ export default function ProAmClothesRail({ products }) {
       <div className="proam-rail-selector" role="group" aria-label="Choose a garment">
         {products.map(product => <button key={product.key} type="button" aria-pressed={product.key === selected.key} onClick={() => select(product)}><span className={`proam-rail-swatch ${product.colour === 'White' ? 'is-white' : ''}`} aria-hidden="true"/>{product.colour} {product.title.includes('Hoodie') ? 'hoodie' : 'tee'}</button>)}
       </div>
-      <div className="proam-rail-info" aria-live="polite" aria-atomic="true"><span className="proam-rail-count">{String(selectedIndex + 1).padStart(2, '0')} / {String(products.length).padStart(2, '0')}</span><h3>{selected.title}</h3><p>{selected.colour} · {selected.material}</p></div>
+      <div className="proam-rail-info" aria-live="polite" aria-atomic="true"><span className="proam-rail-count">{String(selectedIndex + 1).padStart(2, '0')} / {String(products.length).padStart(2, '0')}</span><h3>{selected.title}</h3><span className="proam-sr-only">{back ? 'Back view' : 'Front view'}</span><p>{selected.colour} · {selected.material}</p></div>
       <button className="proam-rail-shop" type="button" onClick={chooseSize}>Choose size &amp; check availability <span aria-hidden="true">↗</span></button>
     </div>
     <dialog ref={dialog} className="proam-rail-dialog" aria-labelledby="proam-rail-dialog-title" onCancel={() => setOpen(false)} onClose={() => setOpen(false)} onClick={event => { if (event.target === dialog.current) { const rect = dialog.current.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) setOpen(false); } }}>
       <button className="proam-dialog-close" type="button" onClick={() => setOpen(false)} aria-label="Close product preview" autoFocus>×</button>
-      <div className="proam-rail-closeup"><Garment key={selected.key} product={selected} back={back}/></div>
+      <button type="button" className="proam-rail-closeup" aria-label={`Turn enlarged ${selected.colour} ${selected.title} to ${back ? 'front' : 'back'}`} onClick={() => setBack(value => !value)}><Garment key={selected.key} product={selected} back={back}/></button>
       <div className="proam-rail-dialog-nav"><button type="button" onClick={() => step(-1)} aria-label="Previous garment">←</button><div aria-live="polite" aria-atomic="true"><span className="proam-rail-count">{String(selectedIndex + 1).padStart(2, '0')} / {String(products.length).padStart(2, '0')}</span><h2 id="proam-rail-dialog-title">{selected.title}</h2><p>{selected.colour}</p></div><button type="button" onClick={() => step(1)} aria-label="Next garment">→</button></div>
       {angles('Large product preview angle')}
       <button className="proam-rail-shop" type="button" onClick={chooseSize}>Choose size &amp; check availability <span aria-hidden="true">↗</span></button>
