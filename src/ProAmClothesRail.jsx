@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './proAmClothesRail.css';
 
+const touchRailQuery = '(max-width: 760px), (hover: none), (pointer: coarse)';
+
 // Separate dimensional front, back and side mockups keep the garment volume visible.
 function Garment({ product, back = false, side = false }) {
   const [failed, setFailed] = useState(false);
@@ -8,7 +10,7 @@ function Garment({ product, back = false, side = false }) {
     <img className="proam-rail-side" src={`/store/rail-v3/${product.key}-side.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
     <span className="proam-rail-faces">
       <img className="proam-rail-front" src={`/store/rail-v3/${product.key}-front.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
-      <img className="proam-rail-back" src={`/store/rail-v3/${product.key}-back.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
+      <img className="proam-rail-back" src={`/store/rail-v4/${product.key}-back.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
     </span>
     {failed && <span className="proam-rail-image-error">Preview unavailable. Product details below.</span>}
   </span>;
@@ -18,6 +20,7 @@ export default function ProAmClothesRail({ products }) {
   const [selectedKey, setSelectedKey] = useState(products[Math.floor(products.length / 2)]?.key);
   const [back, setBack] = useState(false);
   const [open, setOpen] = useState(false);
+  const [selectOnly, setSelectOnly] = useState(() => typeof window !== 'undefined' && window.matchMedia(touchRailQuery).matches);
   const dialog = useRef(null);
   const selected = products.find(product => product.key === selectedKey) || products[0];
   const selectedIndex = products.indexOf(selected);
@@ -33,10 +36,13 @@ export default function ProAmClothesRail({ products }) {
   }, [open]);
 
   useEffect(() => {
-    const mobile = window.matchMedia('(max-width: 760px)');
-    const closeOnMobile = () => { if (mobile.matches) setOpen(false); };
-    mobile.addEventListener('change', closeOnMobile);
-    return () => mobile.removeEventListener('change', closeOnMobile);
+    const mobile = window.matchMedia(touchRailQuery);
+    const updateInteraction = () => {
+      setSelectOnly(mobile.matches);
+      if (mobile.matches) setOpen(false);
+    };
+    mobile.addEventListener('change', updateInteraction);
+    return () => mobile.removeEventListener('change', updateInteraction);
   }, []);
 
   if (!selected) return null;
@@ -61,7 +67,7 @@ export default function ProAmClothesRail({ products }) {
 
   return <>
     <div className="proam-rail-showcase" role="region" aria-label="Explore the ProAm clothes rail">
-      <div className="proam-rail-caption"><span>THE PROAM RAIL</span><p id="proam-rail-instructions">Tap a piece to turn it around.</p></div>
+      <div className="proam-rail-caption"><span>THE PROAM RAIL</span><p id="proam-rail-instructions">{selectOnly ? 'Select a piece. Choose Front or Back.' : 'Click a piece to turn it around.'}</p></div>
       <div className="proam-rail-stage">
         <div className="proam-rail-bar" aria-hidden="true"/>
         {products.map((product, index) => {
@@ -71,11 +77,11 @@ export default function ProAmClothesRail({ products }) {
             if (offset < -1) offset += products.length;
           }
           const active = product.key === selected.key;
-          return <button key={product.key} type="button" className={`proam-rail-piece ${active ? 'is-selected' : ''}`} style={{ '--rail-offset': offset, '--rail-slot': index - (products.length - 1) / 2 }} aria-label={`Turn ${product.colour} ${product.title} to ${active && back ? 'front' : 'back'}`} aria-describedby="proam-rail-instructions" onClick={() => turn(product)} onPointerEnter={event => { if (event.pointerType === 'mouse' && window.matchMedia('(min-width: 761px)').matches) select(product); }}>
+          return <button key={product.key} type="button" className={`proam-rail-piece ${active ? 'is-selected' : ''}`} style={{ '--rail-offset': offset, '--rail-slot': index - (products.length - 1) / 2 }} aria-label={selectOnly ? `Select ${product.colour} ${product.title}` : `Turn ${product.colour} ${product.title} to ${active && back ? 'front' : 'back'}`} aria-pressed={selectOnly ? active : undefined} aria-describedby="proam-rail-instructions" onClick={() => selectOnly ? select(product) : turn(product)} onPointerEnter={event => { if (event.pointerType === 'mouse' && !selectOnly) select(product); }}>
             <Garment product={product} back={active && back} side={!active}/>
           </button>;
         })}
-        <button className="proam-rail-enlarge" type="button" onClick={() => setOpen(true)} aria-label={`Enlarge ${selected.colour} ${selected.title}`}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M3 3l6 6m12-6-6 6M3 21l6-6m12 6-6-6"/></svg><span>Closer look</span></button>
+        {!selectOnly && <button className="proam-rail-enlarge" type="button" onClick={() => setOpen(true)} aria-label={`Enlarge ${selected.colour} ${selected.title}`}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M3 3l6 6m12-6-6 6M3 21l6-6m12 6-6-6"/></svg><span>Closer look</span></button>}
       </div>
       {angles('Clothes rail preview angle')}
       <div className="proam-rail-selector" role="group" aria-label="Choose a garment">
