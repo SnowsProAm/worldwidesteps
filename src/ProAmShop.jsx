@@ -5,6 +5,7 @@ import ProAmMovement from './ProAmMovement.jsx';
 import ProAmReviews from './ProAmReviews.jsx';
 import ProAmCart from './ProAmCart.jsx';
 import ProAmHeroBackdrop from './ProAmHeroBackdrop.jsx';
+import ProAmClothesRail from './ProAmClothesRail.jsx';
 import './proAmShop.css';
 
 const SHOP_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -86,7 +87,7 @@ function ProductCard({ product, item, session, stockAlerts, onAlertSaved, onAler
       <div className="proam-product-copy">
         <div className="proam-product-heading">
           <div>
-            <h3 id={`${product.key}-title`}>{product.title}</h3>
+            <h3 id={`${product.key}-title`} tabIndex={-1}>{product.title}</h3>
             <p>{product.colour}</p>
           </div>
           <strong className="proam-product-price">{price ? displayPrice(price) : '—'}</strong>
@@ -260,6 +261,8 @@ export default function ProAmShop() {
     return () => { active = false; };
   }, [session?.user?.id]);
 
+  const visibleProducts = PRODUCTS.filter(product => items.some(product.match));
+
   const alertSaved = (productId, colour, size) => setStockAlerts((current) => current.some((alert) => alert.product_id === productId && alert.colour === colour && alert.size === size) ? current : [...current, { product_id: productId, colour, size, status: 'waiting' }]);
   const alertRemoved = (productId, colour, size) => setStockAlerts((current) => current.filter((alert) => !(alert.product_id === productId && alert.colour === colour && alert.size === size)));
 
@@ -296,8 +299,8 @@ export default function ProAmShop() {
           <div className="proam-section-heading"><div><span className="proam-kicker">THE COLLECTION</span><h2 id="proam-collection-title">Your everyday lineup.</h2></div><p>Three essentials. One community.</p></div>
           {status === 'loading' && <p className="proam-catalog-status" role="status">Loading the ProAm collection…</p>}
           {status === 'error' && <div className="proam-catalog-error" role="alert"><p>We couldn’t load current prices and availability.</p><button type="button" onClick={loadItems}>Try again</button></div>}
-          {status === 'ready' && <div className="proam-products-grid">{PRODUCTS.filter(product => items.some(product.match)).map((product) => <ProductCard key={product.key} product={product} item={items.find(product.match)} session={session} stockAlerts={stockAlerts} onAlertSaved={alertSaved} onAlertRemoved={alertRemoved} onSignIn={() => setAccountOpen(true)} onAddToCart={addToCart}/>)}</div>}
-          {status === 'ready' && !items.length && <p className="proam-catalog-status" role="status">The collection is being updated. Please check back soon.</p>}
+          {status === 'ready' && <>{visibleProducts.length > 0 && <ProAmClothesRail products={visibleProducts}/>}<div className="proam-products-grid">{visibleProducts.map((product) => <ProductCard key={product.key} product={product} item={items.find(product.match)} session={session} stockAlerts={stockAlerts} onAlertSaved={alertSaved} onAlertRemoved={alertRemoved} onSignIn={() => setAccountOpen(true)} onAddToCart={addToCart}/>)}</div></>}
+          {status === 'ready' && !visibleProducts.length && <p className="proam-catalog-status" role="status">The collection is being updated. Please check back soon.</p>}
         </section>
 
         <ProAmCart open={cartOpen} onClose={closeCart} cart={cart} onChange={setCart} client={shopSupabase} session={session} onSignIn={() => setAccountOpen(true)} />
