@@ -1,3 +1,4 @@
+body:has(.proam-shop-page){margin:0}
 .proam-rail-showcase{background:#f3f2ee;border-radius:8px;padding:32px 0 36px;margin-bottom:56px;overflow:hidden;text-align:center;color:#23303b}
 .proam-rail-caption{padding:0 20px}.proam-rail-caption>span{font-size:11px;letter-spacing:.2em;font-weight:700;color:#5a6267}.proam-rail-caption p{font:600 18px/1.5 'Manrope',sans-serif;margin:8px 0 0}
 .proam-rail-stage{height:440px;position:relative;margin-top:22px;isolation:isolate;overflow:hidden;perspective:1100px}
