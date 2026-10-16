@@ -7,7 +7,6 @@
 .proam-rail-piece:focus-visible{outline-offset:-8px!important;border-radius:16px}
 .proam-rail-garment{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transform-origin:50% 0;transform:rotateZ(-1.5deg);transition:transform .7s cubic-bezier(.22,.8,.25,1);filter:drop-shadow(7px 14px 8px #35352e20)}
 .is-selected .proam-rail-garment{transform:rotateZ(0)}
-.proam-rail-hanger{position:absolute;width:52%;height:auto;left:24%;top:0;z-index:0}
 .proam-rail-faces{position:absolute;inset:32px 0 0;display:block;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.22,.8,.25,1)}
 .proam-rail-faces img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .proam-rail-front{transform:rotateY(0deg)}.proam-rail-back{transform:rotateY(180deg)}.shows-back .proam-rail-faces{transform:rotateY(180deg)}
@@ -36,4 +35,27 @@
 
 @media(max-width:760px){.proam-rail-piece{transform:translateX(calc(var(--rail-offset)*var(--rail-spacing))) rotateY(var(--rail-turn)) scale(.88)}.proam-rail-piece.is-selected{transform:translateX(0) rotateY(0) scale(1)}}
 
-.proam-rail-garment.is-hoodie .proam-rail-hanger{width:28%;left:36%}.proam-rail-garment.is-hoodie .proam-rail-faces{top:12px}
+
+/* The collection is a full-width shop floor; purchasing details retain readable gutters. */
+.proam-shop-page .proam-collection{--collection-gutter:clamp(20px,4vw,64px);max-width:none;padding:76px 0 70px}
+.proam-collection>.proam-section-heading,.proam-collection>.proam-products-grid,.proam-collection>.proam-catalog-status,.proam-collection>.proam-catalog-error{width:min(calc(100% - var(--collection-gutter)*2),1572px);margin-left:auto;margin-right:auto}
+.proam-rail-showcase{border-radius:0;margin:0 0 56px;padding:36px 0 40px;background:#f1f3f4}
+.proam-rail-stage{--rail-height:580px;height:var(--rail-height);margin-top:28px;perspective:1600px}
+.proam-rail-bar{top:17px}
+.proam-rail-piece{--rail-spacing:clamp(240px,30vw,490px);top:0;width:calc(var(--rail-height)*.666667);height:var(--rail-height);margin-left:calc(var(--rail-height)*-.333333)}
+.proam-rail-faces{inset:0}
+.proam-rail-garment{filter:drop-shadow(5px 10px 7px #35352e14)}
+.proam-rail-info{min-height:112px;padding-bottom:20px}
+.proam-rail-closeup{width:min(100%,440px,40dvh);aspect-ratio:2/3}
+@media(max-width:760px){
+  .proam-shop-page .proam-collection{padding:44px 0 48px}
+  .proam-rail-showcase{margin:0 0 40px;padding:24px 0 28px}
+  .proam-rail-caption p{font-size:16px}
+  .proam-rail-stage{--rail-height:min(126vw,560px);margin-top:20px}
+  .proam-rail-piece{--rail-spacing:clamp(170px,59vw,360px)}
+  .proam-rail-enlarge{display:none}
+  .proam-rail-bar{top:calc(var(--rail-height)*.03)}
+  .proam-rail-selector{padding-top:8px}
+  .proam-rail-info{padding-top:14px;min-height:116px}
+  .proam-rail-angles{margin:4px 0 14px}
+}

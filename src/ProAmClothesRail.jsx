@@ -1,18 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './proAmClothesRail.css';
 
-// Use the actual catalogue photography on both sides of the turning garment.
+// Generated catalogue mockups include the same ProAm sports hanger on both sides.
 function Garment({ product, back = false }) {
   const [failed, setFailed] = useState(false);
-  return <span className={`proam-rail-garment ${back ? 'shows-back' : ''} ${product.title.includes('Hoodie') ? 'is-hoodie' : ''}`}>
-    <svg className="proam-rail-hanger" viewBox="0 0 240 100" fill="none" aria-hidden="true">
-      <path d="M120 28V21c0-9 14-8 14-17 0-13-22-13-22 0" stroke="#747c80" strokeWidth="3" strokeLinecap="round"/>
-      <path d="M120 27 29 76c-7 4-5 12 3 12h176c8 0 10-8 3-12L120 27Z" fill="#927254" stroke="#6c513b" strokeWidth="3" strokeLinejoin="round"/>
-      <path d="m43 77 77-40 77 40" stroke="#c4a27c" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
+  return <span className={`proam-rail-garment ${back ? 'shows-back' : ''}`}>
     <span className="proam-rail-faces">
-      <img className="proam-rail-front" src={product.image} alt="" decoding="async" onError={() => setFailed(true)}/>
-      <img className="proam-rail-back" src={product.back} alt="" decoding="async" onError={() => setFailed(true)}/>
+      <img className="proam-rail-front" src={`/store/rail-v2/${product.key}-front.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
+      <img className="proam-rail-back" src={`/store/rail-v2/${product.key}-back.webp`} alt="" decoding="async" onError={() => setFailed(true)}/>
     </span>
     {failed && <span className="proam-rail-image-error">Preview unavailable. Product details below.</span>}
   </span>;
@@ -35,6 +30,13 @@ export default function ProAmClothesRail({ products }) {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = previous; };
   }, [open]);
+
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 760px)');
+    const closeOnMobile = () => { if (mobile.matches) setOpen(false); };
+    mobile.addEventListener('change', closeOnMobile);
+    return () => mobile.removeEventListener('change', closeOnMobile);
+  }, []);
 
   if (!selected) return null;
   const select = (product) => { if (product.key !== selected.key) { setSelectedKey(product.key); setBack(false); } };
@@ -70,11 +72,11 @@ export default function ProAmClothesRail({ products }) {
         })}
         <button className="proam-rail-enlarge" type="button" onClick={() => setOpen(true)} aria-label={`Enlarge ${selected.colour} ${selected.title}`}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M3 3l6 6m12-6-6 6M3 21l6-6m12 6-6-6"/></svg><span>Closer look</span></button>
       </div>
+      {angles('Clothes rail preview angle')}
       <div className="proam-rail-selector" role="group" aria-label="Choose a garment">
         {products.map(product => <button key={product.key} type="button" aria-pressed={product.key === selected.key} onClick={() => select(product)}><span className={`proam-rail-swatch ${product.colour === 'White' ? 'is-white' : ''}`} aria-hidden="true"/>{product.colour} {product.title.includes('Hoodie') ? 'hoodie' : 'tee'}</button>)}
       </div>
       <div className="proam-rail-info" aria-live="polite" aria-atomic="true"><span className="proam-rail-count">{String(selectedIndex + 1).padStart(2, '0')} / {String(products.length).padStart(2, '0')}</span><h3>{selected.title}</h3><p>{selected.colour} · {selected.material}</p></div>
-      {angles('Clothes rail preview angle')}
       <button className="proam-rail-shop" type="button" onClick={chooseSize}>Choose size &amp; check availability <span aria-hidden="true">↗</span></button>
     </div>
     <dialog ref={dialog} className="proam-rail-dialog" aria-labelledby="proam-rail-dialog-title" onCancel={() => setOpen(false)} onClose={() => setOpen(false)} onClick={event => { if (event.target === dialog.current) { const rect = dialog.current.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) setOpen(false); } }}>
