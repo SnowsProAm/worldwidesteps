@@ -1,7 +1,7 @@
 // Built by Solomon
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass, faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
@@ -55,10 +55,50 @@ const LIGHT = {
   rose:           "#DC2626",
 };
 
+const DARK = {
+  ...LIGHT,
+  accent: "#69B8FF",
+  accentBgSubtle: "rgba(105,184,255,0.08)",
+  accentBgLight: "rgba(105,184,255,0.14)",
+  accentBorder: "rgba(105,184,255,0.24)",
+  accentGlow: "rgba(105,184,255,0.2)",
+  accentGrad: "linear-gradient(135deg, #69B8FF 0%, #9BCBFF 100%)",
+  bg: "#080D16",
+  bgCard: "#101824",
+  bgAlt: "#172231",
+  bgElevated: "#1B2838",
+  border: "rgba(194,214,240,0.12)",
+  borderMedium: "rgba(194,214,240,0.2)",
+  shadowMd: "0 4px 16px rgba(0,0,0,0.22)",
+  shadowLg: "0 12px 48px rgba(0,0,0,0.3)",
+  shadowGlow: "0 0 40px rgba(105,184,255,0.08)",
+  text: "#F2F6FC",
+  textSecondary: "#C0CAD8",
+  textMuted: "#9AA9BC",
+  headerBg: "rgba(8,13,22,0.94)",
+  scrollbarThumb: "rgba(194,214,240,0.22)",
+  cyan: "#57C7F3",
+  cyanBg: "rgba(87,199,243,0.1)",
+  cyanBorder: "rgba(87,199,243,0.24)",
+  emerald: "#5BD6A2",
+  emeraldBg: "rgba(91,214,162,0.1)",
+  emeraldBorder: "rgba(91,214,162,0.24)",
+  amber: "#F6C56C",
+  amberBg: "rgba(246,197,108,0.1)",
+  amberBorder: "rgba(246,197,108,0.24)",
+  rose: "#FF8585",
+};
+
 const PODIUM_TONES = [
   { name: "Gold", text: "#996100", background: "#FFF3D6", border: "#E2BD68", row: "#FFFCF5" },
   { name: "Silver", text: "#59677A", background: "#EDF1F5", border: "#C8D1DD", row: "#FAFBFD" },
   { name: "Bronze", text: "#8A4226", background: "#F9E4D7", border: "#D6A28B", row: "#FFFAF7" },
+];
+
+const DARK_PODIUM_TONES = [
+  { name: "Gold", text: "#F5CE77", background: "#352B18", border: "#725A26", row: "#171B20" },
+  { name: "Silver", text: "#D0DBE8", background: "#27313D", border: "#455466", row: "#141B24" },
+  { name: "Bronze", text: "#E9A786", background: "#38251F", border: "#704533", row: "#181B21" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -159,6 +199,25 @@ const makeCSS = () => `
   .load-error p { max-width:420px; color:#53617a; line-height:1.7; }
   .data-notice { font-size:12px; background:#f2f7fd; padding:16px; margin-bottom:24px; color:#53617a; }
   .data-notice button { border:0; background:transparent; color:#0C69C8; text-decoration:underline; min-height:44px; padding:0 10px; }
+  .world-page[data-theme="dark"] { color-scheme:dark; }
+  .world-page[data-theme="dark"] .world-header { background:rgba(8,13,22,.94); border-color:#263243; }
+  .world-page[data-theme="dark"] .world-brand { color:#F2F6FC; }
+  .world-page[data-theme="dark"] .world-header nav { color:#C0CAD8; }
+  .world-page[data-theme="dark"] .grad-text { background-image:linear-gradient(110deg,#69B8FF,#B4D8FF); }
+  .world-page[data-theme="dark"] .world-summary { border-color:#263243; }
+  .world-page[data-theme="dark"] .world-summary > div+div { border-color:#263243; }
+  .world-page[data-theme="dark"] .milestone-section { background:linear-gradient(105deg,#111B29,#151F2E); }
+  .world-page[data-theme="dark"] .timeline-chart { border-color:#263243; }
+  .world-page[data-theme="dark"] .country-search-field { background:#101824; border-color:#43536A; }
+  .world-page[data-theme="dark"] .country-search input { color:#F2F6FC; }
+  .world-page[data-theme="dark"] .world-about { background:#101824; border-color:#2C3A4C; }
+  .world-page[data-theme="dark"] .data-notice { background:#142235; color:#C0CAD8; }
+  .world-page[data-theme="dark"] .world-footer { border-color:#263243; }
+  .world-page[data-theme="dark"] .night-mode-toggle { color:#E9F2FF; border-color:#3A4A5F; background:#172231; }
+  .night-mode-toggle { min-height:44px; padding:0 13px; display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid #CAD5E3; border-radius:999px; background:#F5F8FC; color:#17304D; font-size:12px; font-weight:700; white-space:nowrap; }
+  .night-mode-toggle svg { font-size:12px; }
+  .night-mode-toggle:hover { border-color:#0C69C8; }
+  .night-mode-toggle:focus-visible { outline-color:#69B8FF; }
   @media (max-width:1000px) { .country-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   @media (max-width:760px) {
     .main-pad { padding:34px 16px 0; }
@@ -166,6 +225,8 @@ const makeCSS = () => `
     .world-brand { font-size:14px; gap:8px; letter-spacing:-.4px; }
     .world-brand img { width:26px; height:26px; }
     .world-header nav { font-size:11px; gap:14px; }
+    .night-mode-toggle { width:44px; padding:0; }
+    .night-mode-label { display:none; }
     .countries-nav { display:none !important; }
     .hero-grid { grid-template-columns:1fr; gap:12px; }
     .hero-content h1 { font-size:clamp(32px,7.8vw,52px); letter-spacing:-1.5px; }
@@ -187,6 +248,11 @@ const makeCSS = () => `
   @media (max-width:600px) { .lb-table-head,.lb-table-row { grid-template-columns:32px minmax(0,1fr) 86px; gap:8px; } .lb-hide-mobile { display:none !important; } .lb-daily-gain { font-size:10px; } }
   @media (max-width:420px) { .country-grid { grid-template-columns:1fr; } .primary-action { padding:13px 14px; gap:12px; font-size:12px; } .text-action { font-size:12px; } }
   @media (max-width:600px) { .world-about { padding:22px 20px; } }
+  @media (max-width:380px) {
+    .world-header { gap:8px; padding-inline:12px; }
+    .world-brand { font-size:12px; gap:6px; }
+    .world-header nav { gap:7px; font-size:10px; }
+  }
   @media (prefers-reduced-motion:reduce) {
     html { scroll-behavior:auto; }
     *,*::before,*::after { animation:none !important; transition:none !important; }
@@ -330,7 +396,15 @@ const snapshotsFromStepLog = rows => {
    MAIN
 ═══════════════════════════════════════════ */
 export default function InsightsDashboard() {
-  const C = LIGHT;
+  const [darkMode,setDarkMode]=useState(()=>{
+    try { return window.localStorage.getItem("worldwidesteps-night-mode") === "true"; }
+    catch { return false; }
+  });
+  const C = darkMode ? DARK : LIGHT;
+  const podiumTones = darkMode ? DARK_PODIUM_TONES : PODIUM_TONES;
+  useEffect(()=>{
+    try { window.localStorage.setItem("worldwidesteps-night-mode", String(darkMode)); } catch {}
+  },[darkMode]);
   const [reducedMotion,setReducedMotion]=useState(()=>window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   useEffect(()=>{const q=window.matchMedia("(prefers-reduced-motion: reduce)");const update=()=>setReducedMotion(q.matches);q.addEventListener("change",update);return()=>q.removeEventListener("change",update);},[]);
   const [reloadKey,setReloadKey]=useState(0);
@@ -568,12 +642,12 @@ export default function InsightsDashboard() {
   </main>;
 
   return(
-    <div style={{minHeight:"100vh",background:C.bg,color:C.text}}>
+    <div className="world-page" data-theme={darkMode ? "dark" : "light"} style={{minHeight:"100vh",background:C.bg,color:C.text}}>
       <style>{makeCSS(C)}</style>
 
       <header className="world-header">
         <a href="#top" className="world-brand"><img src={logo} alt="" /><span>World Wide Steps</span></a>
-        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a></nav>
+        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a><button type="button" className="night-mode-toggle" aria-pressed={darkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to night mode"} onClick={()=>setDarkMode(value=>!value)}><FontAwesomeIcon icon={darkMode ? faSun : faMoon} aria-hidden="true"/><span className="night-mode-label">{darkMode ? "Day mode" : "Night mode"}</span></button></nav>
       </header>
       <main className="main-pad" id="top">
         {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures are unavailable or could not update. Available figures are shown; we’re trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}
@@ -609,7 +683,7 @@ export default function InsightsDashboard() {
 
         {M.dailyTrend.some(d=>d.steps>0)&&<section className="section-mb" aria-label="Daily step activity">
           <SHead C={C} tag="Daily activity" title="The world keeps moving" sub="Recorded steps across the community, day by day."/>
-          <div className="timeline-chart"><Suspense fallback={<div className="chart-loading" role="status">Loading daily activity…</div>}><DailyStepsChart data={M.dailyTrend} reducedMotion={reducedMotion}/></Suspense></div>
+          <div className="timeline-chart"><Suspense fallback={<div className="chart-loading" role="status">Loading daily activity…</div>}><DailyStepsChart data={M.dailyTrend} reducedMotion={reducedMotion} darkMode={darkMode}/></Suspense></div>
         </section>}
 
         {/* ── LEADERBOARD ── */}
@@ -628,7 +702,7 @@ export default function InsightsDashboard() {
               const profile=profiles[u.pid];
               const maxT=M.leaderboard[0]?.trophies||1;
               const pct=Math.round((u.trophies/maxT)*100);
-              const podiumTone=PODIUM_TONES[i];
+              const podiumTone=podiumTones[i];
               const displayName=profile?[profile.name,profile.surname].filter(Boolean).join(" ")||profile.username||`@${u.pid.slice(0,8)}`:`@${u.pid.slice(0,8)}`;
               const username=profile?.username?`@${profile.username}`:null;
               const country=profile?.current_country?.trim()||null;
