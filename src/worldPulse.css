@@ -59,6 +59,7 @@
 .world-page[data-theme="dark"] .world-pulse-number,
 .world-page[data-theme="dark"] .world-pulse-metric dd,
 .world-page[data-theme="dark"] .world-pulse-inspection strong { color: #F2F6FC; }
+.world-page[data-theme="dark"] .world-pulse-number-unit { color: #65CEFF; }
 .world-page[data-theme="dark"] .world-pulse-filter select { color: #F2F6FC; background: #101824; border-color: #43536A; }
 .world-page[data-theme="dark"] .world-pulse-metric,
 .world-page[data-theme="dark"] .world-pulse-metric--peak,
@@ -68,7 +69,7 @@
 .world-page[data-theme="dark"] .world-pulse-clockline span:last-child { color: #AAB8CA; }
 .world-page[data-theme="dark"] .world-pulse-bars { border-color: #53647A; }
 .world-page[data-theme="dark"] .world-pulse-bar { background: #355575; }
-.world-page[data-theme="dark"] .world-pulse-bar-track.is-peak .world-pulse-bar { background: #69B8FF; }
+.world-page[data-theme="dark"] .world-pulse-bar-track.is-peak .world-pulse-bar { background: #56C8FF; }
 .world-page[data-theme="dark"] .world-pulse-bar-track.is-selected .world-pulse-bar { background: #D5E8FF; }
 .world-page[data-theme="dark"] .world-pulse-axis { color: #AAB8CA; }
 .world-page[data-theme="dark"] .world-pulse-state button { color: #8BC8FF; }

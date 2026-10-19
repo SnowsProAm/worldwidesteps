@@ -57,12 +57,12 @@ const LIGHT = {
 
 const DARK = {
   ...LIGHT,
-  accent: "#69B8FF",
-  accentBgSubtle: "rgba(105,184,255,0.08)",
-  accentBgLight: "rgba(105,184,255,0.14)",
-  accentBorder: "rgba(105,184,255,0.24)",
-  accentGlow: "rgba(105,184,255,0.2)",
-  accentGrad: "linear-gradient(135deg, #69B8FF 0%, #9BCBFF 100%)",
+  accent: "#56C8FF",
+  accentBgSubtle: "rgba(86,200,255,0.12)",
+  accentBgLight: "rgba(86,200,255,0.2)",
+  accentBorder: "rgba(86,200,255,0.34)",
+  accentGlow: "rgba(86,200,255,0.26)",
+  accentGrad: "linear-gradient(135deg, #35BCFF 0%, #7898FF 100%)",
   bg: "#080D16",
   bgCard: "#101824",
   bgAlt: "#172231",
@@ -71,22 +71,22 @@ const DARK = {
   borderMedium: "rgba(194,214,240,0.2)",
   shadowMd: "0 4px 16px rgba(0,0,0,0.22)",
   shadowLg: "0 12px 48px rgba(0,0,0,0.3)",
-  shadowGlow: "0 0 40px rgba(105,184,255,0.08)",
+  shadowGlow: "0 0 40px rgba(86,200,255,0.12)",
   text: "#F2F6FC",
   textSecondary: "#C0CAD8",
   textMuted: "#9AA9BC",
   headerBg: "rgba(8,13,22,0.94)",
   scrollbarThumb: "rgba(194,214,240,0.22)",
-  cyan: "#57C7F3",
-  cyanBg: "rgba(87,199,243,0.1)",
-  cyanBorder: "rgba(87,199,243,0.24)",
-  emerald: "#5BD6A2",
-  emeraldBg: "rgba(91,214,162,0.1)",
-  emeraldBorder: "rgba(91,214,162,0.24)",
-  amber: "#F6C56C",
-  amberBg: "rgba(246,197,108,0.1)",
-  amberBorder: "rgba(246,197,108,0.24)",
-  rose: "#FF8585",
+  cyan: "#59D6FF",
+  cyanBg: "rgba(89,214,255,0.14)",
+  cyanBorder: "rgba(89,214,255,0.34)",
+  emerald: "#55E6A5",
+  emeraldBg: "rgba(85,230,165,0.14)",
+  emeraldBorder: "rgba(85,230,165,0.34)",
+  amber: "#FFD166",
+  amberBg: "rgba(255,209,102,0.16)",
+  amberBorder: "rgba(255,209,102,0.34)",
+  rose: "#FF8A9D",
 };
 
 const PODIUM_TONES = [
@@ -200,6 +200,26 @@ const makeCSS = () => `
   .data-notice { font-size:12px; background:#f2f7fd; padding:16px; margin-bottom:24px; color:#53617a; }
   .data-notice button { border:0; background:transparent; color:#0C69C8; text-decoration:underline; min-height:44px; padding:0 10px; }
   .world-page[data-theme="dark"] { color-scheme:dark; }
+  .world-page[data-theme="dark"] a:focus-visible,
+  .world-page[data-theme="dark"] button:focus-visible,
+  .world-page[data-theme="dark"] input:focus-visible { outline-color:#69D2FF; }
+  .world-page[data-theme="dark"] .section-eyebrow,
+  .world-page[data-theme="dark"] .world-total-number,
+  .world-page[data-theme="dark"] .world-summary svg,
+  .world-page[data-theme="dark"] .world-footer a,
+  .world-page[data-theme="dark"] .countries-expand,
+  .world-page[data-theme="dark"] .country-search button,
+  .world-page[data-theme="dark"] .data-notice button { color:#65CEFF; }
+  .world-page[data-theme="dark"] .world-total-delta,
+  .world-page[data-theme="dark"] .lb-daily-gain { color:#5CE6A2; }
+  .world-page[data-theme="dark"] .world-header nav a:hover,
+  .world-page[data-theme="dark"] .text-action:hover,
+  .world-page[data-theme="dark"] .world-about a { color:#75D7FF; }
+  .world-page[data-theme="dark"] .primary-action { background:linear-gradient(115deg,#138FE0,#4969E8); box-shadow:0 6px 22px rgba(53,188,255,.2); }
+  .world-page[data-theme="dark"] .milestone-labels { color:#65CEFF; }
+  .world-page[data-theme="dark"] .milestone-track { background:#26364B; }
+  .world-page[data-theme="dark"] .milestone-track > div { background:linear-gradient(90deg,#35BCFF,#8B8CFF); }
+  .world-page[data-theme="dark"] .milestone-section .section-eyebrow { color:#65CEFF; }
   .world-page[data-theme="dark"] .world-header { background:rgba(8,13,22,.94); border-color:#263243; }
   .world-page[data-theme="dark"] .world-brand { color:#F2F6FC; }
   .world-page[data-theme="dark"] .world-header nav { color:#C0CAD8; }
