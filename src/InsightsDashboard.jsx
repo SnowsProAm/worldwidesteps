@@ -157,7 +157,7 @@ const makeCSS = () => `
   .world-summary strong small { font-size:16px; font-weight:500; }
   .world-summary > div > div > span { display:block; font-size:11px; color:#67758b; margin-top:5px; }
   .hero-mb,.section-mb { margin-bottom:64px; }
-  .milestone-section { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; padding:30px 32px; background:linear-gradient(105deg,#f2f7fd,#f9fbfe); border-left:3px solid #0C69C8; }
+  .milestone-section { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; padding:30px 32px; background:linear-gradient(105deg,#f2f7fd,#f9fbfe); }
   .milestone-section .section-eyebrow { margin-bottom:10px; }
   .milestone-section h2 { font-family:'Sora',sans-serif; font-weight:600; font-size:21px; letter-spacing:-.6px; line-height:1.5; }
   .milestone-section p { color:#53617a; font-size:12px; margin-top:6px; line-height:1.6; }
@@ -213,10 +213,10 @@ const makeCSS = () => `
   .world-page[data-theme="dark"] .world-about { background:#101824; border-color:#2C3A4C; }
   .world-page[data-theme="dark"] .data-notice { background:#142235; color:#C0CAD8; }
   .world-page[data-theme="dark"] .world-footer { border-color:#263243; }
-  .world-page[data-theme="dark"] .night-mode-toggle { color:#E9F2FF; border-color:#3A4A5F; background:#172231; }
-  .night-mode-toggle { min-height:44px; padding:0 13px; display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid #CAD5E3; border-radius:999px; background:#F5F8FC; color:#17304D; font-size:12px; font-weight:700; white-space:nowrap; }
-  .night-mode-toggle svg { font-size:12px; }
-  .night-mode-toggle:hover { border-color:#0C69C8; }
+  .world-page[data-theme="dark"] .night-mode-toggle { color:#AAB8CA; }
+  .world-page[data-theme="dark"] .night-mode-toggle:hover { color:#E9F2FF; background:#172231; }
+  .night-mode-toggle { width:44px; min-height:44px; padding:0; display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:999px; background:transparent; color:#67758b; font-size:15px; }
+  .night-mode-toggle:hover { color:#0C69C8; background:#EDF0F5; }
   .night-mode-toggle:focus-visible { outline-color:#69B8FF; }
   @media (max-width:1000px) { .country-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   @media (max-width:760px) {
@@ -225,8 +225,6 @@ const makeCSS = () => `
     .world-brand { font-size:14px; gap:8px; letter-spacing:-.4px; }
     .world-brand img { width:26px; height:26px; }
     .world-header nav { font-size:11px; gap:14px; }
-    .night-mode-toggle { width:44px; padding:0; }
-    .night-mode-label { display:none; }
     .countries-nav { display:none !important; }
     .hero-grid { grid-template-columns:1fr; gap:12px; }
     .hero-content h1 { font-size:clamp(32px,7.8vw,52px); letter-spacing:-1.5px; }
@@ -647,7 +645,7 @@ export default function InsightsDashboard() {
 
       <header className="world-header">
         <a href="#top" className="world-brand"><img src={logo} alt="" /><span>World Wide Steps</span></a>
-        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a><button type="button" className="night-mode-toggle" aria-pressed={darkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to night mode"} onClick={()=>setDarkMode(value=>!value)}><FontAwesomeIcon icon={darkMode ? faSun : faMoon} aria-hidden="true"/><span className="night-mode-label">{darkMode ? "Day mode" : "Night mode"}</span></button></nav>
+        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a><button type="button" className="night-mode-toggle" aria-pressed={darkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to night mode"} onClick={()=>setDarkMode(value=>!value)}><FontAwesomeIcon icon={darkMode ? faSun : faMoon} aria-hidden="true"/></button></nav>
       </header>
       <main className="main-pad" id="top">
         {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures are unavailable or could not update. Available figures are shown; we’re trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}
