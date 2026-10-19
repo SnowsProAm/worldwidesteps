@@ -57,36 +57,36 @@ const LIGHT = {
 
 const DARK = {
   ...LIGHT,
-  accent: "#56C8FF",
-  accentBgSubtle: "rgba(86,200,255,0.12)",
-  accentBgLight: "rgba(86,200,255,0.2)",
-  accentBorder: "rgba(86,200,255,0.34)",
-  accentGlow: "rgba(86,200,255,0.26)",
-  accentGrad: "linear-gradient(135deg, #35BCFF 0%, #7898FF 100%)",
-  bg: "#080D16",
-  bgCard: "#101824",
-  bgAlt: "#172231",
-  bgElevated: "#1B2838",
-  border: "rgba(194,214,240,0.12)",
-  borderMedium: "rgba(194,214,240,0.2)",
+  accent: "#78A6E8",
+  accentBgSubtle: "rgba(120,166,232,0.12)",
+  accentBgLight: "rgba(120,166,232,0.2)",
+  accentBorder: "rgba(120,166,232,0.34)",
+  accentGlow: "rgba(120,166,232,0.2)",
+  accentGrad: "linear-gradient(135deg, #3076CF 0%, #5579BB 100%)",
+  bg: "#11130F",
+  bgCard: "#191C16",
+  bgAlt: "#23261E",
+  bgElevated: "#2B2E25",
+  border: "rgba(220,220,197,0.13)",
+  borderMedium: "rgba(220,220,197,0.22)",
   shadowMd: "0 4px 16px rgba(0,0,0,0.22)",
   shadowLg: "0 12px 48px rgba(0,0,0,0.3)",
-  shadowGlow: "0 0 40px rgba(86,200,255,0.12)",
-  text: "#F2F6FC",
-  textSecondary: "#C0CAD8",
-  textMuted: "#9AA9BC",
-  headerBg: "rgba(8,13,22,0.94)",
-  scrollbarThumb: "rgba(194,214,240,0.22)",
-  cyan: "#59D6FF",
-  cyanBg: "rgba(89,214,255,0.14)",
-  cyanBorder: "rgba(89,214,255,0.34)",
-  emerald: "#55E6A5",
-  emeraldBg: "rgba(85,230,165,0.14)",
-  emeraldBorder: "rgba(85,230,165,0.34)",
-  amber: "#FFD166",
-  amberBg: "rgba(255,209,102,0.16)",
-  amberBorder: "rgba(255,209,102,0.34)",
-  rose: "#FF8A9D",
+  shadowGlow: "0 0 40px rgba(120,166,232,0.1)",
+  text: "#F3F0E6",
+  textSecondary: "#D6D2C5",
+  textMuted: "#B7B4A8",
+  headerBg: "rgba(17,19,15,0.95)",
+  scrollbarThumb: "rgba(220,220,197,0.22)",
+  cyan: "#8EAFE0",
+  cyanBg: "rgba(142,175,224,0.13)",
+  cyanBorder: "rgba(142,175,224,0.3)",
+  emerald: "#B5CC8E",
+  emeraldBg: "rgba(181,204,142,0.14)",
+  emeraldBorder: "rgba(181,204,142,0.32)",
+  amber: "#E1B86B",
+  amberBg: "rgba(225,184,107,0.15)",
+  amberBorder: "rgba(225,184,107,0.32)",
+  rose: "#E89A83",
 };
 
 const PODIUM_TONES = [
@@ -96,9 +96,9 @@ const PODIUM_TONES = [
 ];
 
 const DARK_PODIUM_TONES = [
-  { name: "Gold", text: "#F5CE77", background: "#352B18", border: "#725A26", row: "#171B20" },
-  { name: "Silver", text: "#D0DBE8", background: "#27313D", border: "#455466", row: "#141B24" },
-  { name: "Bronze", text: "#E9A786", background: "#38251F", border: "#704533", row: "#181B21" },
+  { name: "Gold", text: "#E8C77E", background: "#342D1D", border: "#76603A", row: "#1B1D16" },
+  { name: "Silver", text: "#D8D5CA", background: "#2B2D27", border: "#55584E", row: "#191C16" },
+  { name: "Bronze", text: "#D8A181", background: "#33251E", border: "#754C35", row: "#1C1C16" },
 ];
 
 /* ═══════════════════════════════════════════
@@ -202,39 +202,44 @@ const makeCSS = () => `
   .world-page[data-theme="dark"] { color-scheme:dark; }
   .world-page[data-theme="dark"] a:focus-visible,
   .world-page[data-theme="dark"] button:focus-visible,
-  .world-page[data-theme="dark"] input:focus-visible { outline-color:#69D2FF; }
+  .world-page[data-theme="dark"] input:focus-visible { outline-color:#91B7ED; }
   .world-page[data-theme="dark"] .section-eyebrow,
   .world-page[data-theme="dark"] .world-total-number,
   .world-page[data-theme="dark"] .world-summary svg,
   .world-page[data-theme="dark"] .world-footer a,
   .world-page[data-theme="dark"] .countries-expand,
   .world-page[data-theme="dark"] .country-search button,
-  .world-page[data-theme="dark"] .data-notice button { color:#65CEFF; }
+  .world-page[data-theme="dark"] .data-notice button { color:#91B7ED; }
   .world-page[data-theme="dark"] .world-total-delta,
-  .world-page[data-theme="dark"] .lb-daily-gain { color:#5CE6A2; }
+  .world-page[data-theme="dark"] .lb-daily-gain { color:#B5CC8E; }
   .world-page[data-theme="dark"] .world-header nav a:hover,
   .world-page[data-theme="dark"] .text-action:hover,
-  .world-page[data-theme="dark"] .world-about a { color:#75D7FF; }
-  .world-page[data-theme="dark"] .primary-action { background:linear-gradient(115deg,#138FE0,#4969E8); box-shadow:0 6px 22px rgba(53,188,255,.2); }
-  .world-page[data-theme="dark"] .milestone-labels { color:#65CEFF; }
-  .world-page[data-theme="dark"] .milestone-track { background:#26364B; }
-  .world-page[data-theme="dark"] .milestone-track > div { background:linear-gradient(90deg,#35BCFF,#8B8CFF); }
-  .world-page[data-theme="dark"] .milestone-section .section-eyebrow { color:#65CEFF; }
-  .world-page[data-theme="dark"] .world-header { background:rgba(8,13,22,.94); border-color:#263243; }
-  .world-page[data-theme="dark"] .world-brand { color:#F2F6FC; }
-  .world-page[data-theme="dark"] .world-header nav { color:#C0CAD8; }
-  .world-page[data-theme="dark"] .grad-text { background-image:linear-gradient(110deg,#69B8FF,#B4D8FF); }
-  .world-page[data-theme="dark"] .world-summary { border-color:#263243; }
-  .world-page[data-theme="dark"] .world-summary > div+div { border-color:#263243; }
-  .world-page[data-theme="dark"] .milestone-section { background:linear-gradient(105deg,#111B29,#151F2E); }
-  .world-page[data-theme="dark"] .timeline-chart { border-color:#263243; }
-  .world-page[data-theme="dark"] .country-search-field { background:#101824; border-color:#43536A; }
-  .world-page[data-theme="dark"] .country-search input { color:#F2F6FC; }
-  .world-page[data-theme="dark"] .world-about { background:#101824; border-color:#2C3A4C; }
-  .world-page[data-theme="dark"] .data-notice { background:#142235; color:#C0CAD8; }
-  .world-page[data-theme="dark"] .world-footer { border-color:#263243; }
-  .world-page[data-theme="dark"] .night-mode-toggle { color:#AAB8CA; }
-  .world-page[data-theme="dark"] .night-mode-toggle:hover { color:#E9F2FF; background:#172231; }
+  .world-page[data-theme="dark"] .world-about a { color:#A8C3EB; }
+  .world-page[data-theme="dark"] .hero-intro { color:#D6D2C5; }
+  .world-page[data-theme="dark"] .hero-slogan { color:#F3F0E6; }
+  .world-page[data-theme="dark"] .world-summary > div > div > span,
+  .world-page[data-theme="dark"] .milestone-section p,
+  .world-page[data-theme="dark"] .world-about p { color:#C6C2B6; }
+  .world-page[data-theme="dark"] .primary-action { background:linear-gradient(115deg,#1768BE,#294D91); box-shadow:0 6px 22px rgba(37,91,159,.24); }
+  .world-page[data-theme="dark"] .milestone-labels { color:#91B7ED; }
+  .world-page[data-theme="dark"] .milestone-track { background:#373A2F; }
+  .world-page[data-theme="dark"] .milestone-track > div { background:linear-gradient(90deg,#366FB2,#819C70); }
+  .world-page[data-theme="dark"] .milestone-section .section-eyebrow { color:#91B7ED; }
+  .world-page[data-theme="dark"] .world-header { background:rgba(17,19,15,.95); border-color:#383B30; }
+  .world-page[data-theme="dark"] .world-brand { color:#F3F0E6; }
+  .world-page[data-theme="dark"] .world-header nav { color:#D6D2C5; }
+  .world-page[data-theme="dark"] .grad-text { background-image:linear-gradient(110deg,#8BADE2,#C6C69A); }
+  .world-page[data-theme="dark"] .world-summary { border-color:#383B30; }
+  .world-page[data-theme="dark"] .world-summary > div+div { border-color:#383B30; }
+  .world-page[data-theme="dark"] .milestone-section { background:linear-gradient(105deg,#1B1E17,#22241A); }
+  .world-page[data-theme="dark"] .timeline-chart { border-color:#383B30; }
+  .world-page[data-theme="dark"] .country-search-field { background:#191C16; border-color:#5B5D4D; }
+  .world-page[data-theme="dark"] .country-search input { color:#F3F0E6; }
+  .world-page[data-theme="dark"] .world-about { background:#191C16; border-color:#414336; }
+  .world-page[data-theme="dark"] .data-notice { background:#20241B; color:#D6D2C5; }
+  .world-page[data-theme="dark"] .world-footer { border-color:#383B30; }
+  .world-page[data-theme="dark"] .night-mode-toggle { color:#B7B4A8; }
+  .world-page[data-theme="dark"] .night-mode-toggle:hover { color:#F3F0E6; background:#292C25; }
   .night-mode-toggle { width:44px; min-height:44px; padding:0; display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:999px; background:transparent; color:#67758b; font-size:15px; }
   .night-mode-toggle:hover { color:#0C69C8; background:#EDF0F5; }
   .night-mode-toggle:focus-visible { outline-color:#69B8FF; }

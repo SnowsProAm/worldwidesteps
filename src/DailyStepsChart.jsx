@@ -5,7 +5,7 @@ const compact = n => n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${(n / 
 export default function DailyStepsChart({ data, reducedMotion, darkMode = false }) {
   const tickColor = darkMode ? '#AAB8CA' : '#67758b';
   const borderColor = darkMode ? '#43536A' : '#e7edf5';
-  const chartColor = darkMode ? '#56C8FF' : '#0C69C8';
+  const chartColor = darkMode ? '#78A6E8' : '#0C69C8';
   return <ResponsiveContainer width="100%" height={220}>
     <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 0 }}>
       <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={chartColor} stopOpacity={darkMode ? 0.38 : 0.25}/><stop offset="100%" stopColor={chartColor} stopOpacity={0}/></linearGradient></defs>
