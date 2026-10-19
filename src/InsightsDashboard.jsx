@@ -125,6 +125,11 @@ const makeCSS = () => `
   .world-header nav a { min-height:44px; display:flex; align-items:center; }
   .world-header nav a:hover,.text-action:hover { color:#0C69C8; }
   .main-pad { width:100%; padding:58px 24px 0; }
+  .world-hero { position:relative; isolation:isolate; }
+  .world-hero::before { content:""; position:absolute; z-index:-1; pointer-events:none; top:-58px; bottom:0; left:-24px; right:-24px; opacity:0; background-image:
+    radial-gradient(1.5px 1.5px at 8% 17%,#f3f0e6b8 99%,transparent),radial-gradient(1px 1px at 18% 69%,#a8c3ebaa 99%,transparent),radial-gradient(1px 1px at 29% 34%,#f3f0e699 99%,transparent),radial-gradient(1.5px 1.5px at 39% 82%,#e1b86baa 99%,transparent),radial-gradient(1px 1px at 53% 12%,#f3f0e6aa 99%,transparent),radial-gradient(1px 1px at 63% 56%,#a8c3eb99 99%,transparent),radial-gradient(1.5px 1.5px at 74% 27%,#f3f0e6aa 99%,transparent),radial-gradient(1px 1px at 86% 76%,#e1b86b99 99%,transparent),radial-gradient(1px 1px at 94% 43%,#f3f0e6aa 99%,transparent),
+    radial-gradient(1px 1px at 13% 48%,#f3f0e699 99%,transparent),radial-gradient(1.5px 1.5px at 23% 91%,#f3f0e68c 99%,transparent),radial-gradient(1px 1px at 34% 8%,#a8c3eb99 99%,transparent),radial-gradient(1px 1px at 47% 46%,#f3f0e6a8 99%,transparent),radial-gradient(1.5px 1.5px at 58% 88%,#e1b86b99 99%,transparent),radial-gradient(1px 1px at 69% 67%,#f3f0e6aa 99%,transparent),radial-gradient(1px 1px at 81% 7%,#a8c3eb99 99%,transparent),radial-gradient(1.5px 1.5px at 91% 59%,#f3f0e699 99%,transparent),radial-gradient(ellipse at 77% 42%,rgba(67,91,125,.18),transparent 43%); transition:opacity .35s ease; }
+  .world-page[data-theme="dark"] .world-hero::before { opacity:1; }
   .section-eyebrow { display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:1.7px; text-transform:uppercase; color:#0C69C8; margin-bottom:14px; }
   .hero-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:20px; align-items:center; }
   .hero-content { position:relative; z-index:1; min-width:0; }

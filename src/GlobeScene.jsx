@@ -21,6 +21,7 @@ export default function GlobeScene() {
         if (disposed) { surface.dispose(); cloudMap?.dispose(); return; }
         surface.colorSpace = THREE.SRGBColorSpace;
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+        renderer.setClearColor(0x000000, 0);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         element.appendChild(renderer.domElement);
         const scene = new THREE.Scene();
@@ -37,13 +38,6 @@ export default function GlobeScene() {
         globe.add(earth);
         const clouds = cloudMap ? new THREE.Mesh(new THREE.SphereGeometry(1.012, 48, 32), new THREE.MeshPhongMaterial({ color: 0xffffff, alphaMap: cloudMap, transparent: true, opacity: 0.72, depthWrite: false, shininess: 0 })) : null;
         if (clouds) globe.add(clouds);
-        const orbits = new THREE.Group();
-        scene.add(orbits);
-        for (let i = 0; i < 2; i++) {
-          const orbit = new THREE.Mesh(new THREE.TorusGeometry(1.28 + i * 0.11, 0.002, 4, 120), new THREE.MeshBasicMaterial({ color: 0x0c69c8, transparent: true, opacity: 0.22 }));
-          orbit.rotation.set(0.8 + i * 0.5, 0.4, i * 0.6);
-          orbits.add(orbit);
-        }
         const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
         let frame = 0, previous = 0, visible = true;
         const draw = now => {
@@ -55,7 +49,6 @@ export default function GlobeScene() {
             if (!motion.matches) {
               globe.rotation.y += delta * 0.085;
               if (clouds) clouds.rotation.y += delta * 0.012;
-              orbits.rotation.y += delta * 0.025;
             }
             renderer.render(scene, camera);
           }
