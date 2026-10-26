@@ -135,9 +135,9 @@ export default function SchoolChallenge() {
     // Also covers static hosts that serve the root HTML for /schools.
     document.title = 'Irish Secondary School Step Challenge | Snows ProAm';
     const metadata = {
-      description: 'Follow the Irish Secondary School Step Challenge on World Wide Steps. Find your school, see live school and student leaderboards, and follow the €1,000 prize.',
+      description: 'Follow Ireland’s secondary school step challenge. Find your school, view live school and student leaderboards, and see how to take part with Snows ProAm.',
       'og:title': document.title,
-      'og:description': 'Find your school and follow live Irish secondary school step challenge standings and the €1,000 school prize.',
+      'og:description': 'Follow Ireland’s secondary school step challenge. Find your school, view live school and student leaderboards, and see how to take part with Snows ProAm.',
       'og:url': 'https://worldwidesteps.com/schools',
       'theme-color': '#ffffff',
     };
