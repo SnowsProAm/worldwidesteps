@@ -1,7 +1,7 @@
 // Built by Solomon
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass, faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import { faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass, faMoon, faSun, faTrophy, faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
@@ -11,6 +11,8 @@ import WorldSiteFooter from "./WorldSiteFooter.jsx";
 import { worldwideStepTotal } from "./worldwideStepTotal.js";
 import { dailyStepGain, localDayKey } from "./leaderboardDailySteps.js";
 import WorldPulse from "./WorldPulse.jsx";
+import AthleteSeasonHistory from "./AthleteSeasonHistory.jsx";
+import { loadGlobalSeasonTitles } from "./athleteSeasonHistoryData.js";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
 
 // Store review accounts are not public competitors. IDs match the mobile app reviewer list.
@@ -57,6 +59,7 @@ const LIGHT = {
 
 const DARK = {
   ...LIGHT,
+  mode: "dark",
   accent: "#78A6E8",
   accentBgSubtle: "rgba(120,166,232,0.12)",
   accentBgLight: "rgba(120,166,232,0.2)",
@@ -455,6 +458,9 @@ export default function InsightsDashboard() {
   const [updateError,  setUpdateError]  = useState(false);
   const [initialSteps, setInitialSteps] = useState(null);
   const [todayKey, setTodayKey] = useState(localDayKey);
+  const [globalSeasonTitles, setGlobalSeasonTitles] = useState({});
+  const [seasonTitlesError, setSeasonTitlesError] = useState(false);
+  const [selectedAthlete, setSelectedAthlete] = useState(null);
 
   useEffect(()=>{
     let active=true, busy=false, hasLoaded=false, lastDetailsAt=0, controller;
@@ -514,9 +520,10 @@ export default function InsightsDashboard() {
               if (error) throw error;
               return data || [];
             }),
+            loadGlobalSeasonTitles(supabase, signal),
           ]);
           if (!active) return;
-          const [snaps, stepLog, activityRows, pulse] = results;
+          const [snaps, stepLog, activityRows, pulse, titles] = results;
           if (snaps.status === "fulfilled") {
             if (snaps.value.length) setSnapshots(snaps.value);
             else if (stepLog.status === "fulfilled") setSnapshots(snapshotsFromStepLog(stepLog.value));
@@ -528,6 +535,8 @@ export default function InsightsDashboard() {
             setPulseUpdatedAt(new Date());
           }
           setPulseError(pulse.status === "rejected");
+          if (titles.status === 'fulfilled') setGlobalSeasonTitles(titles.value);
+          setSeasonTitlesError(titles.status === 'rejected');
           const failed = results.some(result => result.status === "rejected");
           setPartialError(failed);
           if (!failed) lastDetailsAt=Date.now();
@@ -717,6 +726,8 @@ export default function InsightsDashboard() {
         {/* ── LEADERBOARD ── */}
         <section className="section-mb fu3" id="leaderboard">
           <SHead C={C} tag="Top Athletes" title="Meet the pace setters" sub="Fitness athletes ranked by steps, with today’s synced steps shown beneath each total."/>
+          <p className="lb-history-hint" style={{color:C.textMuted}}><FontAwesomeIcon icon={faClockRotateLeft} aria-hidden="true"/>Click or tap an athlete for past seasons.</p>
+          {seasonTitlesError&&<p className="lb-history-unavailable" role="status" style={{color:C.textMuted}}>Past-season title counts couldn’t be updated. You can still open an athlete’s history.</p>}
           <div role="table" aria-label="Worldwide athlete rankings" style={{background:C.bgCard,border:`1px solid ${C.border}`,borderRadius:12,overflow:"hidden",boxShadow:C.shadowMd}}>
             <div role="row" className="lb-table-head" style={{padding:"11px 16px",background:C.bgAlt,borderBottom:`1px solid ${C.border}`,fontSize:10,fontWeight:700,color:C.textMuted,textTransform:"uppercase",letterSpacing:0.4}}>
               <div role="columnheader">#</div>
@@ -734,6 +745,8 @@ export default function InsightsDashboard() {
               const displayName=profile?[profile.name,profile.surname].filter(Boolean).join(" ")||profile.username||`@${u.pid.slice(0,8)}`:`@${u.pid.slice(0,8)}`;
               const username=profile?.username?`@${profile.username}`:null;
               const country=profile?.current_country?.trim()||null;
+              const openHistory=()=>setSelectedAthlete({pid:u.pid,name:displayName,username});
+              const titleCount=globalSeasonTitles[u.pid]||0;
               return(
                 <div role="row" key={u.pid} className="lb-table-row" style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,background:podiumTone?.row || "transparent",transition:"background 0.15s ease"}}>
                   <div role="cell" aria-label={podiumTone ? `${podiumTone.name}, rank ${u.rank}` : `Rank ${u.rank}`} style={{width:32,height:32,borderRadius:8,background:podiumTone?.background || C.bgAlt,border:`1px solid ${podiumTone?.border || C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:800,color:podiumTone?.text || C.accent}}>
@@ -743,13 +756,16 @@ export default function InsightsDashboard() {
                     <Avatar profile={profile} C={C} size={32}/>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2,flexWrap:"wrap"}}>
-                        <span style={{fontSize:12,fontWeight:700,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"120px"}}>{displayName}</span>
+                        <button type="button" className="lb-athlete-name" style={{color:C.text}} onClick={openHistory} aria-label={`View past seasons for ${displayName}`} aria-haspopup="dialog">{displayName}</button>
                         {country&&<FlagImg country={country} size={14}/>}
                         {profile?.level&&(
                           <span style={{fontSize:10,fontWeight:600,color:C.textMuted,whiteSpace:"nowrap"}}>Level {profile.level}</span>
                         )}
                       </div>
-                      {username&&<div style={{fontSize:10,color:C.textMuted,fontWeight:500,marginBottom:4}}>{username}</div>}
+                      <div className="lb-athlete-meta" style={{color:C.textMuted}}>
+                        {username&&<span>{username}</span>}
+                        {titleCount>0&&<button type="button" className="lb-title-count" style={{color:darkMode?'#E8C77E':'#856000'}} onClick={openHistory} aria-label={`${titleCount} Global season ${titleCount===1?'title':'titles'}. View past seasons for ${displayName}`} aria-haspopup="dialog" title={`${titleCount} Global season ${titleCount===1?'title':'titles'}`}><FontAwesomeIcon icon={faTrophy} aria-hidden="true"/>{titleCount}×</button>}
+                      </div>
                       <div style={{height:3,borderRadius:99,background:C.bgAlt,overflow:"hidden"}}>
                         <div className="bar-fill" style={{height:"100%",width:`${pct}%`,background:C.accentGrad,borderRadius:99}}/>
                       </div>
@@ -835,6 +851,7 @@ export default function InsightsDashboard() {
         <WorldSiteFooter />
 
       </main>
+      {selectedAthlete&&<AthleteSeasonHistory athlete={selectedAthlete} C={C} onClose={()=>setSelectedAthlete(null)}/>}
     </div>
   );
 }
