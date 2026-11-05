@@ -28,7 +28,18 @@ export default function journalPlugin(brand){
           .replace(/<meta property="og:type" content="website"\s*\/>/,'<meta property="og:type" content="article"/>')
           .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,`<script type="application/ld+json">${json(postStructuredData(post,brand))}</script>`)
           .replace(/<div id="root">[\s\S]*?<\/nav><\/main><\/div>/,`<div id="root">${readablePost(post)}</div>`);
-        if(post.cover)html=html.replace(/<meta property="og:image" content="[^"]*"\s*\/>/,`<meta property="og:image" content="${esc(new URL(post.cover.src,origin).href)}"/>`);
+        if(post.cover){
+          const image=new URL(post.cover.src,origin).href;
+          for(const [attribute,key] of [['property','og:image'],['property','og:image:secure_url'],['name','twitter:image']]){
+            html=html.replace(new RegExp(`<meta ${attribute}="${key}" content="[^"]*"\\s*\\/>`),`<meta ${attribute}="${key}" content="${esc(image)}"/>`);
+          }
+          for(const [attribute,key] of [['property','og:image:alt'],['name','twitter:image:alt']]){
+            html=html.replace(new RegExp(`<meta ${attribute}="${key}" content="[^"]*"\\s*\\/>`),`<meta ${attribute}="${key}" content="${esc(post.cover.alt)}"/>`);
+          }
+          // Cover images can be JPEG, WebP or another size. Do not inherit the
+          // landing preview's fixed PNG format and dimensions.
+          html=html.replace(/<meta property="og:image:(?:width|height|type)" content="[^"]*"\s*\/>/g,'');
+        }
         this.emitFile({type:'asset',fileName:`blog/${post.slug}/index.html`,source:html});
       }
       const sitemapPath=path.join(root,'public/sitemap.xml');let sitemap=fs.readFileSync(sitemapPath,'utf8');
