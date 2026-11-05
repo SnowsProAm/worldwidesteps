@@ -9,13 +9,13 @@ const socials = [
   { label: 'TikTok', href: 'https://www.tiktok.com/@snowsproam', icon: socialPaths.tiktok },
 ];
 
-export default function WorldSiteFooter() {
-  return <footer className="ws-site-footer">
+export default function WorldSiteFooter({ compact = false }) {
+  return <footer className={`ws-site-footer${compact ? ' ws-site-footer-compact' : ''}`}>
     <div className="ws-footer-main">
-      <div className="ws-footer-about"><a className="ws-footer-brand" href="/"><img src="/favicon.png" alt="" width="38" height="38"/><span><strong>Snows ProAm</strong><small>WORLD WIDE STEPS</small></span></a><h2>Every step belongs to something bigger.</h2><p>Where Athletes Belong.</p><p className="ws-footer-parent">World Wide Steps is part of <a href="https://snowsproam.com/">Snows ProAm</a>, the sports and fitness community behind these step totals and the school challenge.</p></div>
-      <nav className="ws-footer-links" aria-label="Footer navigation"><h3>Explore</h3><a href="/">Worldwide steps</a><a href="/schools">School challenge</a><a href="/schools#sc-prizes">Prizes</a><a href="/shop">ProAm Store</a><a href="https://calendly.com/admin-snowsproam/30min" target="_blank" rel="noopener noreferrer">Book a school demo</a></nav>
-      <div className="ws-footer-social"><h3>Follow the journey</h3><p>Come along for every step.</p><div>{socials.map(({ label, href, icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon}/></svg><span>{label}</span><FontAwesomeIcon icon={faArrowUpRightFromSquare} aria-hidden="true"/></a>)}</div></div>
+      <div className="ws-footer-about"><a className="ws-footer-brand" href="/"><img src="/favicon.png" alt="" width="38" height="38"/><span><strong>Snows ProAm</strong><small>WORLD WIDE STEPS</small></span></a>{!compact&&<><h2>Every step belongs to something bigger.</h2><p>Where Athletes Belong.</p></>}<p className="ws-footer-parent">{compact?<>Part of <a href="https://snowsproam.com/">Snows ProAm</a>.</>:<>World Wide Steps is part of <a href="https://snowsproam.com/">Snows ProAm</a>, the sports and fitness community behind these step totals and the school challenge.</>}</p></div>
+      <nav className="ws-footer-links" aria-label="Footer navigation"><h3>Explore</h3><a href="/">Worldwide steps</a><a href="/schools">School challenge</a><a href="/schools#sc-prizes">Prizes</a><a href="/shop">ProAm Store</a><a href="/blog">Journal</a><a href="https://calendly.com/admin-snowsproam/30min" target="_blank" rel="noopener noreferrer">Book a school demo</a></nav>
+      <div className="ws-footer-social"><h3>{compact?'Follow':'Follow the journey'}</h3>{!compact&&<p>Come along for every step.</p>}<div>{socials.map(({ label, href, icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon}/></svg><span>{label}</span><FontAwesomeIcon icon={faArrowUpRightFromSquare} aria-hidden="true"/></a>)}</div></div>
     </div>
-    <div className="ws-footer-bottom"><span>© {new Date().getFullYear()} Snows ProAm</span><span>Big steps. Bigger possibilities.</span></div>
+    <div className="ws-footer-bottom"><span>© {new Date().getFullYear()} Snows ProAm</span>{!compact&&<span>Big steps. Bigger possibilities.</span>}</div>
   </footer>;
 }

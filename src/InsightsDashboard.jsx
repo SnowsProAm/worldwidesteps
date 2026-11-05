@@ -684,7 +684,7 @@ export default function InsightsDashboard() {
 
       <header className="world-header">
         <a href="#top" className="world-brand"><img src={logo} alt="" /><span>World Wide Steps</span></a>
-        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a><button type="button" className="night-mode-toggle" aria-pressed={darkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to night mode"} onClick={()=>setDarkMode(value=>!value)}><FontAwesomeIcon icon={darkMode ? faSun : faMoon} aria-hidden="true"/></button></nav>
+        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a><a href="/blog">Journal</a><button type="button" className="night-mode-toggle" aria-pressed={darkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to night mode"} onClick={()=>setDarkMode(value=>!value)}><FontAwesomeIcon icon={darkMode ? faSun : faMoon} aria-hidden="true"/></button></nav>
       </header>
       <main className="main-pad" id="top">
         {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures are unavailable or could not update. Available figures are shown; we’re trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}

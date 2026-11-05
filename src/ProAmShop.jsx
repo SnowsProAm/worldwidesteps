@@ -270,7 +270,7 @@ export default function ProAmShop() {
     <div className="proam-shop-page">
       <header className="proam-shop-header">
         <a className="proam-shop-brand" href="/" aria-label="World Wide Steps home"><img src="/snows-proam-logo.png" alt=""/><span><strong>WORLD WIDE STEPS</strong><small>POWERED BY SNOWS PROAM</small></span></a>
-        <nav aria-label="Store navigation"><a href="/">Global community</a><a href="/schools">Schools</a><a className="active" href="/shop" aria-current="page">ProAm Store</a></nav>
+        <nav aria-label="Store navigation"><a href="/">Global community</a><a href="/schools">Schools</a><a href="/blog">Journal</a><a className="active" href="/shop" aria-current="page">ProAm Store</a></nav>
         <div className="proam-header-actions"><button className="proam-header-account" type="button" onClick={() => setCartOpen(true)}>Bag ({cart.reduce((sum, item) => sum + item.quantity, 0)})</button><button className="proam-header-account" type="button" onClick={() => setAccountOpen(true)}>{session ? 'My account' : 'Sign in'}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg></button></div>
       </header>
 

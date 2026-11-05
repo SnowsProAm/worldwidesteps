@@ -178,7 +178,7 @@ export default function SchoolChallenge() {
   return <MotionConfig reducedMotion={paused ? 'always' : 'never'}><div className={`school-challenge ${paused ? 'sc-motion-paused' : ''}`}>
     <a className="sc-skip" href="#sc-leaderboard">Skip to leaderboard</a>
     <header className="sc-header"><a href="/" className="sc-brand"><img src={logo} alt="" /><span><strong>Snows ProAm</strong><small>WORLD WIDE STEPS</small></span></a>
-      <nav aria-label="Main navigation"><a href="/" className="sc-world-link">Worldwide</a><a href="/schools" aria-current="page">Schools<span className="sc-nav-dot" /></a><a href="#sc-prizes">The prizes</a></nav>
+      <nav aria-label="Main navigation"><a href="/" className="sc-world-link">Worldwide</a><a href="/schools" aria-current="page">Schools<span className="sc-nav-dot" /></a><a href="/blog">Journal</a></nav>
       <a className="sc-header-cta" href="#sc-how">Get involved <Icon icon={faArrowRight} /></a>
     </header>
 
