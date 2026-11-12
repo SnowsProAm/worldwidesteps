@@ -262,7 +262,7 @@ const makeCSS = () => `
   @media (max-width:1000px) { .country-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   @media (max-width:760px) {
     html { scroll-padding-top:120px; }
-    .main-pad { padding:34px 16px 0; }
+    .main-pad { padding:20px 16px 0; }
     .world-header { display:grid; grid-template-columns:minmax(0,1fr); justify-content:stretch; min-height:68px; padding:12px 16px 6px; gap:6px; }
     .world-brand { font-size:18px; gap:8px; letter-spacing:-.4px; }
     .world-brand img { width:26px; height:26px; }
@@ -270,7 +270,7 @@ const makeCSS = () => `
     .countries-nav { display:none !important; }
     .hero-grid { grid-template-columns:1fr; gap:12px; }
     .hero-content h1 { font-size:clamp(32px,10.5vw,58px); }
-    .hero-title-text { padding-top:44px; }
+    .hero-title-text { padding-top:0; }
     .hero-slogan { max-width:300px; font-size:24px; margin:14px 0 28px; }
     .world-total-label { font-size:16px; }
     .world-total-number { font-size:clamp(34px,11vw,64px); }
