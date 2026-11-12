@@ -108,11 +108,11 @@ const DARK_PODIUM_TONES = [
    CSS
 ═══════════════════════════════════════════ */
 const makeCSS = () => `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
   html { font-size:16px; scroll-behavior:smooth; scroll-padding-top:90px; }
   #root { overflow-x:clip; }
-  body { font-family:'Manrope',sans-serif; color:#0A1D44; background:#fff; -webkit-font-smoothing:antialiased; }
+  body { font-family:'DM Sans',sans-serif; color:#0A1D44; background:#fff; -webkit-font-smoothing:antialiased; }
   a { color:inherit; text-decoration:none; }
   button { font:inherit; cursor:pointer; }
   a:focus-visible,button:focus-visible,input:focus-visible { outline:3px solid #0C69C8; outline-offset:5px; }
@@ -122,7 +122,7 @@ const makeCSS = () => `
   .fu,.fu2,.fu3,.fu4 { animation:fadeUp .8s both; }
   .insights-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
   .world-header { position:sticky; top:0; z-index:100; min-height:76px; padding:12px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; background:rgba(255,255,255,.94); backdrop-filter:blur(16px); border-bottom:1px solid #e7edf5; }
-  .world-brand { display:flex; align-items:center; gap:10px; color:#0A1D44; font-weight:800; font-size:20px; letter-spacing:-.6px; }
+  .world-brand { display:flex; align-items:center; gap:10px; color:#0A1D44; font-family:'Sora',sans-serif; font-weight:700; font-size:20px; letter-spacing:-.6px; }
   .world-brand img { width:30px; height:30px; object-fit:contain; }
   .world-header nav { display:flex; gap:28px; font-size:16px; font-weight:600; color:#3D4A6B; }
   .world-header nav a { min-height:44px; display:flex; align-items:center; }
@@ -136,14 +136,14 @@ const makeCSS = () => `
   .section-eyebrow { display:flex; align-items:center; gap:8px; font-size:16px; font-weight:700; color:#0C69C8; margin-bottom:12px; }
   .hero-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:12px; align-items:center; }
   .hero-content { position:relative; z-index:1; min-width:0; align-self:start; font-family:'DM Sans',sans-serif; }
-  .hero-content h1 { font-size:clamp(34px,4.9vw,72px); font-weight:700; line-height:1.12; letter-spacing:-.06em; }
+  .hero-content h1 { font-family:'Sora',sans-serif; font-size:clamp(34px,4.9vw,72px); font-weight:700; line-height:1.12; letter-spacing:-.06em; }
   .hero-content h1 span { color:#0C69C8; }
   .hero-title-text { display:block; white-space:nowrap; }
-  .hero-slogan { max-width:380px; color:#3D4A6B; font-size:28px; font-weight:500; letter-spacing:-.025em; line-height:1.4; margin:16px 0 30px; }
+  .hero-slogan { max-width:380px; color:#3D4A6B; font-family:'Sora',sans-serif; font-size:28px; font-weight:600; letter-spacing:-.025em; line-height:1.4; margin:16px 0 30px; }
   .world-total { padding:0; }
   .world-total-label { font-size:18px; font-weight:500; color:#3D4A6B; margin-bottom:8px; }
   .world-total-value { display:flex; align-items:center; gap:5px; }
-  .world-total-number { font-size:clamp(34px,5.6vw,80px); font-weight:700; letter-spacing:-.05em; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
+  .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.6vw,80px); font-weight:700; letter-spacing:-.05em; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
   .world-total-note { display:block; color:#53617a; font-size:14px; line-height:1.6; margin-top:8px; }
   .world-total-gain { margin-top:8px; font-size:18px; line-height:1.5; font-weight:700; color:#05754f; }
   .world-total-gain span { font-weight:500; }
@@ -161,13 +161,13 @@ const makeCSS = () => `
   .world-summary > div { display:flex; align-items:center; justify-content:center; gap:18px; padding:0 14px; }
   .world-summary > div+div { border-left:1px solid #e7edf5; }
   .world-summary svg { color:#0C69C8; font-size:24px; }
-  .world-summary strong { display:block; font-weight:800; font-size:36px; font-variant-numeric:tabular-nums; line-height:1.2; }
+  .world-summary strong { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:36px; font-variant-numeric:tabular-nums; line-height:1.2; }
   .world-summary strong small { font-size:16px; font-weight:500; }
   .world-summary > div > div > span { display:block; font-size:16px; color:#53617a; margin-top:6px; }
   .hero-mb,.section-mb { margin-bottom:64px; }
   .milestone-section { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; padding:30px 32px; background:linear-gradient(105deg,#f2f7fd,#f9fbfe); }
   .milestone-section .section-eyebrow { margin-bottom:10px; }
-  .milestone-section h2 { font-weight:800; font-size:28px; letter-spacing:-.8px; line-height:1.3; }
+  .milestone-section h2 { font-family:'Sora',sans-serif; font-weight:700; font-size:28px; letter-spacing:-.8px; line-height:1.3; }
   .milestone-section p { color:#53617a; font-size:16px; margin-top:8px; line-height:1.6; }
   .milestone-labels { display:flex; justify-content:space-between; gap:12px; font-size:16px; font-weight:600; margin-bottom:10px; color:#0C69C8; }
   .milestone-track { height:8px; background:#dae6f5; overflow:hidden; }
@@ -175,15 +175,16 @@ const makeCSS = () => `
   .chart-loading { height:220px; display:flex; align-items:center; justify-content:center; font-size:13px; color:#67758b; }
   .timeline-chart { padding:20px 10px; border:1px solid #e7edf5; border-radius:10px; }
   .lb-table-head,.lb-table-row { display:grid; grid-template-columns:44px minmax(0,1fr) 110px 120px 64px; gap:10px; align-items:center; }
-  .lb-score-cell { text-align:right; font-size:16px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .lb-score-cell { text-align:right; font-family:'Sora',sans-serif; font-size:16px; font-weight:800; font-variant-numeric:tabular-nums; }
   .lb-daily-gain { display:block; margin-top:3px; color:#047857; font-size:14px; font-weight:700; line-height:1.4; }
   .world-page .lb-athlete-name { font-size:16px; min-height:44px; max-width:100%; white-space:normal; overflow-wrap:anywhere; }
   .world-page .lb-athlete-meta,.world-page .lb-title-count,.world-page .lb-history-hint,.world-page .lb-history-unavailable { font-size:14px; }
-  .world-page .world-pulse h2,.world-page .world-pulse-number,.world-page .world-pulse-metric dd,.world-page .world-pulse-metric--peak dd span { font-family:inherit; }
+  .world-page .world-pulse h2,.world-page .world-pulse-number,.world-page .world-pulse-metric dd { font-family:'Sora',sans-serif; }
+  .world-page .world-pulse-metric--peak dd span { font-family:inherit; }
   .world-page .world-pulse-topline p,.world-page .world-pulse-filter select { font-size:16px; }
   .world-page .world-pulse-filter,.world-page .world-pulse-number-label,.world-page .world-pulse-metric dt,.world-page .world-pulse-metric-detail,.world-page .world-pulse-clockline,.world-page .world-pulse-axis,.world-page .world-pulse-inspection,.world-page .world-pulse-footnote { font-size:14px; }
   .world-page .ws-site-footer { font-family:inherit; }
-  .world-page .ws-footer-about h2 { font-family:inherit; }
+  .world-page .ws-footer-about h2 { font-family:'Sora',sans-serif; }
   .world-page .ws-footer-brand small,.world-page .ws-site-footer h3,.world-page .ws-footer-bottom { font-size:14px; letter-spacing:0; text-transform:none; }
   .world-page .ws-footer-about p,.world-page .ws-footer-social p,.world-page .ws-footer-links a,.world-page .ws-footer-social a { font-size:16px; }
   .country-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
@@ -208,7 +209,7 @@ const makeCSS = () => `
   .countries-expand { display:flex; align-items:center; gap:12px; min-height:44px; margin:16px auto 0; padding:8px 0; border:0; background:transparent; color:#0C69C8; font-size:16px; font-weight:600; }
   .empty-state { padding:28px; font-size:16px; color:#53617a; line-height:1.7; }
   .world-about { max-width:820px; padding:28px 32px; border:1px solid #e1eaf4; border-radius:14px; background:#f8fbff; }
-  .world-about h2 { font-size:28px; line-height:1.35; letter-spacing:-.5px; }
+  .world-about h2 { font-family:'Sora',sans-serif; font-size:28px; line-height:1.35; letter-spacing:-.5px; }
   .world-about p { margin-top:12px; color:#53617a; font-size:16px; line-height:1.75; }
   .world-about a { color:#0C69C8; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
   .load-error { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:24px; padding:24px; text-align:center; }
@@ -374,7 +375,7 @@ const AnimNum = ({ value, duration=1200, format=fmtFull }) => {
 
 const SHead = ({C,title,sub}) => (
   <div style={{marginBottom:24}}>
-    <h2 style={{fontSize:"clamp(28px,3.5vw,40px)",fontWeight:800,color:C.text,letterSpacing:-1,marginBottom:10,lineHeight:1.2}}>{title}</h2>
+    <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:"clamp(28px,3.5vw,40px)",fontWeight:800,color:C.text,letterSpacing:-1,marginBottom:10,lineHeight:1.2}}>{title}</h2>
     {sub&&<p style={{fontSize:16,color:C.textSecondary,lineHeight:1.65,maxWidth:620}}>{sub}</p>}
   </div>
 );
