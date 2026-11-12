@@ -135,10 +135,10 @@ const makeCSS = () => `
   .world-page[data-theme="dark"] .world-hero::before { opacity:1; }
   .section-eyebrow { display:flex; align-items:center; gap:8px; font-size:16px; font-weight:700; color:#0C69C8; margin-bottom:12px; }
   .hero-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:12px; align-items:center; }
-  .hero-content { position:relative; z-index:1; min-width:0; font-family:'DM Sans',sans-serif; }
+  .hero-content { position:relative; z-index:1; min-width:0; align-self:start; font-family:'DM Sans',sans-serif; }
   .hero-content h1 { font-size:clamp(34px,4.9vw,72px); font-weight:700; line-height:1.12; letter-spacing:-.06em; }
   .hero-content h1 span { color:#0C69C8; }
-  .hero-title-text { display:block; padding-top:56px; white-space:nowrap; }
+  .hero-title-text { display:block; white-space:nowrap; }
   .hero-slogan { max-width:380px; color:#3D4A6B; font-size:28px; font-weight:500; letter-spacing:-.025em; line-height:1.4; margin:16px 0 30px; }
   .world-total { padding:0; }
   .world-total-label { font-size:18px; font-weight:500; color:#3D4A6B; margin-bottom:8px; }
