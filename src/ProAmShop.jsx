@@ -5,7 +5,8 @@ import ProAmMovement from './ProAmMovement.jsx';
 import ProAmReviews from './ProAmReviews.jsx';
 import ProAmCart from './ProAmCart.jsx';
 import ProAmHeroBackdrop from './ProAmHeroBackdrop.jsx';
-import ProAmClothesRail from './ProAmClothesRail.jsx';
+// ProAm Rail is hidden for now; keep the component available to restore.
+// import ProAmClothesRail from './ProAmClothesRail.jsx';
 import './proAmShop.css';
 
 const SHOP_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -299,7 +300,9 @@ export default function ProAmShop() {
           <div className="proam-section-heading"><div><span className="proam-kicker">THE COLLECTION</span><h2 id="proam-collection-title">Your everyday lineup.</h2></div><p>Three essentials. One community.</p></div>
           {status === 'loading' && <p className="proam-catalog-status" role="status">Loading the ProAm collection…</p>}
           {status === 'error' && <div className="proam-catalog-error" role="alert"><p>We couldn’t load current prices and availability.</p><button type="button" onClick={loadItems}>Try again</button></div>}
-          {status === 'ready' && <>{visibleProducts.length > 0 && <ProAmClothesRail products={visibleProducts}/>}<div className="proam-products-grid">{visibleProducts.map((product) => <ProductCard key={product.key} product={product} item={items.find(product.match)} session={session} stockAlerts={stockAlerts} onAlertSaved={alertSaved} onAlertRemoved={alertRemoved} onSignIn={() => setAccountOpen(true)} onAddToCart={addToCart}/>)}</div></>}
+          {status === 'ready' && <>
+            {/* ProAm Rail hidden for now: visibleProducts.length > 0 && <ProAmClothesRail products={visibleProducts}/> */}
+            <div className="proam-products-grid">{visibleProducts.map((product) => <ProductCard key={product.key} product={product} item={items.find(product.match)} session={session} stockAlerts={stockAlerts} onAlertSaved={alertSaved} onAlertRemoved={alertRemoved} onSignIn={() => setAccountOpen(true)} onAddToCart={addToCart}/>)}</div></>}
           {status === 'ready' && !visibleProducts.length && <p className="proam-catalog-status" role="status">The collection is being updated. Please check back soon.</p>}
         </section>
 
