@@ -1,4 +1,6 @@
-export const REFRESH_INTERVAL = 60_000;
+import { challengeSchedule, CHALLENGE_END } from './schoolChallengeSchedule.js';
+
+export const REFRESH_INTERVAL = 10_000;
 export const number = new Intl.NumberFormat('en-IE');
 export const safeCount = value => Math.max(0, Math.floor(Number(value) || 0));
 export const searchKey = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -50,6 +52,21 @@ export function normalizeChallenge(payload) {
     totalParticipants: schools.reduce((sum, school) => sum + school.member_count, 0),
     counties: [...new Set(schools.map(school => school.county).filter(Boolean))].sort(),
     updatedAt: payload.updated_at,
+    resultStatus: payload.result_status,
+    resultsCapturedAt: payload.results_captured_at,
+  };
+}
+
+export function challengeResults(data, now) {
+  const finished = now !== null && challengeSchedule(now).phase === 'finished';
+  // A clock crossing midnight cannot turn a pre-close response into winners.
+  const final = finished && data?.resultStatus === 'final'
+    && Date.parse(data.updatedAt) >= CHALLENGE_END
+    && Date.parse(data.resultsCapturedAt) >= CHALLENGE_END;
+  return {
+    finished,
+    final,
+    winners: final ? data.schools.filter(school => school.rank === 1 && school.total_steps > 0) : [],
   };
 }
 
