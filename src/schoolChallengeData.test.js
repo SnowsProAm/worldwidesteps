@@ -1,9 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeChallenge, filterSchools, rankMovements, safeLogo } from './schoolChallengeData.js';
+import { normalizeChallenge, filterSchools, rankMovements, safeLogo, challengeResults } from './schoolChallengeData.js';
+import { CHALLENGE_END } from './schoolChallengeSchedule.js';
 
 const school = (id, name, steps, county = 'Dublin') => ({ id, name, total_steps: steps, county });
 const normalize = schools => normalizeChallenge({ schools, students: [] });
+
+test('midnight closes the challenge but never promotes stale or unsaved standings to winners', () => {
+  const active = normalizeChallenge({ schools: [school('s', 'School', 100)], students: [], result_status: 'active', updated_at: '2026-11-12T23:59:59Z' });
+  assert.equal(challengeResults(active, CHALLENGE_END - 1).finished, false);
+  assert.deepEqual(challengeResults(active, CHALLENGE_END), { finished: true, final: false, winners: [] });
+  assert.equal(challengeResults({ ...active, resultStatus: 'final' }, CHALLENGE_END).final, false);
+  assert.equal(challengeResults({ ...active, resultStatus: 'final', updatedAt: '2026-11-13T00:00:10Z' }, CHALLENGE_END).final, false);
+  assert.equal(challengeResults(null, null).finished, false);
+});
+
+test('only saved closing results show winners, preserving positive ties and excluding zero totals', () => {
+  const payload = { schools: [school('a', 'Abbey', 100), school('b', 'Birch', 100), school('c', 'Cavan', 99)], students: [], result_status: 'final', updated_at: '2026-11-13T00:00:10Z', results_captured_at: '2026-11-13T00:00:01Z' };
+  const result = challengeResults(normalizeChallenge(payload), CHALLENGE_END + 10_000);
+  assert.equal(result.final, true);
+  assert.deepEqual(result.winners.map(winner => winner.id), ['a', 'b']);
+  assert.deepEqual(challengeResults(normalizeChallenge({ ...payload, schools: [school('z', 'Zero', 0)] }), CHALLENGE_END).winners, []);
+});
 
 test('sorts totals numerically, preserves tied national ranks and includes zero-step schools', () => {
   const result = normalize([school('d', 'New school', 0), school('a', 'Zebra', '99'), school('b', 'Abbey', '100'), school('c', 'Cavan', 99)]);

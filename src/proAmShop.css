@@ -173,3 +173,4 @@
 }
 
 .proam-product-card{scroll-margin-top:130px}
+@media(max-width:440px){.proam-shop-header nav{gap:10px;flex-wrap:wrap;overflow:visible;justify-content:space-between}.proam-shop-header nav a{font-size:12px}}

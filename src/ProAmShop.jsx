@@ -5,7 +5,8 @@ import ProAmMovement from './ProAmMovement.jsx';
 import ProAmReviews from './ProAmReviews.jsx';
 import ProAmCart from './ProAmCart.jsx';
 import ProAmHeroBackdrop from './ProAmHeroBackdrop.jsx';
-import ProAmClothesRail from './ProAmClothesRail.jsx';
+// ProAm Rail is hidden for now; keep the component available to restore.
+// import ProAmClothesRail from './ProAmClothesRail.jsx';
 import './proAmShop.css';
 
 const SHOP_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -185,7 +186,7 @@ function MemberAccount({ open, onClose, session }) {
   </dialog>;
 }
 
-export default function ProAmShop() {
+export default function ProAmShop({ header, footer, siteName = 'World Wide Steps' }) {
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState('loading');
   const [session, setSession] = useState(null);
@@ -250,7 +251,7 @@ export default function ProAmShop() {
     setStatus('ready');
   }, []);
 
-  useEffect(() => { document.title = 'ProAm Store | World Wide Steps'; void loadItems(); const refresh = () => { if (document.visibilityState === 'visible') void loadItems(); }; window.addEventListener('focus', refresh); return () => window.removeEventListener('focus', refresh); }, [loadItems]);
+  useEffect(() => { document.title = `ProAm Store | ${siteName}`; void loadItems(); const refresh = () => { if (document.visibilityState === 'visible') void loadItems(); }; window.addEventListener('focus', refresh); return () => window.removeEventListener('focus', refresh); }, [loadItems, siteName]);
 
   useEffect(() => {
     if (!session?.user?.id || !shopSupabase) { setStockAlerts([]); return; }
@@ -268,13 +269,13 @@ export default function ProAmShop() {
 
   return (
     <div className="proam-shop-page">
-      <header className="proam-shop-header">
+      {header ? header({ cartCount: cart.reduce((sum, item) => sum + item.quantity, 0), openBag: () => setCartOpen(true), openAccount: () => setAccountOpen(true), signedIn: Boolean(session) }) : <header className="proam-shop-header">
         <a className="proam-shop-brand" href="/" aria-label="World Wide Steps home"><img src="/snows-proam-logo.png" alt=""/><span><strong>WORLD WIDE STEPS</strong><small>POWERED BY SNOWS PROAM</small></span></a>
-        <nav aria-label="Store navigation"><a href="/">Global community</a><a href="/schools">Schools</a><a className="active" href="/shop" aria-current="page">ProAm Store</a></nav>
+        <nav aria-label="Store navigation"><a href="/">Global community</a><a href="/schools">Schools</a><a href="/blog">Blog</a><a className="active" href="/shop" aria-current="page">ProAm Store</a></nav>
         <div className="proam-header-actions"><button className="proam-header-account" type="button" onClick={() => setCartOpen(true)}>Bag ({cart.reduce((sum, item) => sum + item.quantity, 0)})</button><button className="proam-header-account" type="button" onClick={() => setAccountOpen(true)}>{session ? 'My account' : 'Sign in'}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg></button></div>
-      </header>
+      </header>}
 
-      <main>
+      <main id="main-content">
         {checkoutId && <section className="proam-unsubscribe"><h2>Your checkout</h2><p role="status">{session ? checkoutMessage : 'Sign in to check your payment and order.'}</p><button onClick={() => session ? setCheckoutRetry(n => n + 1) : setAccountOpen(true)}>{session ? 'Check payment status' : 'Sign in'}</button></section>}
         {unsubscribeToken && <section className="proam-unsubscribe"><h2>Manage your restock alert</h2><button type="button" onClick={unsubscribe}>Unsubscribe from this alert</button><p role="status">{unsubscribeMessage}</p></section>}
         <section className="proam-shop-hero" aria-labelledby="proam-shop-title">
@@ -299,14 +300,16 @@ export default function ProAmShop() {
           <div className="proam-section-heading"><div><span className="proam-kicker">THE COLLECTION</span><h2 id="proam-collection-title">Your everyday lineup.</h2></div><p>Three essentials. One community.</p></div>
           {status === 'loading' && <p className="proam-catalog-status" role="status">Loading the ProAm collection…</p>}
           {status === 'error' && <div className="proam-catalog-error" role="alert"><p>We couldn’t load current prices and availability.</p><button type="button" onClick={loadItems}>Try again</button></div>}
-          {status === 'ready' && <>{visibleProducts.length > 0 && <ProAmClothesRail products={visibleProducts}/>}<div className="proam-products-grid">{visibleProducts.map((product) => <ProductCard key={product.key} product={product} item={items.find(product.match)} session={session} stockAlerts={stockAlerts} onAlertSaved={alertSaved} onAlertRemoved={alertRemoved} onSignIn={() => setAccountOpen(true)} onAddToCart={addToCart}/>)}</div></>}
+          {status === 'ready' && <>
+            {/* ProAm Rail hidden for now: visibleProducts.length > 0 && <ProAmClothesRail products={visibleProducts}/> */}
+            <div className="proam-products-grid">{visibleProducts.map((product) => <ProductCard key={product.key} product={product} item={items.find(product.match)} session={session} stockAlerts={stockAlerts} onAlertSaved={alertSaved} onAlertRemoved={alertRemoved} onSignIn={() => setAccountOpen(true)} onAddToCart={addToCart}/>)}</div></>}
           {status === 'ready' && !visibleProducts.length && <p className="proam-catalog-status" role="status">The collection is being updated. Please check back soon.</p>}
         </section>
 
         <ProAmCart open={cartOpen} onClose={closeCart} cart={cart} onChange={setCart} client={shopSupabase} session={session} onSignIn={() => setAccountOpen(true)} />
         <MemberAccount open={accountOpen} onClose={closeAccount} session={session} />
       </main>
-      <WorldSiteFooter />
+      {footer || <WorldSiteFooter />}
     </div>
   );
 }

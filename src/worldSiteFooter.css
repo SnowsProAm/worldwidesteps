@@ -38,3 +38,20 @@
 .world-page[data-theme="dark"] .ws-footer-social a svg:last-child{color:#C6C2B6;}
 .world-page[data-theme="dark"] .ws-footer-bottom{border-color:#383B30;}
 .world-page[data-theme="dark"] .ws-site-footer a:focus-visible{outline-color:#91B7ED;}
+
+/* The journal footer keeps navigation and contact details without campaign copy. */
+.ws-site-footer-compact { padding:28px clamp(24px,6vw,95px) 20px; background:#f3f5f0; border:0; }
+.ws-site-footer-compact .ws-footer-main { grid-template-columns:minmax(0,1.2fr) minmax(150px,1fr) minmax(190px,.8fr); gap:24px; align-items:start; }
+.ws-site-footer-compact .ws-footer-links a { min-height:44px; font-size:13px; font-weight:500; }
+.ws-site-footer-compact .ws-footer-social>div { margin:0; gap:0 20px; }
+.ws-site-footer-compact .ws-footer-social a { padding:0; min-height:44px; background:transparent; border:0; border-radius:0; font-weight:500; }
+.ws-site-footer-compact .ws-footer-bottom { margin-top:20px; border:0; padding:0; }
+@media(min-width:1600px) { .ws-site-footer-compact { padding-inline:max(95px,calc((100vw - 1300px)/2)); } }
+@media(max-width:760px) {
+  .ws-site-footer-compact { padding:24px 20px 20px; }
+  .ws-site-footer-compact .ws-footer-main { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px 20px; }
+  .ws-site-footer-compact .ws-footer-about { grid-column:1/-1; }
+  .ws-site-footer-compact .ws-footer-social { grid-column:auto; }
+  .ws-site-footer-compact .ws-footer-social>div { display:grid; }
+  .ws-site-footer-compact .ws-footer-social a { flex:none; justify-content:start; }
+}

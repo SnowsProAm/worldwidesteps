@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@500;600;700;800&family=Fraunces:ital,wght@0,500;0,600;1,500&family=Sora:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+.hero-text-preview .hero-text-copy{min-height:480px}
+.hero-text-preview .hero-text-picker{margin-top:24px}
+.hero-text-picker p{font:600 16px/1.5 'Manrope',sans-serif;margin:0 0 10px}
+.hero-text-picker>div{display:flex;gap:10px;flex-wrap:wrap}
+.hero-text-picker button{display:grid;place-items:center;width:44px;min-height:44px;border:1px solid #9bafc5;border-radius:8px;background:transparent;color:inherit;font:700 16px 'Manrope',sans-serif}
+.hero-text-picker button[aria-pressed=true]{background:#0c69c8;border-color:#0c69c8;color:#fff}
+.hero-text-preview .hero-slogan{font-size:26px;line-height:1.4;max-width:none;margin:16px 0 30px}
+.hero-text-preview .world-total-label{font-size:18px}
+.hero-text-preview .world-total-gain{font-size:18px}
+.hero-text-option-1 .hero-text-copy{font-family:'Sora',sans-serif}
+.hero-content .hero-text-option-1 h1{font-size:clamp(32px,4.5vw,66px);font-weight:700;letter-spacing:-.055em;line-height:1.12}
+.hero-text-option-1 .world-total-number{font-weight:600;font-size:clamp(34px,5.2vw,76px)}
+.hero-text-option-2 .hero-text-copy{font-family:'Space Grotesk',sans-serif}
+.hero-content .hero-text-option-2 h1{font-size:clamp(34px,4.9vw,72px);font-weight:600;letter-spacing:-.065em;line-height:1.12}
+.hero-text-option-2 .world-total-number{font-weight:500;letter-spacing:-.06em}
+.hero-text-option-2 .hero-slogan{font-weight:400}
+.hero-content .hero-text-option-3 h1{font-family:'Archivo Black',sans-serif;font-size:clamp(30px,4.2vw,60px);font-weight:400;letter-spacing:-.065em;line-height:1.12;text-transform:uppercase}
+.hero-text-option-3 .hero-slogan{font-weight:700;font-size:28px}
+.hero-text-option-3 .world-total-number{font-weight:800}
+.hero-content .hero-text-option-4 h1{font-family:'Fraunces',Georgia,serif;font-size:clamp(36px,5.5vw,80px);font-weight:600;letter-spacing:-.055em;line-height:1.12}
+.hero-content .hero-text-option-4 h1 span{font-style:italic}
+.hero-text-option-4 .hero-slogan{font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:500;letter-spacing:-.025em}
+.hero-text-option-4 .world-total-number{font-family:'Fraunces',Georgia,serif;font-weight:500;letter-spacing:-.04em}
+.hero-text-option-5 .hero-text-copy{font-family:'DM Sans',sans-serif}
+.hero-content .hero-text-option-5 h1{font-size:clamp(34px,4.9vw,72px);font-weight:800;letter-spacing:-.06em;line-height:1.12}
+.hero-text-option-5 .hero-slogan{font-weight:500;font-size:28px}
+.hero-text-option-5 .world-total-number{font-weight:700;letter-spacing:-.05em}
+@media(max-width:760px){
+  .hero-text-preview .hero-text-copy{min-height:0}
+  .hero-content .hero-text-preview h1{font-size:clamp(32px,10.5vw,58px)}
+  .hero-content .hero-text-option-3 h1{font-size:clamp(26px,8.6vw,52px)}
+  .hero-content .hero-text-option-4 h1{font-size:clamp(34px,12vw,64px)}
+  .hero-text-preview .hero-slogan{font-size:24px}
+  .hero-text-preview .world-total-number{font-size:clamp(31px,10vw,62px)}
+  .hero-text-preview .world-total-label{font-size:16px}
+  .hero-text-preview .world-total-gain{font-size:17px}
+}

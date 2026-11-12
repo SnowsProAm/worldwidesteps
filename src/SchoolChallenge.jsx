@@ -3,8 +3,9 @@ import { motion, MotionConfig } from 'motion/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faArrowUp, faArrowDown, faTrophy, faGraduationCap, faLocationDot, faMagnifyingGlass, faXmark, faGift, faShoePrints, faGlobe, faExpand, faLeaf, faChevronDown, faCircleInfo, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { AutumnLeaves, GiftBox, WalkingDoodle, SchoolBus } from './SchoolChallengeArt';
-import { filterSchools, number } from './schoolChallengeData';
+import { challengeResults, filterSchools, number } from './schoolChallengeData';
 import { useSchoolChallenge } from './useSchoolChallenge';
+import { useSchoolChallengeClock } from './useSchoolChallengeClock';
 import './schoolChallenge.css';
 import SchoolChallengeCountdown from './SchoolChallengeCountdown';
 import WorldSiteFooter from './WorldSiteFooter';
@@ -62,7 +63,7 @@ function Cheque({ expanded = false }) {
   </div>;
 }
 
-function PrizeDialog({ prize, onClose, leader, paused, warmup }) {
+function PrizeDialog({ prize, onClose, leader, paused, warmup, finished, final, winners }) {
   const ref = useRef(null);
   useEffect(() => {
     const dialog = ref.current, previousFocus = document.activeElement;
@@ -80,50 +81,56 @@ function PrizeDialog({ prize, onClose, leader, paused, warmup }) {
     <div className="sc-dialog-content">
       <button className="sc-icon-button sc-dialog-close" onClick={onClose} aria-label="Close prize reveal" autoFocus><Icon icon={faXmark} /></button>
       <p className="sc-eyebrow">{school ? 'A big win for your whole school' : 'A little mystery. A lot to walk for.'}</p>
-      <h2 id="sc-prize-title">{school ? 'Small steps. A €1,000 possibility.' : 'Something good is on its way.'}</h2>
+      <h2 id="sc-prize-title">{school ? final ? 'The €1,000 school prize.' : finished ? 'The challenge has closed.' : 'Small steps. A €1,000 possibility.' : 'Something good is on its way.'}</h2>
       <div className={`sc-reveal-art ${school ? '' : 'sc-gift-open'}`}>
         {school ? <Cheque expanded /> : <GiftBox tone={prize === '2' ? 'lilac' : prize === '3' ? 'peach' : 'blue'} />}
         {!paused && <div className="sc-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--i': index }} />)}</div>}
       </div>
-      <p>{school ? '€1,000 for the school that finishes on top. Keep moving together and give your school something to celebrate.' : 'The national student prize line-up is still under wraps. Check back here for the reveal.'}</p>
-      {school && leader?.total_steps > 0 && <div className="sc-reveal-leader"><Crest url={leader.logo_url} name={leader.name} /><span><small>{warmup ? 'Leading the warm-up · challenge starts at 0' : 'Currently leading · final result still to come'}</small><strong>{leader.name}</strong></span></div>}
+      <p>{school ? finished ? 'The school challenge closed at midnight after 12 November. Only steps credited during the challenge count.' : '€1,000 for the school that finishes on top. Keep moving together and give your school something to celebrate.' : 'The national student prize line-up is still under wraps. Check back here for the reveal.'}</p>
+      {school && final && winners.map(winner => <div key={winner.id} className="sc-reveal-leader"><Crest url={winner.logo_url} name={winner.name} /><span><small>{winners.length > 1 ? 'Joint school winner' : 'School winner'} · final challenge steps</small><strong>{winner.name}</strong></span></div>)}
+      {school && !finished && leader?.total_steps > 0 && <div className="sc-reveal-leader"><Crest url={leader.logo_url} name={leader.name} /><span><small>{final ? 'School winner · final challenge steps' : warmup ? 'Leading the warm-up · challenge starts at 0' : 'Currently leading · final result still to come'}</small><strong>{leader.name}</strong></span></div>}
       <span className="sc-prize-fineprint">{school ? 'Prize preview · final eligibility and award details to be confirmed.' : 'Mystery prize preview · contents and award details to be confirmed.'}</span>
       <button className="sc-primary" onClick={onClose}>Back to the challenge <Icon icon={faArrowRight} /></button>
     </div>
   </dialog>;
 }
 
-function StudentPodium({ students, loading, unavailable, paused, reveal }) {
+function StudentPodium({ students, loading, unavailable, paused, reveal, final, finished }) {
   return <div className="sc-student-podium">{[0, 1, 2].map(index => {
     const student = students[index];
     return <motion.article layout={!paused} key={student?.alias || index} className={`sc-podium-card sc-podium-${index + 1}`}>
-      <div className="sc-podium-place"><span>{student?.rank || index + 1}</span><span>{index === 0 ? 'Leading the way' : index === 1 ? 'Making every step count' : 'One to watch'}</span><Icon icon={index === 0 ? faTrophy : faShoePrints} /></div>
+      <div className="sc-podium-place"><span>{student?.rank || index + 1}</span><span>{final ? `Student winner · rank ${student?.rank || index + 1}` : index === 0 ? 'Leading the way' : index === 1 ? 'Making every step count' : 'One to watch'}</span><Icon icon={index === 0 ? faTrophy : faShoePrints} /></div>
       {student ? <>
         <div className="sc-podium-identity"><StudentAvatar student={student} large /><Crest url={student.logo_url} name={student.school_name} /></div>
         <h3>{student.display_name}</h3><p className="sc-podium-school">{student.school_name}</p>
         <p className="sc-location"><Icon icon={faLocationDot} />{student.county || 'County not listed'} · {student.country}</p>
         <strong className="sc-podium-steps"><AnimatedNumber value={student.steps} paused={paused} /><small>steps</small></strong>
-      </> : <div className="sc-podium-waiting"><Icon icon={faShoePrints} /><h3>{loading ? 'Finding the front-runners…' : unavailable ? 'Standings are taking a breather.' : 'Your next step could be here.'}</h3><p>{loading ? 'Loading student standings' : unavailable ? 'Reconnect or retry above to see the student leaders.' : 'A student will appear here when eligible steps are recorded.'}</p></div>}
+      </> : <div className="sc-podium-waiting"><Icon icon={faShoePrints} /><h3>{finished ? final ? 'No student result recorded.' : 'Closing results pending.' : loading ? 'Loading student standings' : unavailable ? 'Student standings unavailable.' : 'No student steps yet.'}</h3><p>{finished ? final ? 'No eligible student steps were recorded for this place.' : 'The page will update automatically when the closing results are available.' : loading ? 'Loading student standings' : unavailable ? 'Reconnect or retry above to see the student leaders.' : 'A student will appear here when eligible steps are recorded.'}</p></div>}
       <button className="sc-podium-prize" onClick={() => reveal(String(index + 1))}><GiftBox tone={index === 0 ? 'blue' : index === 1 ? 'lilac' : 'peach'} /><span><strong>Mystery prize</strong><small>Your place. Your prize.</small></span><Icon icon={faArrowRight} /></button>
     </motion.article>;
   })}</div>;
 }
 
-function SchoolRow({ school, movement, maxSteps, paused, warmup, onPrize }) {
+function SchoolRow({ school, movement, maxSteps, paused, warmup, final, finished, tiedWinner, onPrize }) {
   const first = school.rank === 1 && school.total_steps > 0;
   return <motion.li layout={paused ? false : 'position'} transition={{ layout: { type: 'spring', stiffness: 95, damping: 19 } }} className={`sc-school-row ${first ? 'sc-leading' : ''}`}>
     <div className="sc-rank"><span className={school.rank <= 3 && school.total_steps > 0 ? `sc-medal sc-medal-${school.rank}` : ''}><span className="sc-sr-only">Rank </span>{school.rank}</span>
       {movement !== 0 && movement != null && <span className={`sc-movement ${movement > 0 ? 'sc-up' : 'sc-down'}`} aria-label={`${Math.abs(movement)} ${Math.abs(movement) === 1 ? 'place' : 'places'} ${movement > 0 ? 'up' : 'down'} since last update`}><Icon icon={movement > 0 ? faArrowUp : faArrowDown} />{Math.abs(movement)}</span>}
     </div>
-    <div className="sc-school-identity"><Crest url={school.logo_url} name={school.name} /><div><h3>{school.name}</h3><p className="sc-location"><span className="sc-irish-flag" aria-hidden="true" />{school.county ? `${school.county} · ` : ''}{school.country}</p><p className="sc-school-participants"><strong>{number.format(school.member_count)}</strong><span>{school.member_count === 1 ? 'member joined' : 'members joined'}</span></p>{first && <button className="sc-leading-prize" onClick={onPrize}>{warmup ? 'Leading the warm-up' : 'Leading the €1,000 school prize'} <Icon icon={faArrowRight} /></button>}</div></div>
-    <div className="sc-school-total"><strong><AnimatedNumber value={school.total_steps} paused={paused} /></strong><span>{school.total_steps > 0 ? 'steps together' : 'Ready for the first steps'}</span><div className="sc-step-track" aria-hidden="true"><div style={{ width: `${Math.max(0, school.total_steps / (maxSteps || 1) * 100)}%` }} /></div></div>
-    <div className={`sc-school-student ${school.top_student ? '' : 'sc-school-student-empty'}`}><StudentAvatar student={school.top_student} /><div><small>TOP STUDENT</small>{school.top_student ? <><strong>{school.top_student.display_name}</strong><span><AnimatedNumber value={school.top_student.steps} paused={paused} /> steps</span></> : <><strong>Who’ll lead the way?</strong><span>First student steps coming soon</span></>}</div>{first && <button className="sc-small-gift" onClick={() => onPrize('student')} aria-label="Explore student mystery prizes"><GiftBox /></button>}</div>
+    <div className="sc-school-identity"><Crest url={school.logo_url} name={school.name} /><div><h3>{school.name}</h3><p className="sc-location"><span className="sc-irish-flag" aria-hidden="true" />{school.county ? `${school.county} · ` : ''}{school.country}</p><p className="sc-school-participants"><strong>{number.format(school.member_count)}</strong><span>{school.member_count === 1 ? 'member joined' : 'members joined'}</span></p>{first && <button className="sc-leading-prize" onClick={onPrize}>{final ? tiedWinner ? 'Joint school winner' : 'School winner' : finished ? 'Last loaded leader' : warmup ? 'Leading the warm-up' : 'Leading the €1,000 school prize'} <Icon icon={faArrowRight} /></button>}</div></div>
+    <div className="sc-school-total"><strong><AnimatedNumber value={school.total_steps} paused={paused} /></strong><span>{school.total_steps > 0 ? 'steps together' : final ? 'No challenge steps' : 'Ready for the first steps'}</span><div className="sc-step-track" aria-hidden="true"><div style={{ width: `${Math.max(0, school.total_steps / (maxSteps || 1) * 100)}%` }} /></div></div>
+    <div className={`sc-school-student ${school.top_student ? '' : 'sc-school-student-empty'}`}><StudentAvatar student={school.top_student} /><div><small>TOP STUDENT</small>{school.top_student ? <><strong>{school.top_student.display_name}</strong><span><AnimatedNumber value={school.top_student.steps} paused={paused} /> steps</span></> : <><strong>{final ? 'No student result recorded' : 'Who’ll lead the way?'}</strong><span>{final ? 'No eligible student steps' : 'First student steps coming soon'}</span></>}</div>{first && <button className="sc-small-gift" onClick={() => onPrize('student')} aria-label="Explore student mystery prizes"><GiftBox /></button>}</div>
     {school.year_groups?.length > 0 && <details className="sc-year-breakdown"><summary>See group members and steps <Icon icon={faChevronDown} /></summary><p>Joined members can have 0 credited steps. Steps are counted from 00:00 on 12 October (Irish time).</p><ul>{school.year_groups.filter(group => !['Unassigned', 'Unassigned members'].includes(group.name) || group.member_count > 0 || group.steps > 0).map(group => <li key={group.id || group.name}><span>{['Unassigned', 'Unassigned members'].includes(group.name) ? 'Not in a group yet' : group.name}<small>{number.format(group.member_count)} {group.member_count === 1 ? 'member' : 'members'}</small></span><strong>{number.format(group.steps)}<small>steps</small></strong></li>)}</ul><div className="sc-year-total"><span>School total<small>{number.format(school.member_count)} {school.member_count === 1 ? 'member' : 'members'}</small></span><strong>{number.format(school.total_steps)}<small>steps</small></strong></div></details>}
   </motion.li>;
 }
 
 export default function SchoolChallenge() {
   const { data, loading, refreshing, error, offline, movements, refresh } = useSchoolChallenge();
+  const now = useSchoolChallengeClock(data?.updatedAt);
+  const { finished, final, winners } = challengeResults(data, now);
+  useEffect(() => {
+    if (finished && data?.resultStatus === 'active') refresh();
+  }, [finished, data?.resultStatus, refresh]);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -135,9 +142,9 @@ export default function SchoolChallenge() {
     // Also covers static hosts that serve the root HTML for /schools.
     document.title = 'Irish Secondary School Step Challenge | Snows ProAm';
     const metadata = {
-      description: 'Follow the Irish Secondary School Step Challenge on World Wide Steps. Find your school, see live school and student leaderboards, and follow the €1,000 prize.',
+      description: 'Follow Ireland’s secondary school step challenge. Find your school, view live school and student leaderboards, and see how to take part with Snows ProAm.',
       'og:title': document.title,
-      'og:description': 'Find your school and follow live Irish secondary school step challenge standings and the €1,000 school prize.',
+      'og:description': 'Follow Ireland’s secondary school step challenge. Find your school, view live school and student leaderboards, and see how to take part with Snows ProAm.',
       'og:url': 'https://worldwidesteps.com/schools',
       'theme-color': '#ffffff',
     };
@@ -178,7 +185,7 @@ export default function SchoolChallenge() {
   return <MotionConfig reducedMotion={paused ? 'always' : 'never'}><div className={`school-challenge ${paused ? 'sc-motion-paused' : ''}`}>
     <a className="sc-skip" href="#sc-leaderboard">Skip to leaderboard</a>
     <header className="sc-header"><a href="/" className="sc-brand"><img src={logo} alt="" /><span><strong>Snows ProAm</strong><small>WORLD WIDE STEPS</small></span></a>
-      <nav aria-label="Main navigation"><a href="/" className="sc-world-link">Worldwide</a><a href="/schools" aria-current="page">Schools<span className="sc-nav-dot" /></a><a href="#sc-prizes">The prizes</a></nav>
+      <nav aria-label="Main navigation"><a href="/" className="sc-world-link">Worldwide</a><a href="/schools" aria-current="page">Schools<span className="sc-nav-dot" /></a><a href="/blog">Journal</a></nav>
       <a className="sc-header-cta" href="#sc-how">Get involved <Icon icon={faArrowRight} /></a>
     </header>
 
@@ -188,12 +195,12 @@ export default function SchoolChallenge() {
         <div className="sc-hero-copy"><div className="sc-season-tag"><Icon icon={autumn ? faLeaf : faShoePrints} /><strong>{seasonName || 'Current season'}</strong></div>
 
           <h1 id="sc-title">Irish Secondary School<br /><span>Step Challenge.</span></h1>
-          <p className="sc-hero-description">Schools across Ireland are moving together. Find your school, follow the live steps leaderboard, and see how your community is doing.</p>
+          <p className="sc-hero-description">{finished ? 'The challenge has finished. See the school results and national student winners for 12 October–12 November 2026.' : 'Schools across Ireland are moving together. Find your school, follow the live steps leaderboard, and see how your community is doing.'}</p>
 
           <div className="sc-hero-actions"><a className="sc-primary" href="#sc-leaderboard">Find your school <Icon icon={faArrowRight} /></a><a className="sc-text-link" href="#sc-prizes">Check out the prizes <Icon icon={faGift} /></a></div>
           <div className="sc-hero-community"><span className="sc-mini-crests">{schools.slice(0, 3).map(school => <Crest key={school.id} url={school.logo_url} name={school.name} />)}</span><span>{data ? <><strong>{schools.length} schools.</strong> One big challenge.</> : 'One school community. One step at a time.'}</span></div>
         </div>
-        <div className="sc-hero-prize"><span className="sc-art-sticker sc-sticker-move" aria-hidden="true">LET’S<br />MOVE!</span><span className="sc-art-sticker sc-sticker-star" aria-hidden="true">✦</span><span className="sc-prize-note">Your school could win this.<svg viewBox="0 0 85 60" aria-hidden="true"><path d="M5 4c35-7 52 16 45 43m-9-9 9 11 12-7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></span>
+        <div className="sc-hero-prize"><span className="sc-art-sticker sc-sticker-move" aria-hidden="true">LET’S<br />MOVE!</span><span className="sc-art-sticker sc-sticker-star" aria-hidden="true">✦</span><span className="sc-prize-note">{finished ? 'The €1,000 school prize.' : 'Your school could win this.'}<svg viewBox="0 0 85 60" aria-hidden="true"><path d="M5 4c35-7 52 16 45 43m-9-9 9 11 12-7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></span>
           <button className="sc-cheque-button" onClick={() => setPrize('school')} aria-label="Reveal the €1,000 top school prize"><Cheque /><span className="sc-cheque-tap"><Icon icon={faExpand} /> Tap to take a closer look</span></button>
           <WalkingDoodle /><span className="sc-doodle-caption">Big school energy.</span>
         </div>
@@ -207,10 +214,16 @@ export default function SchoolChallenge() {
         <aside className="sc-school-outreach" aria-labelledby="sc-outreach-title"><span className="sc-outreach-plane" aria-hidden="true"><Icon icon={faPaperPlane} /></span><div className="sc-outreach-lead"><p className="sc-eyebrow">Bring your school along</p><h3 id="sc-outreach-title">Can’t see your school?</h3><p>Let’s get your community moving.</p></div><div className="sc-outreach-contact"><a className="sc-outreach-demo" href={demoBookingUrl} target="_blank" rel="noopener noreferrer">Book a school demo <Icon icon={faArrowRight} /></a></div></aside></div>
 
       <section className="sc-leaderboard-section" id="sc-leaderboard" aria-labelledby="sc-league-heading">
-        <SchoolChallengeCountdown serverUpdatedAt={data?.updatedAt} timeUnavailable={!data && (error || offline)} />
-        <div className="sc-section-heading"><div><p className="sc-eyebrow">School pride. On the line.</p><h2 id="sc-league-heading">The leaderboard<span className="sc-heading-dot">.</span></h2><p>{warmup ? 'Warm-up standings today. A fresh race begins on 12 October.' : 'Find your crew. Follow the climb. Cheer them on.'}</p></div>
+        <SchoolChallengeCountdown now={now} timeUnavailable={!data && (error || offline)} />
+        <div className="sc-section-heading"><div><p className="sc-eyebrow">School pride. On the line.</p><h2 id="sc-league-heading">{final ? 'The final results' : finished ? 'The challenge is closed' : 'The leaderboard'}<span className="sc-heading-dot">.</span></h2><p>{finished ? final ? 'Steps counted from 12 October through 12 November 2026. Challenge totals are now closed.' : 'Saving the closing results. Winners will appear automatically once they are ready.' : warmup ? 'Warm-up standings today. A fresh race begins on 12 October.' : 'Find your crew. Follow the climb. Cheer them on.'}</p></div>
 
         </div>
+        {final && <section className="sc-results" aria-labelledby="sc-winners-heading">
+          <div><Icon icon={faTrophy} /><h3 id="sc-winners-heading">{winners.length > 1 ? 'Joint school winners' : winners.length ? 'School winner' : 'No school winner recorded'}</h3><p>12 October–12 November 2026 · Final challenge steps</p></div>
+          {winners.map(school => <article key={school.id}><Crest url={school.logo_url} name={school.name} large /><div><h4>{school.name}</h4><p>{[school.county, school.country].filter(Boolean).join(' · ')}</p><strong>{number.format(school.total_steps)} steps</strong></div></article>)}
+          <p className="sc-results-note">Thank you to every school that took part. Prize eligibility and award arrangements remain subject to confirmation.</p>
+        </section>}
+        {finished && !final && <p className="sc-notice" role="status">{offline || error ? 'Reconnect to load the closing results. The last loaded standings are not confirmed winners.' : 'Closing results are being saved. This page will update automatically.'}</p>}
         <div className="sc-leaderboard-toolbar"><div className="sc-tabs" role="tablist" aria-label="Leaderboard view"><button role="tab" id="sc-tab-schools" aria-controls="sc-panel-schools" aria-selected={view === 'schools'} tabIndex={view === 'schools' ? 0 : -1} onKeyDown={tabKeys} onClick={() => selectView('schools')}><Icon icon={faGraduationCap} />Schools<span>{data ? schools.length : '—'}</span></button><button role="tab" id="sc-tab-students" aria-controls="sc-panel-students" aria-selected={view === 'students'} tabIndex={view === 'students' ? 0 : -1} onKeyDown={tabKeys} onClick={() => selectView('students')}><Icon icon={faTrophy} />National top 3</button></div>
           {view === 'schools' && <div className="sc-filters"><div className="sc-search"><Icon icon={faMagnifyingGlass} /><label className="sc-sr-only" htmlFor="sc-school-search">Search school or county</label><input id="sc-school-search" type="search" placeholder="Find your school…" value={query} onChange={event => setQuery(event.target.value)} />{query && <button onClick={() => setQuery('')} aria-label="Clear school search"><Icon icon={faXmark} /></button>}</div><div className="sc-county-select"><label className="sc-sr-only" htmlFor="sc-county">Filter by county</label><select id="sc-county" value={county} onChange={event => setCounty(event.target.value)}><option value="">All counties</option>{data?.counties.map(name => <option key={name}>{name}</option>)}</select><Icon icon={faChevronDown} /></div></div>}
         </div>
@@ -219,14 +232,14 @@ export default function SchoolChallenge() {
         <div role="tabpanel" id="sc-panel-schools" aria-labelledby="sc-tab-schools" hidden={view !== 'schools'} tabIndex={0}>
           {loading ? <div className="sc-loading" role="status" aria-label="Loading school leaderboard">{[0, 1, 2, 3, 4].map(item => <div key={item} className="sc-skeleton-row"><span className="sc-skeleton" /><span className="sc-skeleton" /><span className="sc-skeleton" /></div>)}<span className="sc-sr-only">Loading school leaderboard…</span></div> : data && <>
             <div className="sc-table-head" aria-hidden="true"><span>RANK</span><span>SCHOOL / COUNTY</span><span>TOTAL STEPS</span><span>THEIR PACESETTER</span></div>
-            <ol className="sc-school-list" id="sc-school-list" aria-label="Schools ranked by total steps">{shownSchools.map(school => <SchoolRow key={school.id} school={school} movement={movements[school.id]} maxSteps={leader?.total_steps} paused={paused} warmup={warmup} onPrize={kind => setPrize(kind === 'student' ? '1' : 'school')} />)}</ol>
+            <ol className="sc-school-list" id="sc-school-list" aria-label="Schools ranked by total steps">{shownSchools.map(school => <SchoolRow key={school.id} school={school} movement={movements[school.id]} maxSteps={leader?.total_steps} paused={paused} warmup={warmup} final={final} finished={finished} tiedWinner={winners.length > 1} onPrize={kind => setPrize(kind === 'student' ? '1' : 'school')} />)}</ol>
             {previewSchools && <button className="sc-show-more-schools" type="button" aria-controls="sc-school-list" aria-expanded="false" onClick={() => setShowAllSchools(true)}>See all {visibleSchools.length} schools <Icon icon={faChevronDown} /></button>}
-            {!visibleSchools.length && <div className="sc-empty"><Icon icon={faGraduationCap} /><h3>{schools.length ? 'Let’s find your school.' : 'The starting line is ready.'}</h3><p>{schools.length ? 'No schools match that search. Try a shorter name or a different county.' : 'Participating schools will appear here as they join the challenge.'}</p>{schools.length ? <button className="sc-primary" onClick={() => { setQuery(''); setCounty(''); }}>Show all schools</button> : <a className="sc-primary" href="#sc-how">How to get involved <Icon icon={faArrowRight} /></a>}</div>}
-            <div className="sc-league-footer"><span role="status">{shownSchools.length} of {schools.length} schools{(query || county) ? ' · national ranks retained' : warmup ? ' · warm-up ranking' : ' · ranked by challenge steps'}</span></div>
+            {!visibleSchools.length && (!finished || final) && <div className="sc-empty"><Icon icon={faGraduationCap} /><h3>{schools.length ? 'Let’s find your school.' : finished ? 'No recorded school results.' : 'The starting line is ready.'}</h3><p>{schools.length ? 'No schools match that search. Try a shorter name or a different county.' : finished ? 'No participating schools were recorded when the challenge closed.' : 'Participating schools will appear here as they join the challenge.'}</p>{schools.length ? <button className="sc-primary" onClick={() => { setQuery(''); setCounty(''); }}>Show all schools</button> : <a className="sc-primary" href="#sc-how">How to get involved <Icon icon={faArrowRight} /></a>}</div>}
+            <div className="sc-league-footer"><span role="status">{shownSchools.length} of {schools.length} schools{(query || county) ? ' · national ranks retained' : warmup ? ' · warm-up ranking' : final ? ' · final challenge ranking' : ' · ranked by challenge steps'}</span></div>
           </>}
         </div>
 
-        <div role="tabpanel" id="sc-panel-students" aria-labelledby="sc-tab-students" hidden={view !== 'students'} tabIndex={0}><div className="sc-student-intro"><div><h3>The national student podium.</h3><p>{warmup ? 'These are warm-up leaders. Every student starts from 0 when the challenge begins.' : 'The top 3 students across every school. One school can have more than one winner.'}</p></div><span className="sc-country-pill"><span className="sc-irish-flag" />Ireland</span></div><StudentPodium students={data?.students || []} loading={loading} unavailable={!data && (error || offline)} paused={paused} reveal={setPrize} /></div>
+        <div role="tabpanel" id="sc-panel-students" aria-labelledby="sc-tab-students" hidden={view !== 'students'} tabIndex={0}><div className="sc-student-intro"><div><h3>The national student podium.</h3><p>{finished ? final ? 'The final top 3 students across every school, based on steps credited during the challenge.' : 'The student winners will appear when the closing results are ready.' : warmup ? 'These are warm-up leaders. Every student starts from 0 when the challenge begins.' : 'The top 3 students across every school. One school can have more than one winner.'}</p></div><span className="sc-country-pill"><span className="sc-irish-flag" />Ireland</span></div><StudentPodium students={data?.students || []} loading={loading} unavailable={!data && (error || offline)} paused={paused} final={final} finished={finished} reveal={setPrize} /></div>
       </section>
 
       <section id="sc-prizes" className="sc-prizes-section" aria-labelledby="sc-prizes-heading"><div className="sc-prize-section-copy"><p className="sc-eyebrow">Worth walking for</p><h2 id="sc-prizes-heading">Big steps.<br />Big surprises.</h2><p>A big prize for your school.<br />A few surprises for the students<br className="sc-desktop-break" /> who go the extra mile.</p><button className="sc-text-link" onClick={() => setPrize('school')}>Explore the €1,000 school prize <Icon icon={faArrowRight} /></button></div>
@@ -235,10 +248,10 @@ export default function SchoolChallenge() {
 
       <section id="sc-how" className="sc-how-section" aria-labelledby="sc-how-heading"><div className="sc-section-heading"><div><p className="sc-eyebrow">Ready, set, step.</p><h2 id="sc-how-heading">Your school. Your move.</h2></div><Icon icon={faShoePrints} /></div><div className="sc-how-grid"><article><span>01</span><h3>Find your school.</h3><p>Open Snows ProAm and join your school through your teacher or school coordinator.</p></article><article><span>02</span><h3>Make your move.</h3><p>A walk to school. A lunchtime walk. Open the app to sync your steps and help your school climb.</p></article><article><span>03</span><h3>Cheer each other on.</h3><p>Follow the live standings, celebrate your pacesetters, and see what you can do together.</p></article></div></section>
 
-      <section className="sc-about" aria-label="About the standings"><details><summary>How the leaderboard works <Icon icon={faChevronDown} /></summary><div><p>Every school started from 0 at Irish midnight on 12 October. School ranks count steps credited to every active school membership, including Students and Members in the Staff Room, through 12 November 2026. Steps taken before joining a school and earlier app totals do not count.</p><p>Each school total is the sum of its year groups, Staff Room and unassigned members. “Taking part” counts everyone actively joined to the school, including members who have not recorded steps yet. Only active Irish school workspaces are included; demo workspaces and duplicate group views are excluded. The national top three remains a student ranking, so multiple students can represent the same school. Equal positive step totals share a rank.</p><p>Standings refresh every 10 seconds while this page is visible and online. Steps appear after they sync from the app. {seasonName ? `${seasonName} is the current app season. ` : ''}A current lead is not a final prize award. Prize eligibility and final award details will be confirmed here.</p></div></details></section>
+      <section className="sc-about" aria-label="About the standings"><details><summary>How the leaderboard works <Icon icon={faChevronDown} /></summary><div><p>Every school started from 0 at Irish midnight on 12 October. School ranks count steps credited to every active school membership, including Students and Members in the Staff Room, through 12 November 2026. Steps taken before joining a school and earlier app totals do not count.</p><p>Each school total is the sum of its year groups, Staff Room and unassigned members. “Taking part” counts everyone actively joined to the school, including members who have not recorded steps yet. Only active Irish school workspaces are included; demo workspaces and duplicate group views are excluded. The national top three remains a student ranking, so multiple students can represent the same school. Equal positive step totals share a rank.</p><p>{finished ? 'The challenge closed at 23:59:59 on 12 November 2026, Irish time. Later step submissions do not count towards this challenge. Saved closing results keep the school and student rankings fixed.' : 'Standings refresh every 10 seconds while this page is visible and online. Steps must sync from the app before midnight after 12 November to count. A current lead is not a final prize award.'} Prize eligibility and final award details will be confirmed here.</p></div></details></section>
     </main>
 
     <WorldSiteFooter />
-    {prize && <PrizeDialog prize={prize} onClose={() => setPrize(null)} leader={leader} paused={paused} warmup={warmup} />}
+    {prize && <PrizeDialog prize={prize} onClose={() => setPrize(null)} leader={leader} paused={paused} warmup={warmup} finished={finished} final={final} winners={winners} />}
   </div></MotionConfig>;
 }

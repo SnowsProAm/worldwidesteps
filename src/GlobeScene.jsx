@@ -109,6 +109,5 @@ export default function GlobeScene() {
     <div className="globe-halo" />
     <img src="/globe/earth-fallback.webp" className="globe-fallback" alt="" style={{ opacity: ready ? 0 : 1 }} />
     <div ref={host} className="globe-canvas" style={{ opacity: ready ? 1 : 0 }} />
-    <div className="globe-caption">Every step connects us.</div>
   </div>;
 }

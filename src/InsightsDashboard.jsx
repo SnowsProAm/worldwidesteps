@@ -1,7 +1,7 @@
 // Built by Solomon
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass, faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import { faRuler, faEarthEurope, faPersonRunning, faArrowRight, faArrowRotateRight, faMagnifyingGlass, faMoon, faSun, faTrophy, faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
 import countryCodes from "./assets/country-codes.json";
@@ -11,7 +11,10 @@ import WorldSiteFooter from "./WorldSiteFooter.jsx";
 import { worldwideStepTotal } from "./worldwideStepTotal.js";
 import { dailyStepGain, localDayKey } from "./leaderboardDailySteps.js";
 import WorldPulse from "./WorldPulse.jsx";
+import AthleteSeasonHistory from "./AthleteSeasonHistory.jsx";
+import { loadGlobalSeasonTitles } from "./athleteSeasonHistoryData.js";
 const DailyStepsChart = lazy(()=>import("./DailyStepsChart.jsx"));
+const HeroTextVariations = import.meta.env.DEV ? lazy(()=>import('./HeroTextVariations.jsx')) : null;
 
 // Store review accounts are not public competitors. IDs match the mobile app reviewer list.
 const STORE_REVIEWER_IDS = new Set([
@@ -57,6 +60,7 @@ const LIGHT = {
 
 const DARK = {
   ...LIGHT,
+  mode: "dark",
   accent: "#78A6E8",
   accentBgSubtle: "rgba(120,166,232,0.12)",
   accentBgLight: "rgba(120,166,232,0.2)",
@@ -119,65 +123,75 @@ const makeCSS = () => `
   .fu,.fu2,.fu3,.fu4 { animation:fadeUp .8s both; }
   .insights-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
   .world-header { position:sticky; top:0; z-index:100; min-height:76px; padding:12px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; background:rgba(255,255,255,.94); backdrop-filter:blur(16px); border-bottom:1px solid #e7edf5; }
-  .world-brand { display:flex; align-items:center; gap:10px; color:#0A1D44; font-family:'Sora',sans-serif; font-weight:700; font-size:17px; letter-spacing:-.6px; }
+  .world-brand { display:flex; align-items:center; gap:10px; color:#0A1D44; font-family:'Sora',sans-serif; font-weight:700; font-size:20px; letter-spacing:-.6px; }
   .world-brand img { width:30px; height:30px; object-fit:contain; }
-  .world-header nav { display:flex; gap:28px; font-size:13px; font-weight:600; color:#53617a; }
+  .world-header nav { display:flex; gap:28px; font-size:16px; font-weight:600; color:#3D4A6B; }
   .world-header nav a { min-height:44px; display:flex; align-items:center; }
   .world-header nav a:hover,.text-action:hover { color:#0C69C8; }
-  .main-pad { width:100%; padding:58px 24px 0; }
+  .main-pad { width:100%; padding:38px 24px 0; }
   .world-hero { position:relative; isolation:isolate; }
   .world-hero::before { content:""; position:absolute; z-index:-1; pointer-events:none; top:-58px; bottom:0; left:-24px; right:-24px; opacity:0; background-image:
     radial-gradient(1.5px 1.5px at 8% 17%,#f3f0e6b8 99%,transparent),radial-gradient(1px 1px at 18% 69%,#a8c3ebaa 99%,transparent),radial-gradient(1px 1px at 29% 34%,#f3f0e699 99%,transparent),radial-gradient(1.5px 1.5px at 39% 82%,#e1b86baa 99%,transparent),radial-gradient(1px 1px at 53% 12%,#f3f0e6aa 99%,transparent),radial-gradient(1px 1px at 63% 56%,#a8c3eb99 99%,transparent),radial-gradient(1.5px 1.5px at 74% 27%,#f3f0e6aa 99%,transparent),radial-gradient(1px 1px at 86% 76%,#e1b86b99 99%,transparent),radial-gradient(1px 1px at 94% 43%,#f3f0e6aa 99%,transparent),
     radial-gradient(1px 1px at 13% 48%,#f3f0e699 99%,transparent),radial-gradient(1.5px 1.5px at 23% 91%,#f3f0e68c 99%,transparent),radial-gradient(1px 1px at 34% 8%,#a8c3eb99 99%,transparent),radial-gradient(1px 1px at 47% 46%,#f3f0e6a8 99%,transparent),radial-gradient(1.5px 1.5px at 58% 88%,#e1b86b99 99%,transparent),radial-gradient(1px 1px at 69% 67%,#f3f0e6aa 99%,transparent),radial-gradient(1px 1px at 81% 7%,#a8c3eb99 99%,transparent),radial-gradient(1.5px 1.5px at 91% 59%,#f3f0e699 99%,transparent),radial-gradient(ellipse at 77% 42%,rgba(67,91,125,.18),transparent 43%); transition:opacity .35s ease; }
   .world-page[data-theme="dark"] .world-hero::before { opacity:1; }
-  .section-eyebrow { display:flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:1.7px; text-transform:uppercase; color:#0C69C8; margin-bottom:14px; }
-  .hero-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:20px; align-items:center; }
-  .hero-content { position:relative; z-index:1; min-width:0; }
-  .hero-content h1 { font-family:'Sora',sans-serif; font-size:clamp(34px,4.5vw,62px); font-weight:700; line-height:1.14; letter-spacing:-2.5px; }
-  .grad-text { background:linear-gradient(110deg,#0C69C8,#0A1D44); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .hero-intro { color:#53617a; font-size:16px; line-height:1.8; margin:20px 0 30px; }
-  .hero-slogan { display:block; font-family:'Sora',sans-serif; font-size:clamp(18px,2vw,22px); font-weight:600; color:#0A1D44; letter-spacing:-.5px; margin-bottom:6px; }
+  .section-eyebrow { display:flex; align-items:center; gap:8px; font-size:16px; font-weight:700; color:#0C69C8; margin-bottom:12px; }
+  .hero-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:12px; align-items:center; }
+  .hero-content { position:relative; z-index:1; min-width:0; align-self:start; font-family:'DM Sans',sans-serif; }
+  .hero-content h1 { font-family:'Sora',sans-serif; font-size:clamp(34px,4.9vw,72px); font-weight:700; line-height:1.12; letter-spacing:-.06em; }
+  .hero-content h1 span { color:#0C69C8; }
+  .hero-title-text { display:block; white-space:nowrap; }
+  .hero-slogan { max-width:380px; color:#3D4A6B; font-family:'Sora',sans-serif; font-size:28px; font-weight:600; letter-spacing:-.025em; line-height:1.4; margin:16px 0 30px; }
   .world-total { padding:0; }
-  .world-total-label { font-size:12px; font-weight:700; color:#53617a; margin-bottom:5px; }
+  .world-total-label { font-size:18px; font-weight:500; color:#3D4A6B; margin-bottom:8px; }
   .world-total-value { display:flex; align-items:center; gap:5px; }
-  .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.6vw,80px); font-weight:700; letter-spacing:-3px; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
-  .world-total-delta { min-height:22px; margin-top:4px; color:#047857; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
-  .world-total-delta[data-direction="down"] { color:#b42318; }
-  .world-total-note { display:block; color:#67758b; font-size:11px; line-height:1.6; margin-top:8px; }
+  .world-total-number { font-family:'Sora',sans-serif; font-size:clamp(34px,5.6vw,80px); font-weight:700; letter-spacing:-.05em; color:#0C69C8; font-variant-numeric:tabular-nums; line-height:1.2; white-space:nowrap; }
+  .world-total-note { display:block; color:#53617a; font-size:14px; line-height:1.6; margin-top:8px; }
+  .world-total-gain { margin-top:8px; font-size:18px; line-height:1.5; font-weight:700; color:#05754f; }
+  .world-total-gain span { font-weight:500; }
+  .world-page[data-theme="dark"] .world-total-gain { color:#85e5c4; }
   .hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:24px; margin-top:28px; }
-  .primary-action { min-height:48px; padding:14px 18px; display:inline-flex; gap:16px; align-items:center; justify-content:center; border:0; border-radius:6px; background:linear-gradient(115deg,#0C69C8,#084c98); color:#fff; font-weight:600; font-size:13px; box-shadow:0 5px 15px #0c69c81a; transition:transform .2s,box-shadow .2s; }
+  .primary-action { min-height:52px; padding:14px 20px; display:inline-flex; gap:16px; align-items:center; justify-content:center; border:0; border-radius:10px; background:#0C69C8; color:#fff; font-weight:700; font-size:16px; box-shadow:0 5px 15px #0c69c81a; transition:transform .2s,box-shadow .2s; }
   .primary-action:hover { transform:translateY(-2px); box-shadow:0 8px 20px #0c69c82a; }
-  .text-action { min-height:44px; display:inline-flex; align-items:center; gap:12px; font-size:13px; font-weight:600; }
-  .world-globe { position:relative; aspect-ratio:1; width:100%; max-width:510px; margin:auto; }
+  .text-action { min-height:48px; display:inline-flex; align-items:center; gap:12px; font-size:16px; font-weight:700; }
+  .world-globe { position:relative; aspect-ratio:1; width:100%; max-width:560px; margin:auto; }
   .globe-canvas { position:absolute; inset:0; transition:opacity .5s; }
   .globe-canvas canvas { width:100%; height:100%; display:block; }
   .globe-halo { position:absolute; inset:10%; border-radius:50%; background:radial-gradient(circle,#0c69c80e,transparent 70%); }
   .globe-fallback { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; transition:opacity .5s; }
-  .globe-caption { position:absolute; bottom:1%; width:100%; text-align:center; color:#67758b; font-size:11px; letter-spacing:.2px; }
-  .world-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid #e7edf5; border-bottom:1px solid #e7edf5; margin-top:48px; padding:24px 0; }
+  .world-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:1px solid #e7edf5; border-bottom:1px solid #e7edf5; margin-top:24px; padding:24px 0; }
   .world-summary > div { display:flex; align-items:center; justify-content:center; gap:18px; padding:0 14px; }
   .world-summary > div+div { border-left:1px solid #e7edf5; }
   .world-summary svg { color:#0C69C8; font-size:24px; }
-  .world-summary strong { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:32px; font-variant-numeric:tabular-nums; line-height:1.2; }
+  .world-summary strong { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:36px; font-variant-numeric:tabular-nums; line-height:1.2; }
   .world-summary strong small { font-size:16px; font-weight:500; }
-  .world-summary > div > div > span { display:block; font-size:11px; color:#67758b; margin-top:5px; }
+  .world-summary > div > div > span { display:block; font-size:16px; color:#53617a; margin-top:6px; }
   .hero-mb,.section-mb { margin-bottom:64px; }
   .milestone-section { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; padding:30px 32px; background:linear-gradient(105deg,#f2f7fd,#f9fbfe); }
   .milestone-section .section-eyebrow { margin-bottom:10px; }
-  .milestone-section h2 { font-family:'Sora',sans-serif; font-weight:600; font-size:21px; letter-spacing:-.6px; line-height:1.5; }
-  .milestone-section p { color:#53617a; font-size:12px; margin-top:6px; line-height:1.6; }
-  .milestone-labels { display:flex; justify-content:space-between; gap:12px; font-size:12px; font-weight:600; margin-bottom:10px; color:#0C69C8; }
+  .milestone-section h2 { font-family:'Sora',sans-serif; font-weight:700; font-size:28px; letter-spacing:-.8px; line-height:1.3; }
+  .milestone-section p { color:#53617a; font-size:16px; margin-top:8px; line-height:1.6; }
+  .milestone-labels { display:flex; justify-content:space-between; gap:12px; font-size:16px; font-weight:600; margin-bottom:10px; color:#0C69C8; }
   .milestone-track { height:8px; background:#dae6f5; overflow:hidden; }
   .milestone-track > div { height:100%; background:linear-gradient(90deg,#0A1D44,#0C69C8); transition:width 1s ease; }
   .chart-loading { height:220px; display:flex; align-items:center; justify-content:center; font-size:13px; color:#67758b; }
   .timeline-chart { padding:20px 10px; border:1px solid #e7edf5; border-radius:10px; }
   .lb-table-head,.lb-table-row { display:grid; grid-template-columns:44px minmax(0,1fr) 110px 120px 64px; gap:10px; align-items:center; }
-  .lb-score-cell { text-align:right; font-family:'Sora',sans-serif; font-size:12px; font-weight:800; font-variant-numeric:tabular-nums; }
-  .lb-daily-gain { display:block; margin-top:3px; color:#047857; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; line-height:1.3; white-space:nowrap; }
+  .lb-score-cell { text-align:right; font-family:'Sora',sans-serif; font-size:16px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .lb-daily-gain { display:block; margin-top:3px; color:#047857; font-size:14px; font-weight:700; line-height:1.4; }
+  .world-page .lb-athlete-name { font-size:16px; min-height:44px; max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+  .world-page .lb-athlete-meta,.world-page .lb-title-count,.world-page .lb-history-hint,.world-page .lb-history-unavailable { font-size:14px; }
+  .world-page .world-pulse h2,.world-page .world-pulse-number,.world-page .world-pulse-metric dd { font-family:'Sora',sans-serif; }
+  .world-page .world-pulse-metric--peak dd span { font-family:inherit; }
+  .world-page .world-pulse-topline p,.world-page .world-pulse-filter select { font-size:16px; }
+  .world-page .world-pulse-filter,.world-page .world-pulse-number-label,.world-page .world-pulse-metric dt,.world-page .world-pulse-metric-detail,.world-page .world-pulse-clockline,.world-page .world-pulse-axis,.world-page .world-pulse-inspection,.world-page .world-pulse-footnote { font-size:14px; }
+  .world-page .ws-site-footer { font-family:inherit; }
+  .world-page .ws-footer-about h2 { font-family:'Sora',sans-serif; }
+  .world-page .ws-footer-brand small,.world-page .ws-site-footer h3,.world-page .ws-footer-bottom { font-size:14px; letter-spacing:0; text-transform:none; }
+  .world-page .ws-footer-about p,.world-page .ws-footer-social p,.world-page .ws-footer-links a,.world-page .ws-footer-social a { font-size:16px; }
   .country-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
   .country-toolbar { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
   .country-search { width:100%; max-width:420px; }
-  .country-search label { display:block; font-size:12px; font-weight:600; margin-bottom:8px; }
+  .country-search label { display:block; font-size:16px; font-weight:600; margin-bottom:8px; }
   .country-search-field { display:flex; align-items:center; gap:12px; min-height:48px; padding:0 14px; border:1px solid #b9c8dc; border-radius:14px; background:#fff; }
   .country-search-field:focus-within { outline:2px solid #0C69C8; outline-offset:3px; border-color:#0C69C8; }
   .country-search-field > svg { color:#53617a; flex-shrink:0; }
@@ -185,24 +199,24 @@ const makeCSS = () => `
   .country-search input::placeholder { color:#67758b; }
   .country-search input:focus-visible { outline:none; }
   .country-search input::-webkit-search-cancel-button { display:none; }
-  .country-search button { min-height:44px; min-width:44px; border:0; background:transparent; color:#0C69C8; font-size:12px; font-weight:600; padding:0 6px; }
-  .country-results { color:#53617a; font-size:12px; line-height:1.6; padding-bottom:4px; }
+  .country-search button { min-height:44px; min-width:44px; border:0; background:transparent; color:#0C69C8; font-size:14px; font-weight:600; padding:0 6px; }
+  .country-results { color:#53617a; font-size:14px; line-height:1.6; padding-bottom:4px; }
   .card { transition:transform .2s,border-color .2s; }
   .card:hover { transform:translateY(-2px); border-color:#0c69c850 !important; }
   .world-footer { border-top:1px solid #e7edf5; display:flex; justify-content:space-between; gap:24px; padding:36px 0; align-items:center; }
   .world-footer h2 { font-family:'Sora',sans-serif; font-size:17px; font-weight:600; }
   .world-footer p { color:#67758b; font-size:12px; line-height:1.7; margin-top:8px; }
   .world-footer a { color:#0C69C8; font-size:12px; font-weight:600; min-height:44px; display:flex; align-items:center; gap:14px; white-space:nowrap; }
-  .countries-expand { display:flex; align-items:center; gap:12px; min-height:44px; margin:16px auto 0; padding:8px 0; border:0; background:transparent; color:#0C69C8; font-size:13px; font-weight:600; }
-  .empty-state { padding:28px; font-size:13px; color:#53617a; line-height:1.7; }
+  .countries-expand { display:flex; align-items:center; gap:12px; min-height:44px; margin:16px auto 0; padding:8px 0; border:0; background:transparent; color:#0C69C8; font-size:16px; font-weight:600; }
+  .empty-state { padding:28px; font-size:16px; color:#53617a; line-height:1.7; }
   .world-about { max-width:820px; padding:28px 32px; border:1px solid #e1eaf4; border-radius:14px; background:#f8fbff; }
-  .world-about h2 { font-family:'Sora',sans-serif; font-size:20px; line-height:1.35; letter-spacing:-.5px; }
-  .world-about p { margin-top:10px; color:#53617a; font-size:13px; line-height:1.75; }
+  .world-about h2 { font-family:'Sora',sans-serif; font-size:28px; line-height:1.35; letter-spacing:-.5px; }
+  .world-about p { margin-top:12px; color:#53617a; font-size:16px; line-height:1.75; }
   .world-about a { color:#0C69C8; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
   .load-error { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:24px; padding:24px; text-align:center; }
   .load-error > svg { color:#0C69C8; font-size:44px; }
   .load-error p { max-width:420px; color:#53617a; line-height:1.7; }
-  .data-notice { font-size:12px; background:#f2f7fd; padding:16px; margin-bottom:24px; color:#53617a; }
+  .data-notice { font-size:16px; line-height:1.6; background:#f2f7fd; padding:16px; margin-bottom:24px; color:#53617a; }
   .data-notice button { border:0; background:transparent; color:#0C69C8; text-decoration:underline; min-height:44px; padding:0 10px; }
   .world-page[data-theme="dark"] { color-scheme:dark; }
   .world-page[data-theme="dark"] a:focus-visible,
@@ -215,13 +229,13 @@ const makeCSS = () => `
   .world-page[data-theme="dark"] .countries-expand,
   .world-page[data-theme="dark"] .country-search button,
   .world-page[data-theme="dark"] .data-notice button { color:#91B7ED; }
-  .world-page[data-theme="dark"] .world-total-delta,
   .world-page[data-theme="dark"] .lb-daily-gain { color:#B5CC8E; }
   .world-page[data-theme="dark"] .world-header nav a:hover,
   .world-page[data-theme="dark"] .text-action:hover,
   .world-page[data-theme="dark"] .world-about a { color:#A8C3EB; }
-  .world-page[data-theme="dark"] .hero-intro { color:#D6D2C5; }
-  .world-page[data-theme="dark"] .hero-slogan { color:#F3F0E6; }
+  .world-page[data-theme="dark"] .hero-slogan,
+  .world-page[data-theme="dark"] .world-total-label { color:#D6D2C5; }
+  .world-page[data-theme="dark"] .hero-content h1 span { color:#91B7ED; }
   .world-page[data-theme="dark"] .world-summary > div > div > span,
   .world-page[data-theme="dark"] .milestone-section p,
   .world-page[data-theme="dark"] .world-about p { color:#C6C2B6; }
@@ -233,7 +247,6 @@ const makeCSS = () => `
   .world-page[data-theme="dark"] .world-header { background:rgba(17,19,15,.95); border-color:#383B30; }
   .world-page[data-theme="dark"] .world-brand { color:#F3F0E6; }
   .world-page[data-theme="dark"] .world-header nav { color:#D6D2C5; }
-  .world-page[data-theme="dark"] .grad-text { background-image:linear-gradient(110deg,#8BADE2,#C6C69A); }
   .world-page[data-theme="dark"] .world-summary { border-color:#383B30; }
   .world-page[data-theme="dark"] .world-summary > div+div { border-color:#383B30; }
   .world-page[data-theme="dark"] .milestone-section { background:linear-gradient(105deg,#1B1E17,#22241A); }
@@ -250,36 +263,39 @@ const makeCSS = () => `
   .night-mode-toggle:focus-visible { outline-color:#69B8FF; }
   @media (max-width:1000px) { .country-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   @media (max-width:760px) {
-    .main-pad { padding:34px 16px 0; }
-    .world-header { min-height:68px; padding:10px 16px; }
-    .world-brand { font-size:14px; gap:8px; letter-spacing:-.4px; }
+    html { scroll-padding-top:120px; }
+    .main-pad { padding:20px 16px 0; }
+    .world-header { display:grid; grid-template-columns:minmax(0,1fr); justify-content:stretch; min-height:68px; padding:12px 16px 6px; gap:6px; }
+    .world-brand { font-size:18px; gap:8px; letter-spacing:-.4px; }
     .world-brand img { width:26px; height:26px; }
-    .world-header nav { font-size:11px; gap:14px; }
+    .world-header nav { justify-self:end; font-size:14px; gap:20px; }
     .countries-nav { display:none !important; }
     .hero-grid { grid-template-columns:1fr; gap:12px; }
-    .hero-content h1 { font-size:clamp(32px,7.8vw,52px); letter-spacing:-1.5px; }
-    .hero-intro { font-size:14px; margin:16px 0 24px; }
-    .world-total-number { font-size:clamp(32px,10vw,62px); letter-spacing:-1.5px; }
+    .hero-content h1 { font-size:clamp(32px,10.5vw,58px); }
+    .hero-title-text { padding-top:0; }
+    .hero-slogan { max-width:300px; font-size:24px; margin:14px 0 28px; }
+    .world-total-label { font-size:16px; }
+    .world-total-number { font-size:clamp(34px,11vw,64px); }
     .hero-actions { gap:12px 22px; margin-top:24px; }
-    .world-globe { max-width:340px; margin:0 auto; }
+    .world-globe { max-width:300px; margin:-12px auto; }
     .world-summary { margin-top:20px; padding:22px 0; }
     .world-summary > div { flex-direction:column; gap:9px; padding:0 6px; text-align:center; }
     .world-summary svg { font-size:18px; }
-    .world-summary strong { font-size:clamp(20px,5.6vw,27px); }
-    .world-summary strong small { font-size:12px; }
-    .world-summary > div > div > span { font-size:10px; line-height:1.5; }
+    .world-summary strong { font-size:clamp(24px,6vw,30px); }
+    .world-summary strong small { font-size:14px; }
+    .world-summary > div > div > span { font-size:14px; line-height:1.5; }
     .hero-mb,.section-mb { margin-bottom:44px; }
     .milestone-section { grid-template-columns:1fr; gap:22px; padding:22px 20px; }
-    .milestone-section h2 { font-size:18px; }
+    .milestone-section h2 { font-size:26px; }
     .world-footer { flex-direction:column; align-items:flex-start; gap:12px; }
   }
-  @media (max-width:600px) { .lb-table-head,.lb-table-row { grid-template-columns:32px minmax(0,1fr) 86px; gap:8px; } .lb-hide-mobile { display:none !important; } .lb-daily-gain { font-size:10px; } }
-  @media (max-width:420px) { .country-grid { grid-template-columns:1fr; } .primary-action { padding:13px 14px; gap:12px; font-size:12px; } .text-action { font-size:12px; } }
+  @media (max-width:600px) { .lb-table-head,.lb-table-row { grid-template-columns:24px minmax(0,1fr) 100px; gap:8px; } .lb-hide-mobile { display:none !important; } .lb-daily-gain { font-size:14px; } }
+  @media (max-width:420px) { .country-grid { grid-template-columns:1fr; } .primary-action { padding:14px 16px; gap:12px; } }
   @media (max-width:600px) { .world-about { padding:22px 20px; } }
   @media (max-width:380px) {
     .world-header { gap:8px; padding-inline:12px; }
-    .world-brand { font-size:12px; gap:6px; }
-    .world-header nav { gap:7px; font-size:10px; }
+    .world-brand { font-size:18px; gap:8px; }
+    .world-header nav { gap:14px; font-size:14px; }
   }
   @media (prefers-reduced-motion:reduce) {
     html { scroll-behavior:auto; }
@@ -358,11 +374,10 @@ const AnimNum = ({ value, duration=1200, format=fmtFull }) => {
   return <span>{format(v)}</span>;
 };
 
-const SHead = ({C,tag,title,sub}) => (
-  <div style={{marginBottom:20}}>
-    <div className="section-eyebrow">{tag}</div>
-    <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:"clamp(20px,4vw,26px)",fontWeight:800,color:C.text,letterSpacing:-0.4,marginBottom:6,lineHeight:1.2}}>{title}</h2>
-    {sub&&<p style={{fontSize:13,color:C.textSecondary,lineHeight:1.65,maxWidth:520}}>{sub}</p>}
+const SHead = ({C,title,sub}) => (
+  <div style={{marginBottom:24}}>
+    <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:"clamp(28px,3.5vw,40px)",fontWeight:800,color:C.text,letterSpacing:-1,marginBottom:10,lineHeight:1.2}}>{title}</h2>
+    {sub&&<p style={{fontSize:16,color:C.textSecondary,lineHeight:1.65,maxWidth:620}}>{sub}</p>}
   </div>
 );
 
@@ -423,7 +438,7 @@ const snapshotsFromStepLog = rows => {
 /* ═══════════════════════════════════════════
    MAIN
 ═══════════════════════════════════════════ */
-export default function InsightsDashboard() {
+export default function InsightsDashboard({ designPreview = false }) {
   const [darkMode,setDarkMode]=useState(()=>{
     try { return window.localStorage.getItem("worldwidesteps-night-mode") === "true"; }
     catch { return false; }
@@ -455,6 +470,9 @@ export default function InsightsDashboard() {
   const [updateError,  setUpdateError]  = useState(false);
   const [initialSteps, setInitialSteps] = useState(null);
   const [todayKey, setTodayKey] = useState(localDayKey);
+  const [globalSeasonTitles, setGlobalSeasonTitles] = useState({});
+  const [seasonTitlesError, setSeasonTitlesError] = useState(false);
+  const [selectedAthlete, setSelectedAthlete] = useState(null);
 
   useEffect(()=>{
     let active=true, busy=false, hasLoaded=false, lastDetailsAt=0, controller;
@@ -514,9 +532,10 @@ export default function InsightsDashboard() {
               if (error) throw error;
               return data || [];
             }),
+            loadGlobalSeasonTitles(supabase, signal),
           ]);
           if (!active) return;
-          const [snaps, stepLog, activityRows, pulse] = results;
+          const [snaps, stepLog, activityRows, pulse, titles] = results;
           if (snaps.status === "fulfilled") {
             if (snaps.value.length) setSnapshots(snaps.value);
             else if (stepLog.status === "fulfilled") setSnapshots(snapshotsFromStepLog(stepLog.value));
@@ -528,6 +547,8 @@ export default function InsightsDashboard() {
             setPulseUpdatedAt(new Date());
           }
           setPulseError(pulse.status === "rejected");
+          if (titles.status === 'fulfilled') setGlobalSeasonTitles(titles.value);
+          setSeasonTitlesError(titles.status === 'rejected');
           const failed = results.some(result => result.status === "rejected");
           setPartialError(failed);
           if (!failed) lastDetailsAt=Date.now();
@@ -657,7 +678,7 @@ export default function InsightsDashboard() {
 
   const nextMilestone=(Math.floor(M.totalSteps/10000000)+1)*10000000;
   const milestoneProgress=Math.min(100,(M.totalSteps/nextMilestone)*100);
-  const stepsSinceLoad=initialSteps === null ? 0 : M.totalSteps-initialSteps;
+  const stepsSinceLoad = initialSteps === null ? 0 : M.totalSteps - initialSteps;
 
   if(loading) return <WorldLoading />;
 
@@ -669,37 +690,39 @@ export default function InsightsDashboard() {
     <button className="primary-action" onClick={()=>setReloadKey(v=>v+1)}><FontAwesomeIcon icon={faArrowRotateRight} aria-hidden="true" /> Try again</button>
   </main>;
 
+  const HeroTextWrapper = designPreview && HeroTextVariations ? HeroTextVariations : React.Fragment;
+
   return(
     <div className="world-page" data-theme={darkMode ? "dark" : "light"} style={{minHeight:"100vh",background:C.bg,color:C.text}}>
       <style>{makeCSS(C)}</style>
 
       <header className="world-header">
         <a href="#top" className="world-brand"><img src={logo} alt="" /><span>World Wide Steps</span></a>
-        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a><button type="button" className="night-mode-toggle" aria-pressed={darkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to night mode"} onClick={()=>setDarkMode(value=>!value)}><FontAwesomeIcon icon={darkMode ? faSun : faMoon} aria-hidden="true"/></button></nav>
+        <nav aria-label="Page navigation"><a href="/schools">Schools</a><a href="/shop">ProAm Store</a><a href="/blog">Blog</a><button type="button" className="night-mode-toggle" aria-pressed={darkMode} aria-label={darkMode ? "Switch to light mode" : "Switch to night mode"} onClick={()=>setDarkMode(value=>!value)}><FontAwesomeIcon icon={darkMode ? faSun : faMoon} aria-hidden="true"/></button></nav>
       </header>
       <main className="main-pad" id="top">
         {(partialError||updateError)&&<div className="data-notice" role="status">{!navigator.onLine ? "You’re offline. Showing the last loaded figures; updates will resume when you reconnect." : "Some figures are unavailable or could not update. Available figures are shown; we’re trying again automatically."} <button onClick={()=>refreshRef.current()}>Try again</button></div>}
         <section className="world-hero hero-mb" aria-labelledby="world-title">
           <div className="hero-grid">
-            <div className="hero-content fu">
-              <div className="section-eyebrow"><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true" /> A world in motion</div>
-              <h1 id="world-title">Small steps.<br/><span className="grad-text">Worldwide impact.</span></h1>
-              <p className="hero-intro"><strong className="hero-slogan">Where Athletes Belong</strong>Explore live global step totals, athlete rankings and countries represented by the Snows ProAm Fitness community.</p>
+            <div className="hero-content">
+              <HeroTextWrapper>
+              <h1 id="world-title"><span className="hero-title-text">World Wide Steps</span></h1>
+              <p className="hero-slogan">Moving together.<br/>Across the world.</p>
               <div className="world-total" aria-label="Total lifetime steps worldwide">
-                <div className="world-total-label">Steps taken worldwide</div>
+                <div className="world-total-label">Steps logged worldwide</div>
                 <div className="world-total-value">
                   <div className="world-total-number"><AnimNum value={M.totalSteps}/></div>
                 </div>
-                {stepsSinceLoad !== 0 && <div className="world-total-delta" data-direction={stepsSinceLoad > 0 ? "up" : "down"}>{stepsSinceLoad > 0 ? "+" : "−"}<AnimNum value={Math.abs(stepsSinceLoad)} duration={900}/>{stepsSinceLoad < 0 ? " fewer steps" : " new steps"} since this page loaded</div>}
-                <div className="world-total-note">All time steps recorded on Snows ProAm</div>
+                <p className="world-total-gain">{stepsSinceLoad < 0 ? '−' : '+'}{fmtFull(Math.abs(stepsSinceLoad))} {stepsSinceLoad < 0 ? 'step adjustment' : 'steps logged'} <span>since you arrived</span></p>
               </div>
-              <div className="hero-actions"><a className="primary-action" href="#leaderboard">Explore the leaderboard <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a><a className="text-action" href="#countries">Meet the world <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a></div>
+              <div className="hero-actions"><a className="primary-action" href="#leaderboard">Leaderboard <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a><a className="text-action" href="#countries">Countries <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /></a></div>
+              </HeroTextWrapper>
             </div>
             <GlobeScene/>
           </div>
           <div className="world-summary">
-            <div><FontAwesomeIcon icon={faPersonRunning} aria-hidden="true"/><div><strong><AnimNum value={M.uniqueUsers}/></strong><span>Fitness athletes worldwide</span></div></div>
-            <div><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true"/><div><strong><AnimNum value={countryData.totalCountries}/></strong><span>Countries represented</span></div></div>
+            <div><FontAwesomeIcon icon={faPersonRunning} aria-hidden="true"/><div><strong><AnimNum value={M.uniqueUsers}/></strong><span>Fitness athletes</span></div></div>
+            <div><FontAwesomeIcon icon={faEarthEurope} aria-hidden="true"/><div><strong><AnimNum value={countryData.totalCountries}/></strong><span>Countries</span></div></div>
             <div><FontAwesomeIcon icon={faRuler} aria-hidden="true"/><div><strong>{distanceReady ? <><AnimNum value={Math.round(M.totalDist/1000)}/> <small>km</small></> : <span aria-label={detailsLoading ? "Loading recorded distance" : "Recorded distance unavailable"}>—</span>}</strong><span>Recorded distance</span></div></div>
           </div>
         </section>
@@ -710,15 +733,17 @@ export default function InsightsDashboard() {
         </section>
 
         {M.dailyTrend.some(d=>d.steps>0)&&<section className="section-mb" aria-label="Daily step activity">
-          <SHead C={C} tag="Daily activity" title="The world keeps moving" sub="Recorded steps across the community, day by day."/>
+          <SHead C={C} title="Daily steps" sub="Our community’s steps, day by day."/>
           <div className="timeline-chart"><Suspense fallback={<div className="chart-loading" role="status">Loading daily activity…</div>}><DailyStepsChart data={M.dailyTrend} reducedMotion={reducedMotion} darkMode={darkMode}/></Suspense></div>
         </section>}
 
         {/* ── LEADERBOARD ── */}
         <section className="section-mb fu3" id="leaderboard">
-          <SHead C={C} tag="Top Athletes" title="Meet the pace setters" sub="Fitness athletes ranked by steps, with today’s synced steps shown beneath each total."/>
+          <SHead C={C} title="Athlete leaderboard" sub="Step rankings from the Snows ProAm Fitness community."/>
+          <p className="lb-history-hint" style={{color:C.textMuted}}><FontAwesomeIcon icon={faClockRotateLeft} aria-hidden="true"/>Click or tap an athlete for past seasons.</p>
+          {seasonTitlesError&&<p className="lb-history-unavailable" role="status" style={{color:C.textMuted}}>Past-season title counts couldn’t be updated. You can still open an athlete’s history.</p>}
           <div role="table" aria-label="Worldwide athlete rankings" style={{background:C.bgCard,border:`1px solid ${C.border}`,borderRadius:12,overflow:"hidden",boxShadow:C.shadowMd}}>
-            <div role="row" className="lb-table-head" style={{padding:"11px 16px",background:C.bgAlt,borderBottom:`1px solid ${C.border}`,fontSize:10,fontWeight:700,color:C.textMuted,textTransform:"uppercase",letterSpacing:0.4}}>
+            <div role="row" className="lb-table-head" style={{padding:"14px 16px",background:C.bgAlt,borderBottom:`1px solid ${C.border}`,fontSize:14,fontWeight:700,color:C.textSecondary}}>
               <div role="columnheader">#</div>
               <div role="columnheader">Athlete</div>
               <div role="columnheader" style={{textAlign:"right"}}>Steps</div>
@@ -734,6 +759,8 @@ export default function InsightsDashboard() {
               const displayName=profile?[profile.name,profile.surname].filter(Boolean).join(" ")||profile.username||`@${u.pid.slice(0,8)}`:`@${u.pid.slice(0,8)}`;
               const username=profile?.username?`@${profile.username}`:null;
               const country=profile?.current_country?.trim()||null;
+              const openHistory=()=>setSelectedAthlete({pid:u.pid,name:displayName,username});
+              const titleCount=globalSeasonTitles[u.pid]||0;
               return(
                 <div role="row" key={u.pid} className="lb-table-row" style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,background:podiumTone?.row || "transparent",transition:"background 0.15s ease"}}>
                   <div role="cell" aria-label={podiumTone ? `${podiumTone.name}, rank ${u.rank}` : `Rank ${u.rank}`} style={{width:32,height:32,borderRadius:8,background:podiumTone?.background || C.bgAlt,border:`1px solid ${podiumTone?.border || C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:800,color:podiumTone?.text || C.accent}}>
@@ -743,13 +770,16 @@ export default function InsightsDashboard() {
                     <Avatar profile={profile} C={C} size={32}/>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2,flexWrap:"wrap"}}>
-                        <span style={{fontSize:12,fontWeight:700,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"120px"}}>{displayName}</span>
+                        <button type="button" className="lb-athlete-name" style={{color:C.text}} onClick={openHistory} aria-label={`View past seasons for ${displayName}`} aria-haspopup="dialog">{displayName}</button>
                         {country&&<FlagImg country={country} size={14}/>}
                         {profile?.level&&(
-                          <span style={{fontSize:10,fontWeight:600,color:C.textMuted,whiteSpace:"nowrap"}}>Level {profile.level}</span>
+                          <span style={{fontSize:14,fontWeight:600,color:C.textMuted,whiteSpace:"nowrap"}}>Level {profile.level}</span>
                         )}
                       </div>
-                      {username&&<div style={{fontSize:10,color:C.textMuted,fontWeight:500,marginBottom:4}}>{username}</div>}
+                      <div className="lb-athlete-meta" style={{color:C.textMuted}}>
+                        {username&&<span>{username}</span>}
+                        {titleCount>0&&<button type="button" className="lb-title-count" style={{color:darkMode?'#E8C77E':'#856000'}} onClick={openHistory} aria-label={`${titleCount} Global season ${titleCount===1?'title':'titles'}. View past seasons for ${displayName}`} aria-haspopup="dialog" title={`${titleCount} Global season ${titleCount===1?'title':'titles'}`}><FontAwesomeIcon icon={faTrophy} aria-hidden="true"/>{titleCount}×</button>}
+                      </div>
                       <div style={{height:3,borderRadius:99,background:C.bgAlt,overflow:"hidden"}}>
                         <div className="bar-fill" style={{height:"100%",width:`${pct}%`,background:C.accentGrad,borderRadius:99}}/>
                       </div>
@@ -761,11 +791,11 @@ export default function InsightsDashboard() {
                     {u.todaySteps > 0 && <span className="lb-daily-gain">+{fmtFull(u.todaySteps)} today</span>}
                   </div>
                   {/* Lifetime Steps */}
-                  <div role="cell" className="lb-hide-mobile" style={{textAlign:"right",fontSize:12,fontWeight:600,color:C.textSecondary}}>
+                  <div role="cell" className="lb-hide-mobile" style={{textAlign:"right",fontSize:16,fontWeight:600,color:C.textSecondary}}>
                     <AnimNum value={u.lifetimeSteps} format={fmt}/>
                   </div>
                   {/* League */}
-                  <div role="cell" className="lb-hide-mobile" style={{textAlign:"right",fontSize:12,fontWeight:600,color:C.textSecondary}}>
+                  <div role="cell" className="lb-hide-mobile" style={{textAlign:"right",fontSize:16,fontWeight:600,color:C.textSecondary}}>
                     L{u.league}
                   </div>
                 </div>
@@ -775,7 +805,7 @@ export default function InsightsDashboard() {
         </section>
 
           <section className="section-mb fu4" id="countries">
-            <SHead C={C} tag="Across the globe" title="Many countries. One community." sub="Discover where our Fitness athletes call home."/>
+            <SHead C={C} title="Our community around the world" sub="Find the countries our Fitness athletes represent."/>
             <div style={{background:C.bgCard,border:`1px solid ${C.border}`,borderRadius:20,padding:"22px 18px",boxShadow:C.shadowMd}}>
               {countryData.countries.length>0&&<div className="country-toolbar">
                 <div className="country-search">
@@ -800,11 +830,11 @@ export default function InsightsDashboard() {
                         <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0}}>
                           <FlagImg country={c.country} size={22}/>
                           <div style={{minWidth:0}}>
-                            <div style={{fontSize:12,fontWeight:700,color:C.text,lineHeight:1.5}}>{c.country}</div>
-                            <div style={{fontSize:10,color:C.textMuted,fontWeight:500}}><AnimNum value={c.count}/> athlete{c.count!==1?"s":""}</div>
+                            <div style={{fontSize:16,fontWeight:700,color:C.text,lineHeight:1.5}}>{c.country}</div>
+                            <div style={{fontSize:14,color:C.textMuted,fontWeight:500}}><AnimNum value={c.count}/> athlete{c.count!==1?"s":""}</div>
                           </div>
                         </div>
-                        {c.country===countryData.countries[0]?.country&&<span style={{fontSize:11,fontWeight:700,color:C.accent,flexShrink:0}}>#1</span>}
+                        {c.country===countryData.countries[0]?.country&&<span style={{fontSize:14,fontWeight:700,color:C.accent,flexShrink:0}}>#1</span>}
                       </div>
                       <div style={{height:3,borderRadius:99,background:C.border}}>
                         <div style={{height:"100%",width:`${pct}%`,background:C.accentGrad,borderRadius:99,transition:"width 1.2s ease"}}/>
@@ -815,11 +845,11 @@ export default function InsightsDashboard() {
               </div>
               {!countryQuery&&countryData.countries.length>8&&<button className="countries-expand" aria-expanded={showAllCountries} aria-controls="country-list" onClick={()=>setShowAllCountries(v=>!v)}>{showAllCountries?"Show fewer countries":`See all ${countryData.totalCountries} countries`} <FontAwesomeIcon icon={faArrowRight} aria-hidden="true"/></button>}
               {countryData.noCountryCount > 0 && (
-                <div style={{fontSize:10,color:C.textMuted,textAlign:"center",marginTop:12}}>
+                <div style={{fontSize:14,color:C.textMuted,textAlign:"center",marginTop:12}}>
                   + {countryData.noCountryCount} athletes without country set
                 </div>
               )}
-              <div style={{fontSize:11,color:C.textSecondary,textAlign:"center",marginTop:6,fontWeight:600}}>
+              <div style={{fontSize:14,color:C.textSecondary,textAlign:"center",marginTop:6,fontWeight:600}}>
                 Total: <AnimNum value={countryData.totalWithCountry + countryData.noCountryCount}/> Fitness athletes
               </div>
             </div>
@@ -835,6 +865,7 @@ export default function InsightsDashboard() {
         <WorldSiteFooter />
 
       </main>
+      {selectedAthlete&&<AthleteSeasonHistory athlete={selectedAthlete} C={C} onClose={()=>setSelectedAthlete(null)}/>}
     </div>
   );
 }
