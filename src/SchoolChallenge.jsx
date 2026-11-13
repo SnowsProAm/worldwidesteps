@@ -218,11 +218,25 @@ export default function SchoolChallenge() {
         <div className="sc-section-heading"><div><p className="sc-eyebrow">School pride. On the line.</p><h2 id="sc-league-heading">{final ? 'The final results' : finished ? 'The challenge is closed' : 'The leaderboard'}<span className="sc-heading-dot">.</span></h2><p>{finished ? final ? 'Steps counted from 12 October through 12 November 2026. Challenge totals are now closed.' : 'Saving the closing results. Winners will appear automatically once they are ready.' : warmup ? 'Warm-up standings today. A fresh race begins on 12 October.' : 'Find your crew. Follow the climb. Cheer them on.'}</p></div>
 
         </div>
-        {final && <section className="sc-results" aria-labelledby="sc-winners-heading">
-          <div><Icon icon={faTrophy} /><h3 id="sc-winners-heading">{winners.length > 1 ? 'Joint school winners' : winners.length ? 'School winner' : 'No school winner recorded'}</h3><p>12 October–12 November 2026 · Final challenge steps</p></div>
-          {winners.map(school => <article key={school.id}><Crest url={school.logo_url} name={school.name} large /><div><h4>{school.name}</h4><p>{[school.county, school.country].filter(Boolean).join(' · ')}</p><strong>{number.format(school.total_steps)} steps</strong></div></article>)}
-          <p className="sc-results-note">Thank you to every school that took part. Prize eligibility and award arrangements remain subject to confirmation.</p>
-        </section>}
+        {final && <motion.section className="sc-results" aria-labelledby="sc-winners-heading" initial={paused ? false : { opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5 }}>
+          <div className="sc-results-heading"><h3 id="sc-winners-heading"><Icon icon={faTrophy} />{winners.length > 1 ? 'Joint school winners' : winners.length ? 'School winner' : 'No school winner recorded'}</h3><p>12 October–12 November 2026</p></div>
+          {winners.map(school => <article className="sc-winner" key={school.id}>
+            <div className="sc-winner-emblem">
+              <svg className="sc-winner-laurels" viewBox="0 0 240 210" fill="none" aria-hidden="true">
+                <defs><g id={`sc-laurel-${school.id}`}>
+                  <path d="M104 186C39 164 21 99 49 38" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <g fill="currentColor"><ellipse cx="47" cy="48" rx="5" ry="13" transform="rotate(25 47 48)" /><ellipse cx="35" cy="72" rx="6" ry="14" transform="rotate(-22 35 72)" /><ellipse cx="51" cy="80" rx="6" ry="14" transform="rotate(48 51 80)" /><ellipse cx="31" cy="103" rx="6" ry="14" transform="rotate(-35 31 103)" /><ellipse cx="49" cy="108" rx="6" ry="14" transform="rotate(58 49 108)" /><ellipse cx="38" cy="133" rx="6" ry="14" transform="rotate(-48 38 133)" /><ellipse cx="59" cy="135" rx="6" ry="14" transform="rotate(68 59 135)" /><ellipse cx="57" cy="159" rx="6" ry="14" transform="rotate(-59 57 159)" /><ellipse cx="77" cy="157" rx="6" ry="14" transform="rotate(80 77 157)" /></g>
+                </g></defs>
+                <use href={`#sc-laurel-${school.id}`} /><use href={`#sc-laurel-${school.id}`} transform="translate(240 0) scale(-1 1)" />
+                <path d="m120 12 2.5 7.5 8 .5-6.2 5 2 8-6.3-4.6-6.3 4.6 2-8-6.2-5 8-.5Z" fill="currentColor" />
+              </svg>
+              <Crest url={school.logo_url} name={school.name} large />
+            </div>
+            <div className="sc-winner-school"><h4>{school.name}</h4><p>{[school.county, school.country].filter(Boolean).join(' · ')}</p></div>
+            <div className="sc-winner-total"><strong>{number.format(school.total_steps)}</strong><span>Final challenge steps</span></div>
+          </article>)}
+          <div className="sc-results-thanks"><p>Thank you to every school that took part.</p><p className="sc-results-note">Prize eligibility and award arrangements remain subject to confirmation.</p></div>
+        </motion.section>}
         {finished && !final && <p className="sc-notice" role="status">{offline || error ? 'Reconnect to load the closing results. The last loaded standings are not confirmed winners.' : 'Closing results are being saved. This page will update automatically.'}</p>}
         <div className="sc-leaderboard-toolbar"><div className="sc-tabs" role="tablist" aria-label="Leaderboard view"><button role="tab" id="sc-tab-schools" aria-controls="sc-panel-schools" aria-selected={view === 'schools'} tabIndex={view === 'schools' ? 0 : -1} onKeyDown={tabKeys} onClick={() => selectView('schools')}><Icon icon={faGraduationCap} />Schools<span>{data ? schools.length : '—'}</span></button><button role="tab" id="sc-tab-students" aria-controls="sc-panel-students" aria-selected={view === 'students'} tabIndex={view === 'students' ? 0 : -1} onKeyDown={tabKeys} onClick={() => selectView('students')}><Icon icon={faTrophy} />National top 3</button></div>
           {view === 'schools' && <div className="sc-filters"><div className="sc-search"><Icon icon={faMagnifyingGlass} /><label className="sc-sr-only" htmlFor="sc-school-search">Search school or county</label><input id="sc-school-search" type="search" placeholder="Find your school…" value={query} onChange={event => setQuery(event.target.value)} />{query && <button onClick={() => setQuery('')} aria-label="Clear school search"><Icon icon={faXmark} /></button>}</div><div className="sc-county-select"><label className="sc-sr-only" htmlFor="sc-county">Filter by county</label><select id="sc-county" value={county} onChange={event => setCounty(event.target.value)}><option value="">All counties</option>{data?.counties.map(name => <option key={name}>{name}</option>)}</select><Icon icon={faChevronDown} /></div></div>}
